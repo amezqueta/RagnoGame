@@ -8,6 +8,7 @@ const app = express();
 app.use(cors());
 
 const server = http.createServer(app);
+
 const io = new Server(server, {
     cors: {
         origin: "http://localhost:5173",
@@ -18,6 +19,7 @@ const io = new Server(server, {
 let users = {};
 
 io.on('connection', (socket) => {
+
     users[socket.id] = true;
     const userAmount = Object.keys(users).length;
 
@@ -25,15 +27,14 @@ io.on('connection', (socket) => {
 
     io.emit('mensaje', "User connected: (" + userAmount + ")");
 
-    io.emit('user-connected', socket.id);
     socket.emit('connected', socket.id);
+    io.emit('user-connected', socket.id);
 
     socket.on('mensaje', (mensaje) => {
         io.emit('mensaje', mensaje); // Reenviar el mensaje a todos los clientes conectados
     });
 
     socket.on('disconnect', (reason) => {
-        //io.disconnectSockets();
         delete users[socket.id];
         console.log('User (' + socket.id + ') disconnected from the server (' + userAmount + "): " + reason);
         io.emit('mensaje', "User disconnected: (" + userAmount + ")");

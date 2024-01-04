@@ -1,24 +1,25 @@
 <script lang="ts">
     import {T} from '@threlte/core'
-    import {onMount} from 'svelte';
+    import {onDestroy, onMount} from 'svelte';
     import Player from '$lib/components/Player.svelte';
-    import {ContactShadows, Grid, OrbitControls} from "@threlte/extras";
+    import {ContactShadows, Grid, OrbitControls, Text} from "@threlte/extras";
     import {Vector3} from "three";
 
     let player: any = null;
     let currentUserId: any = null;
+    let users: any = {};
 
     export function OnUserConnected(uuid: string) {
-        new Player({
-            target: document.body,
-            props: {
-                userId: uuid,
-                position: [0, 2, 0]
-            }
-        })
+        if (uuid === currentUserId || users[uuid]) return;
+
+        console.log("New user connected: (" + uuid + ")");
+
+        //La creacion de new Player se tiene que hacer desde $:, desde aqui no tiene alcance ¯\_(ツ)_/¯
+        users = {...users, [uuid]: true};
     }
 
     export function OnConnected(uuid: string) {
+        console.log("New connection: (" + uuid + ")");
         currentUserId = uuid;
     }
 
@@ -31,14 +32,35 @@
 
     $: if (currentUserId && !player) {
         player = new Player({
-            target: document.body,
+            target: canvas,
             props: {
                 userId: currentUserId
             }
         });
     }
 
+    $: {
+        // Mostrar los cambios en users en la consola
+        console.log("Users changed:", users);
+
+        // Iterar sobre los usuarios
+        Object.keys(users).forEach(userId => {
+            const user = users[userId];
+
+            // Si el usuario no tiene un jugador asociado y está activo
+            new Player({
+                target: canvas,
+                props: {
+                    userId: userId
+                }
+            });
+        });
+    }
+
+
+    let canvas: any = null;
     onMount(() => {
+        canvas = document.querySelector('Canvas');
         window.addEventListener('keydown', handleKeyDown);
     });
 

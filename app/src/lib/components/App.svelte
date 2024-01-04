@@ -13,7 +13,6 @@
     onMount(() => {
 
         socket.on('user-connected', (uuid: string) => {
-            console.log("New user connected: " + uuid);
             scene?.OnUserConnected(uuid);
         });
 
