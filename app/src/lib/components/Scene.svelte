@@ -5,34 +5,42 @@
     import {ContactShadows, Grid, OrbitControls} from "@threlte/extras";
     import {Vector3} from "three";
 
-    export let socket: any;
     let player: any = null;
-    let socketConnected = false;
+    let currentUserId: any = null;
+
+    export function OnUserConnected(uuid: string) {
+        new Player({
+            target: document.body,
+            props: {
+                userId: uuid,
+                position: [0, 2, 0]
+            }
+        })
+    }
+
+    export function OnConnected(uuid: string) {
+        currentUserId = uuid;
+    }
+
+    export function OnDisconnected() {
+        if (player) {
+            player.$destroy();
+            player = null;
+        }
+    }
+
+    $: if (currentUserId && !player) {
+        player = new Player({
+            target: document.body,
+            props: {
+                userId: currentUserId
+            }
+        });
+    }
 
     onMount(() => {
         window.addEventListener('keydown', handleKeyDown);
-
-        socket.on('connect', () => {
-            socketConnected = true;
-        });
-
-        socket.on('disconnect', () => {
-            socketConnected = false;
-            if (player) {
-                player.$destroy();
-                player = null;
-            }
-        })
-
     });
-
-    $: console.log("Socket connected: " + socketConnected);
-
-    $: if (socketConnected && !player) {
-        player = new Player({
-            target: document.body
-        });
-    }
 
     function handleKeyDown(event: any) {
         console.log(event.key);
@@ -51,10 +59,8 @@
                 player.Move(new Vector3(0, 0, 1));
                 break;
         }
-        if (socketConnected) {
-            socket.emit('mensaje', event.key);
-        }
     }
+
 </script>
 
 <T.PerspectiveCamera

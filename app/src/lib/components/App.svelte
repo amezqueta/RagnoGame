@@ -2,17 +2,36 @@
     import {Canvas} from '@threlte/core'
     import Scene from './Scene.svelte'
     import io from 'socket.io-client'
-    import {onMount} from 'svelte';
+    import {onDestroy, onMount} from 'svelte';
 
-    let socket = io('http://localhost:3000'); // Conectar al servidor desde el cliente
+    let socket: any = null;
+
+    socket = io('http://localhost:3000'); // Conectar al servidor desde el cliente
+
+    let scene: any;
 
     onMount(() => {
-        socket.on('connect', () => {
-            console.log('Conectado al servidor');
+
+        socket.on('user-connected', (uuid: string) => {
+            console.log("New user connected: " + uuid);
+            scene?.OnUserConnected(uuid);
         });
+
+        socket.on('connected', (uuid: string) => {
+            scene?.OnConnected(uuid);
+        });
+
+        socket.on('disconnect', () => {
+            scene?.OnDisconnected();
+        })
+
+        socket.on('mensaje', (message: string) => {
+            console.log(message);
+        })
     });
+
 </script>
 
 <Canvas>
-    <Scene {socket}/>
+    <Scene bind:this={scene}/>
 </Canvas>
