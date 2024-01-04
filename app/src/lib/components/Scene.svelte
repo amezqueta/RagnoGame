@@ -7,15 +7,17 @@
 
     let player: any = null;
     let currentUserId: any = null;
-    let users: any = {};
+    let users: any[] = [];
 
     export function OnUserConnected(uuid: string) {
-        if (uuid === currentUserId || users[uuid]) return;
-
+        if (currentUserId == uuid)
+            return;
+        
         console.log("New user connected: (" + uuid + ")");
 
         //La creacion de new Player se tiene que hacer desde $:, desde aqui no tiene alcance ¯\_(ツ)_/¯
-        users = {...users, [uuid]: true};
+        console.log("push");
+        users = [...users, {userId: uuid, playerInstance: null}];
     }
 
     export function OnConnected(uuid: string) {
@@ -43,18 +45,14 @@
         // Mostrar los cambios en users en la consola
         console.log("Users changed:", users);
 
-        // Iterar sobre los usuarios
-        Object.keys(users).forEach(userId => {
-            const user = users[userId];
-
-            // Si el usuario no tiene un jugador asociado y está activo
-            new Player({
+        users.forEach(user => {
+            user.playerInstance = new Player({
                 target: canvas,
                 props: {
-                    userId: userId
+                    userId: user.userId
                 }
             });
-        });
+        })
     }
 
 
