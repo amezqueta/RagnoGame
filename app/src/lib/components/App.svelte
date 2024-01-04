@@ -6,11 +6,12 @@
 
     let socket: any = null;
 
-    socket = io('http://localhost:3000'); // Conectar al servidor desde el cliente
 
     let scene: any;
 
     onMount(() => {
+
+        socket = io('http://localhost:3000'); // Conectar al servidor desde el cliente
 
         socket.on('user-connected', (uuid: string) => {
             scene?.OnUserConnected(uuid);
