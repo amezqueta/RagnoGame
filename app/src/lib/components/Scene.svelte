@@ -12,21 +12,27 @@
   onMount(() => {
     window.addEventListener('keydown', handleKeyDown);
 
-    // Listen for socket connection
     socket.on('connect', () => {
       socketConnected = true;
     });
+    
+    socket.on('disconnect', () => {
+      socketConnected = false;
+      if(player)
+      {
+        player.$destroy();
+        player = null;
+      }
+    })
    
   });
   
   $: console.log("Socket connected: "+socketConnected);
 
-  $: {
-    if (socketConnected && !player) {
+  $: if (socketConnected && !player) {
       player = new Player({
         target: document.body
       });
-    }
   }
 
   function handleKeyDown(event: any) {
