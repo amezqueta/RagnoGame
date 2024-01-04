@@ -32,5 +32,5 @@
 </script>
 
 <Canvas>
-    <Scene bind:this={scene}/>
+    <Scene bind:this={scene} socket={socket}/>
 </Canvas>

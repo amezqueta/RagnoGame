@@ -8,6 +8,7 @@
     const material = new MeshStandardMaterial({color: new Color(0xff3f00)});
     const geometry = new BoxGeometry(2, 2, 2);
 
+    export let socket: any;
     export let userId: string = "";
     export let position = [0, 0, 0];
     let textPosition = [0, 2, 0];
@@ -16,7 +17,13 @@
         position[0] += vector.x;
         position[1] += vector.y;
         position[2] += vector.z;
+        socket.emit('move', userId, position);
     }
+
+    export function SetPosition(newPos: any) {
+        position = newPos;
+    }
+
 
     onMount(() => {
         console.log("Player mounted");

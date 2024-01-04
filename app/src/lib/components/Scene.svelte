@@ -9,10 +9,13 @@
     let currentUserId: any = null;
     let users: any[] = [];
 
+    export let socket: any;
+
+
     export function OnUserConnected(uuid: string) {
         if (currentUserId == uuid)
             return;
-        
+
         console.log("New user connected: (" + uuid + ")");
 
         //La creacion de new Player se tiene que hacer desde $:, desde aqui no tiene alcance ¯\_(ツ)_/¯
@@ -36,15 +39,14 @@
         player = new Player({
             target: canvas,
             props: {
+                socket: socket,
                 userId: currentUserId
             }
         });
     }
 
     $: {
-        // Mostrar los cambios en users en la consola
-        console.log("Users changed:", users);
-
+        //console.log("Users changed:", users);
         users.forEach(user => {
             user.playerInstance = new Player({
                 target: canvas,
@@ -60,11 +62,17 @@
     onMount(() => {
         canvas = document.querySelector('Canvas');
         window.addEventListener('keydown', handleKeyDown);
+
+        socket.on('move', (userId: string, newPos: any) => {
+            const userToUpdate = users.find(user => user.userId === userId);
+            if (userToUpdate) {
+                userToUpdate.playerInstance?.SetPosition(newPos);
+                console.log(userId + ": " + newPos);
+            }
+        })
     });
 
     function handleKeyDown(event: any) {
-        console.log(event.key);
-
         switch (event.key) {
             case "w":
                 player.Move(new Vector3(1, 0, 0));

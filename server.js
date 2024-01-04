@@ -34,6 +34,10 @@ io.on('connection', (socket) => {
         io.emit('mensaje', mensaje); // Reenviar el mensaje a todos los clientes conectados
     });
 
+    socket.on('move', (userId, newPos) => {
+        io.emit('move', userId, newPos);
+    })
+
     socket.on('disconnect', (reason) => {
         delete users[socket.id];
         console.log('User (' + socket.id + ') disconnected from the server (' + userAmount + "): " + reason);
