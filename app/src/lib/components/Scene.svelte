@@ -7,31 +7,41 @@
 
     let player: any = null;
     let currentUserId: any = null;
-    let users: any[] = [];
+    let scenePlayers: any[] = [];
 
     export let socket: any;
 
-
-    export function OnUserConnected(uuid: string) {
-        if (currentUserId == uuid)
-            return;
-
-        console.log("New user connected: (" + uuid + ")");
-
-        //La creacion de new Player se tiene que hacer desde $:, desde aqui no tiene alcance ¯\_(ツ)_/¯
-        console.log("push");
-        users = [...users, {userId: uuid, playerInstance: null}];
-    }
-
-    export function OnConnected(uuid: string) {
-        console.log("New connection: (" + uuid + ")");
-        currentUserId = uuid;
+    export function OnConnected(userId: string, serverPlayers: any[]) {
+        console.log("New connection: (" + userId + ")");
+        currentUserId = userId;
+        //Updates the scenePlayers with the serverUsers
+        serverPlayers.forEach(user => {
+            if (user.userId != userId)
+                scenePlayers = [...scenePlayers, {userId: user.userId, playerInstance: null}];
+        });
     }
 
     export function OnDisconnected() {
         if (player) {
             player.$destroy();
             player = null;
+        }
+    }
+
+    export function OnUserConnected(userId: string) {
+        if (currentUserId == userId)//If is the current user, it ignores it
+            return;
+
+        console.log("New user connected: (" + userId + ")");
+
+        //La creacion de new Player se tiene que hacer desde $:, desde aqui no tiene alcance ¯\_(ツ)_/¯
+        scenePlayers = [...scenePlayers, {userId: userId, playerInstance: null}];
+    }
+
+    export function OnUserDisconnected(userId: string) {
+        const userIndex = scenePlayers.findIndex(user => user.userId === userId);
+        if (userIndex !== -1) {
+            scenePlayers[userIndex].disconnected = true;
         }
     }
 
@@ -46,17 +56,23 @@
     }
 
     $: {
-        //console.log("Users changed:", users);
-        users.forEach(user => {
-            user.playerInstance = new Player({
-                target: canvas,
-                props: {
-                    userId: user.userId
-                }
-            });
+        scenePlayers.forEach((user, index) => {
+            //If it is marked for desconnection
+            if (user.disconnected && user.playerInstance) {
+                user.playerInstance.$destroy();
+                user.playerInstance = null;
+                scenePlayers.splice(index, 1);
+            } else { //Creates the player
+                user.playerInstance = new Player({
+                    target: canvas,
+                    props: {
+                        userId: user.userId
+                    }
+                });
+            }
         })
+        console.log("Users changed:", scenePlayers);
     }
-
 
     let canvas: any = null;
     onMount(() => {
@@ -64,7 +80,7 @@
         window.addEventListener('keydown', handleKeyDown);
 
         socket.on('move', (userId: string, newPos: any) => {
-            const userToUpdate = users.find(user => user.userId === userId);
+            const userToUpdate = scenePlayers.find(user => user.userId === userId);
             if (userToUpdate) {
                 userToUpdate.playerInstance?.SetPosition(newPos);
                 console.log(userId + ": " + newPos);

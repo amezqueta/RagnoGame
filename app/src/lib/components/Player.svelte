@@ -8,7 +8,7 @@
     const material = new MeshStandardMaterial({color: new Color(0xff3f00)});
     const geometry = new BoxGeometry(2, 2, 2);
 
-    export let socket: any;
+    export let socket: any = null;
     export let userId: string = "";
     export let position = [0, 0, 0];
     let textPosition = [0, 2, 0];

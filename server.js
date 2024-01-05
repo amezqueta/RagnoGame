@@ -16,32 +16,44 @@ const io = new Server(server, {
     }
 });
 
-let users = {};
+const serverPlayers = [];
 
 io.on('connection', (socket) => {
+    const player = {
+        userId: socket.id,
+        position: {x: 0, y: 0, z: 0}
+    };
 
-    users[socket.id] = true;
-    const userAmount = Object.keys(users).length;
+    serverPlayers.push(player);
 
+    const userAmount = serverPlayers.length;
     console.log('User (' + socket.id + ') connected to the server (' + userAmount + ')');
+    io.emit('msg', "User connected: (" + userAmount + ")");
 
-    io.emit('mensaje', "User connected: (" + userAmount + ")");
-
-    socket.emit('connected', socket.id);
+    socket.emit('connected', socket.id, serverPlayers);
     io.emit('user-connected', socket.id);
 
-    socket.on('mensaje', (mensaje) => {
-        io.emit('mensaje', mensaje); // Reenviar el mensaje a todos los clientes conectados
+    socket.on('msg', (msg) => {
+        io.emit('msg', msg);
     });
 
     socket.on('move', (userId, newPos) => {
-        io.emit('move', userId, newPos);
+        const player = serverPlayers.find(player => player.userId === userId);
+        if (player) {
+            player.position = newPos;
+            io.emit('move', userId, newPos);
+        }
     })
 
     socket.on('disconnect', (reason) => {
-        delete users[socket.id];
+        const index = serverPlayers.findIndex(player => player.userId === socket.id);
+        if (index !== -1) {
+            serverPlayers.splice(index, 1);
+        }
+        const userAmount = serverPlayers.length;
         console.log('User (' + socket.id + ') disconnected from the server (' + userAmount + "): " + reason);
-        io.emit('mensaje', "User disconnected: (" + userAmount + ")");
+        io.emit('msg', "User disconnected: (" + userAmount + ")");
+        io.emit('user-disconnected', socket.id);
     });
 });
 
