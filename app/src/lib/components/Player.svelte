@@ -1,11 +1,10 @@
 <script lang="ts">
-    import {onMount, tick} from 'svelte';
+    import {afterUpdate, onMount, tick} from 'svelte';
     import {T} from '@threlte/core';
     import {BoxGeometry, Color, MeshStandardMaterial, Vector3} from 'three';
     import {onDestroy} from "svelte";
     import {Text} from "@threlte/extras";
 
-    let color = "#FF000";
     const material = new MeshStandardMaterial({color: new Color(0xff3f00)});
     const geometry = new BoxGeometry(2, 2, 2);
 
@@ -13,6 +12,7 @@
     export let userId: string = "";
     export let position = [0, 0, 0];
     let textPosition = [0, 2, 0];
+    export let color: string = "#FF0000";
 
     export function Move(vector: Vector3) {
         position[0] += vector.x;
@@ -27,7 +27,6 @@
 
     onMount(() => {
         console.log("Player mounted");
-
         socket.on('user-color', (id: string, newColor: string) => {
             if (userId === id) {
                 console.log(userId + " " + id + " :" + newColor);
@@ -47,6 +46,7 @@
     ];
 
     $: material.color.set(color);
+
 
 </script>
 

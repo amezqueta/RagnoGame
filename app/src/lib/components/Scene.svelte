@@ -17,7 +17,12 @@
         //Updates the scenePlayers with the serverUsers
         serverPlayers.forEach(user => {
             if (user.userId != userId)
-                scenePlayers = [...scenePlayers, {userId: user.userId, position: user.position, playerInstance: null}];
+                scenePlayers = [...scenePlayers, {
+                    userId: user.userId,
+                    position: user.position,
+                    color: user.color,
+                    playerInstance: null
+                }];
         });
     }
 
@@ -70,9 +75,12 @@
                         props: {
                             socket: socket,
                             position: user.position,
+                            color: user.color,
                             userId: user.userId
                         }
-                    });
+                    });/*
+                    console.log((user.color));
+                    user.playerInstance.$set({color: user.color});*/
                 }
             }
         })

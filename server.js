@@ -23,7 +23,7 @@ io.on('connection', (socket) => {
     const player = {
         userId: socket.id,
         position: {x: 0, y: 0, z: 0},
-        color: "#FF000"
+        color: "#FF0000"
     };
 
     serverPlayers.push(player);
@@ -51,6 +51,7 @@ io.on('connection', (socket) => {
     socket.on('server-color', (color) => {
         let player = serverPlayers.find(x => x.userId === socket.id);
         player.color = color;
+        console.log((serverPlayers));
         io.emit('user-color', socket.id, color);
     });
 
