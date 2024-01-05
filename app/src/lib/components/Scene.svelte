@@ -1,5 +1,5 @@
 <script lang="ts">
-    import {T} from '@threlte/core'
+    import {T, useTask} from '@threlte/core'
     import {onDestroy, onMount} from 'svelte';
     import Player from '$lib/components/Player.svelte';
     import {ContactShadows, Grid, OrbitControls, Text} from "@threlte/extras";
@@ -45,6 +45,7 @@
         }
     }
 
+    //Creates the user
     $: if (currentUserId && !player) {
         player = new Player({
             target: canvas,
@@ -62,11 +63,12 @@
                 user.playerInstance.$destroy();
                 user.playerInstance = null;
                 scenePlayers.splice(index, 1);
-            } else { //Creates the player
+            } else { //Creates the online players
                 if (user.playerInstance == null) {
                     user.playerInstance = new Player({
                         target: canvas,
                         props: {
+                            socket: socket,
                             position: user.position,
                             userId: user.userId
                         }
@@ -74,7 +76,6 @@
                 }
             }
         })
-        console.log("Users changed:", scenePlayers);
     }
 
     let canvas: any = null;

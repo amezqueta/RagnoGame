@@ -19,9 +19,11 @@ const io = new Server(server, {
 const serverPlayers = [];
 
 io.on('connection', (socket) => {
+
     const player = {
         userId: socket.id,
-        position: {x: 0, y: 0, z: 0}
+        position: {x: 0, y: 0, z: 0},
+        color: "#FF000"
     };
 
     serverPlayers.push(player);
@@ -32,6 +34,7 @@ io.on('connection', (socket) => {
 
     socket.emit('connected', socket.id, serverPlayers);
     io.emit('user-connected', socket.id);
+    io.emit('users-list', serverPlayers);
 
     socket.on('msg', (msg) => {
         io.emit('msg', msg);
@@ -45,6 +48,12 @@ io.on('connection', (socket) => {
         }
     })
 
+    socket.on('server-color', (color) => {
+        let player = serverPlayers.find(x => x.userId === socket.id);
+        player.color = color;
+        io.emit('user-color', socket.id, color);
+    });
+
     socket.on('disconnect', (reason) => {
         const index = serverPlayers.findIndex(player => player.userId === socket.id);
         if (index !== -1) {
@@ -54,6 +63,7 @@ io.on('connection', (socket) => {
         console.log('User (' + socket.id + ') disconnected from the server (' + userAmount + "): " + reason);
         io.emit('msg', "User disconnected: (" + userAmount + ")");
         io.emit('user-disconnected', socket.id);
+        io.emit('users-list', serverPlayers);
     });
 });
 

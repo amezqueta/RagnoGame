@@ -1,6 +1,7 @@
 <script lang="ts">
-    import {Canvas} from '@threlte/core'
+    import {Canvas, useTask} from '@threlte/core'
     import Scene from './Scene.svelte'
+    import UI from './UI.svelte'
     import io from 'socket.io-client'
     import {onMount} from 'svelte';
 
@@ -22,7 +23,6 @@
         })
 
         socket.on('connected', (userId: string, serverPlayers: any[]) => {
-            console.log(serverPlayers);
             scene?.OnConnected(userId, serverPlayers);
         });
 
@@ -34,9 +34,13 @@
             console.log(message);
         })
     });
-
 </script>
 
-<Canvas>
-    <Scene bind:this={scene} socket={socket}/>
-</Canvas>
+
+<div style="position:relative; height:100%; width:100%; background-color: rgb(14,22,37)">
+    <Canvas>
+        <UI socket={socket}/>
+        <Scene bind:this={scene} socket={socket}/>
+    </Canvas>
+</div>
+    
