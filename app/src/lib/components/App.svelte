@@ -22,8 +22,8 @@
             scene?.OnUserDisconnected(userId)
         })
 
-        socket.on('connected', (userId: string, serverPlayers: any[]) => {
-            scene?.OnConnected(userId, serverPlayers);
+        socket.on('connected', (playerData: any, serverPlayers: any[]) => {
+            scene?.OnConnected(playerData, serverPlayers);
         });
 
         socket.on('disconnect', () => {

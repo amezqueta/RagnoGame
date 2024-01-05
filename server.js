@@ -22,8 +22,8 @@ io.on('connection', (socket) => {
 
     const player = {
         userId: socket.id,
-        position: {x: 0, y: 0, z: 0},
-        color: "#FF0000"
+        position: [0, 0, 0],
+        color: '#' + Math.floor(Math.random() * 16777215).toString(16)
     };
 
     serverPlayers.push(player);
@@ -32,7 +32,7 @@ io.on('connection', (socket) => {
     console.log('User (' + socket.id + ') connected to the server (' + userAmount + ')');
     io.emit('msg', "User connected: (" + userAmount + ")");
 
-    socket.emit('connected', socket.id, serverPlayers);
+    socket.emit('connected', player, serverPlayers);
     io.emit('user-connected', socket.id);
     io.emit('users-list', serverPlayers);
 

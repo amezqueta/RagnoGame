@@ -5,7 +5,7 @@
     import {onDestroy} from "svelte";
     import {Text} from "@threlte/extras";
 
-    const material = new MeshStandardMaterial({color: new Color(0xff3f00)});
+    const material = new MeshStandardMaterial();
     const geometry = new BoxGeometry(2, 2, 2);
 
     export let socket: any = null;
@@ -27,12 +27,14 @@
 
     onMount(() => {
         console.log("Player mounted");
-        socket.on('user-color', (id: string, newColor: string) => {
-            if (userId === id) {
-                console.log(userId + " " + id + " :" + newColor);
-                color = newColor;
-            }
-        })
+
+
+    })
+
+    socket.on('user-color', (id: string, newColor: string) => {
+        if (userId === id) {
+            color = newColor;
+        }
     })
 
     onDestroy(() => {
@@ -45,8 +47,9 @@
         position[2] + 0
     ];
 
-    $: material.color.set(color);
-
+    $: {
+        material.color.set(color);
+    }
 
 </script>
 

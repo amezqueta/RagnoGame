@@ -1,22 +1,24 @@
 <script lang="ts">
-    import {T, useTask} from '@threlte/core'
-    import {onDestroy, onMount} from 'svelte';
+    import {T} from '@threlte/core'
+    import {onMount} from 'svelte';
     import Player from '$lib/components/Player.svelte';
     import {ContactShadows, Grid, OrbitControls, Text} from "@threlte/extras";
     import {Vector3} from "three";
 
     let player: any = null;
-    let currentUserId: any = null;
+    let currentPlayerData: any = null;
     let scenePlayers: any[] = [];
 
     export let socket: any;
 
-    export function OnConnected(userId: string, serverPlayers: any[]) {
-        console.log("New connection: (" + userId + ")");
-        currentUserId = userId;
+    //On connecting to the client
+    export function OnConnected(playerData: any, serverPlayers: any[]) {
+        console.log("New connection: (" + playerData.color + ")");
+        currentPlayerData = playerData;
+
         //Updates the scenePlayers with the serverUsers
         serverPlayers.forEach(user => {
-            if (user.userId != userId)
+            if (user.userId != playerData.userId)
                 scenePlayers = [...scenePlayers, {
                     userId: user.userId,
                     position: user.position,
@@ -33,8 +35,9 @@
         }
     }
 
+    //On a new user is connected to the server
     export function OnUserConnected(userId: string) {
-        if (currentUserId == userId)//If is the current user, it ignores it
+        if (currentPlayerData.userId == userId)//If is the current user, it ignores it
             return;
 
         console.log("New user connected: (" + userId + ")");
@@ -50,13 +53,14 @@
         }
     }
 
-    //Creates the user
-    $: if (currentUserId && !player) {
+    //Creates the player
+    $: if (currentPlayerData && !player) {
         player = new Player({
             target: canvas,
             props: {
                 socket: socket,
-                userId: currentUserId
+                userId: currentPlayerData.userId,
+                position: currentPlayerData.position
             }
         });
     }
@@ -78,9 +82,7 @@
                             color: user.color,
                             userId: user.userId
                         }
-                    });/*
-                    console.log((user.color));
-                    user.playerInstance.$set({color: user.color});*/
+                    });
                 }
             }
         })
