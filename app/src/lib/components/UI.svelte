@@ -25,13 +25,13 @@
 </script>
 
 <Pane
-        theme={ThemeUtils.presets.light}
-        position="fixed"
-        title="Config"
+    theme={ThemeUtils.presets.light}
+    position="fixed"
+    title="Config"
 >
     <Color
-            bind:value={color}
-            label="Color"
+        bind:value={color}
+        label="Color"
     />
 
     <Folder title="Players:">

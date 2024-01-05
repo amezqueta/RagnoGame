@@ -1,9 +1,11 @@
 <script lang="ts">
+    import { RigidBody, CollisionGroups, Collider, AutoColliders } from '@threlte/rapier'
     import {T} from '@threlte/core'
     import {onMount} from 'svelte';
     import Player from '$lib/components/Player.svelte';
     import {ContactShadows, Grid, OrbitControls, Text} from "@threlte/extras";
     import {Vector3} from "three";
+    import Ground from './Ground.svelte';
 
     let player: any = null;
     let currentPlayerData: any = null;
@@ -121,36 +123,36 @@
 </script>
 
 <T.PerspectiveCamera
-        makeDefault
-        position={[-10, 10, 10]}
-        fov={15}
+    makeDefault
+    position={[-10, 10, 10]}
+    fov={15}
 >
-    <OrbitControls
-            enableZoom={true}
-            enableDamping
-            target.y={1.5}
-    />
+<OrbitControls
+    enableZoom={true}
+    enableDamping
+    target.y={1.5}
+/>
 </T.PerspectiveCamera>
 
 <T.DirectionalLight
-        intensity={1}
-        position.x={5}
-        position.y={10}
+    intensity={1}
+    position.x={5}
+    position.y={10}
 />
 <T.AmbientLight intensity={0.5}/>
 
 <Grid
-        position.y={-0.001}
-        cellColor="#ffffff"
-        sectionColor="#ffffff"
-        sectionThickness={0}
-        fadeDistance={25}
-        cellSize={2}
+    position.y={-0.001}
+    cellColor="#ffffff"
+    sectionColor="#ffffff"
+    sectionThickness={0}
+    fadeDistance={250}
+    cellSize={2}
 />
 
 <ContactShadows
-        scale={10}
-        blur={2}
-        far={2.5}
-        opacity={0.5}
+    scale={10}
+    blur={2}
+    far={2.5}
+    opacity={0.5}
 />
