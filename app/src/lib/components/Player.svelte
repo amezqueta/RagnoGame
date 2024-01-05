@@ -1,34 +1,32 @@
 <script lang="ts">
+    import { type RigidBody as RapierRigidBody } from '@dimforge/rapier3d-compat';
     import {afterUpdate, onMount, tick} from 'svelte';
-    import {T} from '@threlte/core';
+    import {T, useTask} from '@threlte/core';
     import {BoxGeometry, Color, MeshStandardMaterial, Vector3} from 'three';
     import {onDestroy} from "svelte";
     import {Text} from "@threlte/extras";
+  import { AutoColliders, BasicPlayerController, CollisionGroups, RigidBody, Collider } from '@threlte/rapier'
+    import App from './App.svelte';
+
+    let rigidBody: RapierRigidBody;
 
     const material = new MeshStandardMaterial();
     const geometry = new BoxGeometry(2, 2, 2);
 
     export let socket: any = null;
     export let userId: string = "";
-    export let position = [0, 0, 0];
-    let textPosition = [0, 2, 0];
+
     export let color: string = "#FF0000";
 
-    export function Move(vector: Vector3) {
-        position[0] += vector.x;
-        position[1] += vector.y;
-        position[2] += vector.z;
-        socket.emit('move', userId, position);
-    }
+    export let radius = 0.3
+    export let height = 1
 
-    export function SetPosition(newPos: any) {
-        position = newPos;
+    export function Move(vector: Vector3) {
+        rigidBody.applyImpulse(vector, true);
     }
 
     onMount(() => {
         console.log("Player mounted");
-
-
     })
 
     socket.on('user-color', (id: string, newColor: string) => {
@@ -41,17 +39,24 @@
         console.log("Player destroyed (" + userId + ")");
     })
 
-    $: textPosition = [
-        position[0] + 0,
-        position[1] + 2,
-        position[2] + 0
-    ];
-
-    $: {
-        material.color.set(color);
-    }
+    $: material.color.set(color);
+    
+    useTask(() => {
+    if (!rigidBody) return
+    
+    if(!rigidBody.isSleeping())
+        socket.emit('move', userId, new Vector3(rigidBody.translation().x, rigidBody.translation().y, rigidBody.translation().z));
+  })
 
 </script>
 
-<T.Mesh castShadow {geometry} {material} position={position}/>
-<Text text={userId} position="{textPosition}" fontSize="1"/>
+    <RigidBody bind:rigidBody enabledRotations={[false, false, false]}>
+        <CollisionGroups memberships={[2]} filter={[1]}>
+        <Collider
+        shape={'capsule'}
+        args={[height / 2 - radius, radius]}
+        />
+        <T.Mesh castShadow {geometry} {material}/>
+        <Text text={userId} position="{[0, 2, 0]}" fontSize="1"/>
+        </CollisionGroups>
+    </RigidBody>

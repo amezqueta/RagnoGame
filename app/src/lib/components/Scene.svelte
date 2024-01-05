@@ -3,8 +3,9 @@
     import {T} from '@threlte/core'
     import {onMount} from 'svelte';
     import Player from '$lib/components/Player.svelte';
+    import OnlinePlayer from '$lib/components/OnlinePlayer.svelte';
     import {ContactShadows, Grid, OrbitControls, Text} from "@threlte/extras";
-    import {Vector3} from "three";
+    import {BoxGeometry, MeshStandardMaterial, Vector3} from "three";
     import Ground from './Ground.svelte';
 
     let player: any = null;
@@ -23,7 +24,7 @@
             if (user.userId != playerData.userId)
                 scenePlayers = [...scenePlayers, {
                     userId: user.userId,
-                    position: user.position,
+                    position: [user.position.x, user.position.y, user.position.z],
                     color: user.color,
                     playerInstance: null
                 }];
@@ -62,7 +63,7 @@
             props: {
                 socket: socket,
                 userId: currentPlayerData.userId,
-                position: currentPlayerData.position
+                color: currentPlayerData.color
             }
         });
     }
@@ -76,7 +77,8 @@
                 scenePlayers.splice(index, 1);
             } else { //Creates the online players
                 if (user.playerInstance == null) {
-                    user.playerInstance = new Player({
+                    console.log(user.position);
+                    user.playerInstance = new OnlinePlayer({
                         target: canvas,
                         props: {
                             socket: socket,
@@ -124,7 +126,7 @@
 
 <T.PerspectiveCamera
     makeDefault
-    position={[-10, 10, 10]}
+    position={[-30, 30, 30]}
     fov={15}
 >
 <OrbitControls
@@ -156,3 +158,13 @@
     far={2.5}
     opacity={0.5}
 />
+
+<T.Group position={[0, -0.5, 0]}>
+  <AutoColliders shape={'cuboid'}>
+    <T.Mesh
+      receiveShadow
+      geometry={new BoxGeometry(10, 1, 10)}
+      material={new MeshStandardMaterial()}
+    />
+  </AutoColliders>
+</T.Group>
