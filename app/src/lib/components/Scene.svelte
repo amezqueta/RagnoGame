@@ -17,7 +17,7 @@
         //Updates the scenePlayers with the serverUsers
         serverPlayers.forEach(user => {
             if (user.userId != userId)
-                scenePlayers = [...scenePlayers, {userId: user.userId, playerInstance: null}];
+                scenePlayers = [...scenePlayers, {userId: user.userId, position: user.position, playerInstance: null}];
         });
     }
 
@@ -66,6 +66,7 @@
                 user.playerInstance = new Player({
                     target: canvas,
                     props: {
+                        position: user.position,
                         userId: user.userId
                     }
                 });
