@@ -63,13 +63,15 @@
                 user.playerInstance = null;
                 scenePlayers.splice(index, 1);
             } else { //Creates the player
-                user.playerInstance = new Player({
-                    target: canvas,
-                    props: {
-                        position: user.position,
-                        userId: user.userId
-                    }
-                });
+                if (user.playerInstance == null) {
+                    user.playerInstance = new Player({
+                        target: canvas,
+                        props: {
+                            position: user.position,
+                            userId: user.userId
+                        }
+                    });
+                }
             }
         })
         console.log("Users changed:", scenePlayers);
@@ -84,7 +86,6 @@
             const userToUpdate = scenePlayers.find(user => user.userId === userId);
             if (userToUpdate) {
                 userToUpdate.playerInstance?.SetPosition(newPos);
-                console.log(userId + ": " + newPos);
             }
         })
     });
