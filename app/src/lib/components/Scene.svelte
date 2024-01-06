@@ -11,11 +11,6 @@
     import type CameraControls from 'camera-controls';
     import CameraControlsComponent from './CameraControls.svelte';
 
-    let forward = 0
-    let backward = 0
-    let left = 0
-    let right = 0
-
     let player: any = null;
     let currentPlayerData: any = null;
     let scenePlayers: any[] = [];
@@ -66,18 +61,6 @@
         }
     }
 
-    useTask((deltatime) => {
-        if(!player)
-        return;
-
-        MovePlayer();
-    });
-
-    function MovePlayer(){
-      if(right + left + forward + backward > 0)
-          player.Move(new Vector3(right - left, 0, forward - backward));
-    }
-
     //Creates the player
     $: if (currentPlayerData && !player) {
         player = new Player({
@@ -126,49 +109,10 @@
         })
     });
 
-      function onKeyDown(e: KeyboardEvent) {
-    switch (e.key) {
-      case 's':
-        backward = 1
-        break
-      case 'w':
-        forward = 1
-        break
-      case 'a':
-        left = 1
-        break
-      case 'd':
-        right = 1
-        break
-      default:
-        break
-    }
-  }
 
-  function onKeyUp(e: KeyboardEvent) {
-    switch (e.key) {
-      case 's':
-        backward = 0
-        break
-      case 'w':
-        forward = 0
-        break
-      case 'a':
-        left = 0
-        break
-      case 'd':
-        right = 0
-        break
-      default:
-        break
-    }
-  }
 </script>
 
-<svelte:window
-  on:keydown|preventDefault={onKeyDown}
-  on:keyup={onKeyUp}
-/>
+
 
 <T.PerspectiveCamera
     makeDefault

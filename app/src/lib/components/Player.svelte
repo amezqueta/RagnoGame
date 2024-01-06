@@ -20,6 +20,11 @@
 
     export let radius = 0.3
     export let height = 1
+    
+    let forward = 0
+    let backward = 0
+    let left = 0
+    let right = 0
 
     export function Move(direction: Vector3) {
         if(!rigidBody)
@@ -44,30 +49,80 @@
         console.log("Player mounted");
     })
 
+    onDestroy(() => {
+        console.log("Player destroyed (" + userId + ")");
+    })
+    
     socket.on('user-color', (id: string, newColor: string) => {
         if (userId === id) {
             color = newColor;
         }
     })
 
-    onDestroy(() => {
-        console.log("Player destroyed (" + userId + ")");
-    })
-
     $: material.color.set(color);
     
     useTask(() => {
         if (!rigidBody) return
+
+        MovePlayer();
         
         if(!rigidBody.isSleeping())
             socket.emit('move', userId, new Vector3(rigidBody.translation().x, rigidBody.translation().y, rigidBody.translation().z));
   })
 
+    function MovePlayer(){
+      if(right + left + forward + backward > 0)
+          Move(new Vector3(right - left, 0, forward - backward));
+    }
+
   $: if(rigidBody){
     playerRigidbodyStore.set(rigidBody);
   }
 
+    function onKeyDown(e: KeyboardEvent) {
+    switch (e.key) {
+      case 's':
+        backward = 1
+        break
+      case 'w':
+        forward = 1
+        break
+      case 'a':
+        left = 1
+        break
+      case 'd':
+        right = 1
+        break
+      default:
+        break
+    }
+  }
+
+  function onKeyUp(e: KeyboardEvent) {
+    switch (e.key) {
+      case 's':
+        backward = 0
+        break
+      case 'w':
+        forward = 0
+        break
+      case 'a':
+        left = 0
+        break
+      case 'd':
+        right = 0
+        break
+      default:
+        break
+    }
+  }
+
 </script>
+
+<svelte:window
+  on:keydown|preventDefault={onKeyDown}
+  on:keyup={onKeyUp}
+/>
 
     <RigidBody linearDamping={25} bind:rigidBody enabledRotations={[false, false, false]}>
         <CollisionGroups memberships={[2]} filter={[1]}>
