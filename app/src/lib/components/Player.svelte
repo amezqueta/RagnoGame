@@ -1,49 +1,42 @@
 <script lang="ts">
-    import { type RigidBody as RapierRigidBody } from '@dimforge/rapier3d-compat';
+    import { CharacterCollision, QueryFilterFlags, type Collider as RCollider, type RigidBody as RRigidBody } from '@dimforge/rapier3d-compat';
     import {afterUpdate, onMount, tick} from 'svelte';
     import {T, useTask, useThrelte} from '@threlte/core';
-    import {BoxGeometry, Color, MeshStandardMaterial, Vector3} from 'three';
+    import {BoxGeometry, Color, Group, MeshStandardMaterial, Vector3, type Vector} from 'three';
     import {onDestroy} from "svelte";
     import {Text} from "@threlte/extras";
-    import { AutoColliders, BasicPlayerController, CollisionGroups, RigidBody, Collider } from '@threlte/rapier'
-    import { playerRigidbodyStore } from './stores';
+    import { AutoColliders, BasicPlayerController, CollisionGroups, RigidBody, Collider, useRapier } from '@threlte/rapier'
+    import { playerRigidbodyStore, playerTranslationStore } from './stores';
+    import { clamp } from 'svelte-tweakpane-ui/Utils.js';
 
-    let rigidBody: RapierRigidBody = $playerRigidbodyStore;
+    let rigidBody: RRigidBody = $playerRigidbodyStore;
+    let playerTranslation: Vector3 = $playerTranslationStore;
     const { camera } = useThrelte();
     const material = new MeshStandardMaterial();
     const geometry = new BoxGeometry(2, 2, 2);
+
+    let playerCollider: RCollider;
 
     export let socket: any = null;
     export let userId: string = "";
 
     export let color: string = "#FF0000";
 
-    export let radius = 0.3
-    export let height = 1
-    
-    let forward = 0
-    let backward = 0
-    let left = 0
-    let right = 0
+    let forward = false
+    let backward = false
+    let right = false
+    let left = false
+    let space = false;
 
-    export function Move(direction: Vector3) {
-        if(!rigidBody)
-        return;
+    const { world } = useRapier();
+    let controller = world.createCharacterController(0.01);
+    controller.setMaxSlopeClimbAngle((45 * Math.PI) / 180);
+    controller.setMinSlopeSlideAngle((30 * Math.PI) / 180);
+    controller.enableAutostep(0.5, 0.2, true);
+    controller.enableSnapToGround(0.5);
 
-        let forward = new Vector3();
-        camera.current.getWorldDirection(forward);
-        forward.y = 0;
-        forward.normalize();
-
-        let up = new Vector3(0,1,0);
-
-        let right = new Vector3();
-        right.crossVectors(up, forward).normalize();
-        right.negate();
-
-        let moveDirection = forward.multiplyScalar(direction.z).add(right.multiplyScalar(direction.x));
-        rigidBody.applyImpulse(moveDirection, true);
-    }
+    let collisionForce: any;
+    let collisionMagnitude: number;
 
     onMount(() => {
         console.log("Player mounted");
@@ -58,40 +51,97 @@
             color = newColor;
         }
     })
-
-    $: material.color.set(color);
     
-    useTask(() => {
-        if (!rigidBody) return
+    let velocity = new Vector3();
 
-        MovePlayer();
-        
-        if(!rigidBody.isSleeping())
-            socket.emit('move', userId, new Vector3(rigidBody.translation().x, rigidBody.translation().y, rigidBody.translation().z));
-  })
+    useTask((deltaTime) => {
+      const playerIsgrounded = PlayerIsGrounded();
 
-    function MovePlayer(){
-      if(right + left + forward + backward > 0)
-          Move(new Vector3(right - left, 0, forward - backward));
+      if(playerIsgrounded)
+        velocity.y = 0;
+      else
+        velocity.y -= deltaTime * 20;
+
+      // Simulate movement damping
+      velocity.z *= playerIsgrounded ? 0.5 : 0.1;
+      velocity.x *= playerIsgrounded ? 0.5 : 0.1;
+
+      const speed = playerIsgrounded ? 300 : 300;
+      if (forward) velocity.z -= deltaTime * speed;
+      if (backward) velocity.z += deltaTime * speed;
+      if (left) velocity.x -= deltaTime * speed;
+      if (right) velocity.x += deltaTime * speed;
+      if(space && playerIsgrounded) velocity.y += 10;
+
+      controller.computeColliderMovement(playerCollider, velocity);
+
+      /*
+      // (optional) Check collisions
+      for (var i = 0; i < controller.numComputedCollisions(); i++) {
+        let out;
+        let collision = controller.computedCollision(i, out);
+          console.log(controller.numComputedCollisions()+" "+collision?.collider);
+
+        if(out){
+        }
+        if(collisionForce!=null && collision && collision.normal1.y > 0)
+        {
+          //console.log(controller.numComputedCollisions());
+          velocity.y = 0;
+        }
+      }*/
+
+      velocity.y = clamp(velocity.y, -10, 10);
+      MoveToCamera(velocity, velocity.y, deltaTime);
+
+      if(!rigidBody.isSleeping())
+          socket.emit('move', userId, new Vector3(rigidBody.translation().x, rigidBody.translation().y, rigidBody.translation().z));
+
+    });
+
+    export function MoveToCamera(direction: Vector3, yVelocity: number, deltaTime: number) {
+      if(!rigidBody)
+      return;
+
+      let forward = new Vector3();
+      camera.current.getWorldDirection(forward);
+      forward.y = 0;
+      forward.normalize();
+
+      let up = new Vector3(0,1,0);
+      let right = new Vector3();
+      right.crossVectors(up, forward).normalize();
+      right.y = 0;
+      right.normalize();
+
+      let moveDirection = forward.multiplyScalar(-direction.z).add(right.multiplyScalar(direction.x));
+      moveDirection.clampScalar(-7,7);
+      moveDirection.multiplyScalar(deltaTime * 100);
+      moveDirection.y = yVelocity;
+      playerTranslation = moveDirection;
+      rigidBody.setLinvel(moveDirection, true);
     }
 
-  $: if(rigidBody){
-    playerRigidbodyStore.set(rigidBody);
+  function PlayerIsGrounded(): boolean {
+    return collisionForce!=null && collisionForce.y > 1;
   }
 
-    function onKeyDown(e: KeyboardEvent) {
+  function onKeyDown(e: KeyboardEvent) {
     switch (e.key) {
       case 's':
-        backward = 1
+        backward = true
         break
       case 'w':
-        forward = 1
+        forward = true
         break
       case 'a':
-        left = 1
+        right = true
         break
       case 'd':
-        right = 1
+        left = true
+        break
+        case ' ':
+        space = true
         break
       default:
         break
@@ -101,20 +151,33 @@
   function onKeyUp(e: KeyboardEvent) {
     switch (e.key) {
       case 's':
-        backward = 0
+        backward = false
         break
       case 'w':
-        forward = 0
+        forward = false
         break
       case 'a':
-        left = 0
+        right = false
         break
       case 'd':
-        right = 0
+        left = false
+        break
+      case ' ':
+        space = false
         break
       default:
         break
     }
+  }
+
+  $: material.color.set(color);
+
+  $: if(rigidBody){
+    playerRigidbodyStore.set(rigidBody);
+  }
+
+  $: if(playerTranslation){
+    playerTranslationStore.set(playerTranslation);
   }
 
 </script>
@@ -124,13 +187,17 @@
   on:keyup={onKeyUp}
 />
 
-    <RigidBody linearDamping={25} bind:rigidBody enabledRotations={[false, false, false]}>
-        <CollisionGroups memberships={[2]} filter={[1]}>
-        <Collider
-        shape={'capsule'}
-        args={[height / 2 - radius, radius]}
-        />
-        <T.Mesh castShadow {geometry} {material}/>
-        <Text text={userId} position="{[0, 2, 0]}" fontSize="1"/>
-        </CollisionGroups>
-    </RigidBody>
+	<RigidBody 
+    on:collisionexit={() => {
+      collisionForce = null;
+      collisionMagnitude = 0;
+    }}
+    on:contact={({ totalForce, maxForceMagnitude }) => {
+      collisionForce = totalForce;
+      collisionMagnitude = maxForceMagnitude;
+    }}
+  bind:rigidBody={rigidBody} enabledRotations={[false, false, false]} >
+    <T.Mesh castShadow {geometry} {material}/>
+    <Text text={userId} position="{[0, 2, 0]}" fontSize="1"/>
+		<Collider shape="capsule" args={[0.3, 0.2]} bind:collider={playerCollider} />
+	</RigidBody>

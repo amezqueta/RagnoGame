@@ -154,7 +154,6 @@
     opacity={0.5}
 />
 
-<T.Group position={[0, -0.5, 0]}>
   <AutoColliders shape={'cuboid'}>
     <T.Mesh
       receiveShadow
@@ -162,4 +161,35 @@
       material={new MeshStandardMaterial()}
     />
   </AutoColliders>
-</T.Group>
+
+  <AutoColliders shape={'cuboid'}>
+    <T.Mesh
+      receiveShadow
+      castShadow
+      position.x={5}
+      position.y={1.275}
+      geometry={new BoxGeometry(2, 50, 2)}
+      material={new MeshStandardMaterial({
+        transparent: true,
+        opacity: 0.5,
+        color: 0x333333
+      })}
+    />
+  </AutoColliders>
+
+
+    <AutoColliders shape={'cuboid'}>
+    <T.Mesh
+      receiveShadow
+      castShadow
+      position.x={-4}
+      position.y={1.275}
+      rotation.x={90}
+      geometry={new BoxGeometry(2, 50, 2)}
+      material={new MeshStandardMaterial({
+        transparent: true,
+        opacity: 0.5,
+        color: 0x333333
+      })}
+    />
+  </AutoColliders>

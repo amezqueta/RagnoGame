@@ -22,7 +22,7 @@ io.on('connection', (socket) => {
 
     const player = {
         userId: socket.id,
-        position: [0, 5, 0],
+        position: [0, 50, 0],
         color: '#' + Math.floor(Math.random() * 16777215).toString(16)
     };
 
