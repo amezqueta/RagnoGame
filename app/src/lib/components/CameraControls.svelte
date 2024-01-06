@@ -31,6 +31,7 @@
     type PerspectiveCamera
   } from 'three'
   import { DEG2RAD } from 'three/src/math/MathUtils.js'
+    import { playerRigidbodyStore } from './stores';
 
   const subsetOfTHREE = {
     Vector2,
@@ -68,6 +69,7 @@
 
   useTask(
     (delta) => {
+      FollowPlayer();
       if (autoRotate && !disableAutoRotate) {
         getControls().azimuthAngle += 4 * delta * DEG2RAD * autoRotateSpeed
       }
@@ -78,6 +80,14 @@
       autoInvalidate: false
     }
   )
+
+  function FollowPlayer(){
+    if(!$playerRigidbodyStore)
+      return;
+
+    let translation = $playerRigidbodyStore.translation();
+    getControls().setTarget(translation.x, translation.y, translation.z, true);
+  }
 
   const forwardingComponent = forwardEventHandlers()
 </script>

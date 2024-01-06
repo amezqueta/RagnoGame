@@ -70,14 +70,8 @@
         if(!player)
         return;
 
-        FollowCamera();
         MovePlayer();
     });
-
-    function FollowCamera(){
-      let translation = $playerRigidbodyStore.translation();
-      camera.setTarget(translation.x, translation.y, translation.z, true);
-    }
 
     function MovePlayer(){
       if(right + left + forward + backward > 0)
