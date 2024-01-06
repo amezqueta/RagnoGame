@@ -30,6 +30,7 @@
   },
   "type": "module",
   "dependencies": {
+    "camera-controls": "^2.7.3",
     "socket.io-client": "^4.7.2",
     "svelte-tweakpane-ui": "^1.1.4"
   }

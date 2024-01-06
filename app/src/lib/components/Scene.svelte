@@ -1,16 +1,26 @@
 <script lang="ts">
     import { RigidBody, CollisionGroups, Collider, AutoColliders } from '@threlte/rapier'
-    import {T} from '@threlte/core'
+    import {T, useTask, useThrelte} from '@threlte/core'
     import {onMount} from 'svelte';
     import Player from '$lib/components/Player.svelte';
     import OnlinePlayer from '$lib/components/OnlinePlayer.svelte';
     import {ContactShadows, Grid, OrbitControls, Text} from "@threlte/extras";
-    import {BoxGeometry, MeshStandardMaterial, Vector3} from "three";
+    import {BoxGeometry, Camera, MeshStandardMaterial, PerspectiveCamera, Vector3} from "three";
     import Ground from './Ground.svelte';
+    import { cameraControls, playerRigidbodyStore } from './stores'
+    import type CameraControls from 'camera-controls';
+    import CameraControlsComponent from './CameraControls.svelte';
+
+    let forward = 0
+    let backward = 0
+    let left = 0
+    let right = 0
 
     let player: any = null;
     let currentPlayerData: any = null;
     let scenePlayers: any[] = [];
+
+    let camera: CameraControls;
 
     export let socket: any;
 
@@ -56,6 +66,24 @@
         }
     }
 
+    useTask((deltatime) => {
+        if(!player)
+        return;
+
+        FollowCamera();
+        MovePlayer();
+    });
+
+    function FollowCamera(){
+      let translation = $playerRigidbodyStore.translation();
+      camera.setTarget(translation.x, translation.y, translation.z, true);
+    }
+
+    function MovePlayer(){
+      if(right + left + forward + backward > 0)
+          player.Move(new Vector3(right - left, 0, forward - backward));
+    }
+
     //Creates the player
     $: if (currentPlayerData && !player) {
         player = new Player({
@@ -95,7 +123,6 @@
     let canvas: any = null;
     onMount(() => {
         canvas = document.querySelector('Canvas');
-        window.addEventListener('keydown', handleKeyDown);
 
         socket.on('move', (userId: string, newPos: any) => {
             const userToUpdate = scenePlayers.find(user => user.userId === userId);
@@ -105,24 +132,49 @@
         })
     });
 
-    function handleKeyDown(event: any) {
-        switch (event.key) {
-            case "w":
-                player.Move(new Vector3(1, 0, 0));
-                break;
-            case "a":
-                player.Move(new Vector3(0, 0, -1));
-                break;
-            case "s":
-                player.Move(new Vector3(-1, 0, 0));
-                break;
-            case "d":
-                player.Move(new Vector3(0, 0, 1));
-                break;
-        }
+      function onKeyDown(e: KeyboardEvent) {
+    switch (e.key) {
+      case 's':
+        backward = 1
+        break
+      case 'w':
+        forward = 1
+        break
+      case 'a':
+        left = 1
+        break
+      case 'd':
+        right = 1
+        break
+      default:
+        break
     }
+  }
 
+  function onKeyUp(e: KeyboardEvent) {
+    switch (e.key) {
+      case 's':
+        backward = 0
+        break
+      case 'w':
+        forward = 0
+        break
+      case 'a':
+        left = 0
+        break
+      case 'd':
+        right = 0
+        break
+      default:
+        break
+    }
+  }
 </script>
+
+<svelte:window
+  on:keydown|preventDefault={onKeyDown}
+  on:keyup={onKeyUp}
+/>
 
 <T.PerspectiveCamera
     makeDefault
@@ -134,6 +186,11 @@
     enableDamping
     target.y={1.5}
 />
+  <CameraControlsComponent
+    on:create={({ ref }) => {
+      camera = ref
+    }}
+  />
 </T.PerspectiveCamera>
 
 <T.DirectionalLight
@@ -163,7 +220,7 @@
   <AutoColliders shape={'cuboid'}>
     <T.Mesh
       receiveShadow
-      geometry={new BoxGeometry(10, 1, 10)}
+      geometry={new BoxGeometry(30, 1, 30)}
       material={new MeshStandardMaterial()}
     />
   </AutoColliders>
