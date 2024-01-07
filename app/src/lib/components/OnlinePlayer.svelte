@@ -36,7 +36,7 @@
 
     $: textPosition = [
         position[0] + 0,
-        position[1] + 2,
+        position[1] + 3,
         position[2] + 0
     ];
 
@@ -47,4 +47,4 @@
 </script>
 
 <T.Mesh castShadow {geometry} {material} position={position}/>
-<Text text={userId} position="{textPosition}" fontSize="1"/>
+<Text text={userId} position="{textPosition}" fontSize="1" outlineWidth={0.03} color={color} anchorX={"center"}  />

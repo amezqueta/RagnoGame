@@ -198,6 +198,6 @@
     }}
   bind:rigidBody={rigidBody} enabledRotations={[false, false, false]} >
     <T.Mesh castShadow {geometry} {material}/>
-    <Text text={userId} position="{[0, 2, 0]}" fontSize="1"/>
+    <Text text={userId} position="{[0, 3, 0]}" fontSize="1" outlineWidth={0.03} outlineColor={"#000000"} anchorX={"center"} />
 		<Collider shape="capsule" args={[0.3, 0.2]} bind:collider={playerCollider} />
 	</RigidBody>
