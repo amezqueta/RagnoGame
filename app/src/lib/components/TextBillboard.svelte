@@ -1,21 +1,25 @@
 <script lang="ts">
-    import { useThrelte } from "@threlte/core";
+    import { useTask, useThrelte } from "@threlte/core";
     import { Text } from "@threlte/extras";
 
     export let text = "";
     export let position = [0, 0, 0];
     export let color = "#FFFFFF";
 
-    let ref;
-
+    let textMesh: any;
     let rotation = [0, 0, 0];
 
     const { camera } = useThrelte();
+
+    useTask(() => {
+        textMesh.lookAt(camera.current.position);
+    });
 </script>
 
-// TextBillboard.svelte
 <Text
-    bind:this={ref}
+    on:create={(ref) => {
+        textMesh = ref.ref;
+    }}
     {text}
     {position}
     {color}

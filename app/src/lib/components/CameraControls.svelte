@@ -1,23 +1,26 @@
-<script
-  context="module"
-  lang="ts"
->
-  let installed = false
+<script context="module" lang="ts">
+  let installed = false;
 </script>
 
 <script lang="ts">
-  import { T, forwardEventHandlers, useTask, useParent, useThrelte } from '@threlte/core'
+  import {
+    T,
+    forwardEventHandlers,
+    useTask,
+    useParent,
+    useThrelte,
+  } from "@threlte/core";
   import type {
     CameraControlsEvents,
     CameraControlsProps,
-    CameraControlsSlots
-  } from './CameraControls.svelte'
+    CameraControlsSlots,
+  } from "./CameraControls.svelte";
 
-  type $$Props = CameraControlsProps
-  type $$Events = CameraControlsEvents
-  type $$Slots = CameraControlsSlots
+  type $$Props = CameraControlsProps;
+  type $$Events = CameraControlsEvents;
+  type $$Slots = CameraControlsSlots;
 
-  import CameraControls from 'camera-controls'
+  import CameraControls from "camera-controls";
   import {
     Box3,
     Matrix4,
@@ -28,10 +31,10 @@
     Vector2,
     Vector3,
     Vector4,
-    type PerspectiveCamera
-  } from 'three'
-  import { DEG2RAD } from 'three/src/math/MathUtils.js'
-    import { playerRigidbodyStore } from './stores';
+    type PerspectiveCamera,
+  } from "three";
+  import { DEG2RAD } from "three/src/math/MathUtils.js";
+  import { playerRigidbodyStore } from "./stores";
 
   const subsetOfTHREE = {
     Vector2,
@@ -42,66 +45,68 @@
     Spherical,
     Box3,
     Sphere,
-    Raycaster
-  }
+    Raycaster,
+  };
 
   if (!installed) {
-    CameraControls.install({ THREE: subsetOfTHREE })
-    installed = true
+    CameraControls.install({ THREE: subsetOfTHREE });
+    installed = true;
   }
 
-  const parent = useParent()
+  const parent = useParent();
 
   if (!$parent) {
-    throw new Error('CameraControls must be a child of a ThreeJS camera')
+    throw new Error("CameraControls must be a child of a ThreeJS camera");
   }
 
-  const { renderer, invalidate } = useThrelte()
+  const { renderer, invalidate } = useThrelte();
 
-  export let autoRotate = false
-  export let autoRotateSpeed = 1
+  export let autoRotate = false;
+  export let autoRotateSpeed = 1;
 
-  export const ref = new CameraControls($parent as PerspectiveCamera, renderer?.domElement)
+  export const ref = new CameraControls(
+    $parent as PerspectiveCamera,
+    renderer?.domElement,
+  );
 
-  const getControls = () => ref
+  const getControls = () => ref;
 
-  let disableAutoRotate = false
+  let disableAutoRotate = false;
 
   useTask(
     (delta) => {
       FollowPlayer();
       if (autoRotate && !disableAutoRotate) {
-        getControls().azimuthAngle += 4 * delta * DEG2RAD * autoRotateSpeed
+        getControls().azimuthAngle += 4 * delta * DEG2RAD * autoRotateSpeed;
       }
-      const updated = getControls().update(delta)
-      if (updated) invalidate()
+      const updated = getControls().update(delta);
+      if (updated) invalidate();
     },
     {
-      autoInvalidate: false
-    }
-  )
+      autoInvalidate: false,
+    },
+  );
 
-  function FollowPlayer(){
-    if(!$playerRigidbodyStore)
-      return;
+  function FollowPlayer() {
+    if (!$playerRigidbodyStore) return;
 
     let translation = $playerRigidbodyStore.translation();
     getControls().setTarget(translation.x, translation.y, translation.z, true);
   }
 
-  const forwardingComponent = forwardEventHandlers()
+  const forwardingComponent = forwardEventHandlers();
 </script>
 
 <T
   is={ref}
   on:controlstart={(e) => {
-    disableAutoRotate = true
+    disableAutoRotate = true;
   }}
   on:zoom={(e) => {
-    console.log('zoomstart', e)
+    console.log("zoomstart", e);
   }}
   on:controlend={() => {
-    disableAutoRotate = false
+    disableAutoRotate = false;
   }}
   {...$$restProps}
   bind:this={$forwardingComponent}
