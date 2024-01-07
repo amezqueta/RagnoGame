@@ -5,6 +5,7 @@
     import io from "socket.io-client";
     import { onMount } from "svelte";
     import { World } from "@threlte/rapier";
+    import { socketStore } from "./stores";
 
     let socket: any = null;
 
@@ -51,13 +52,17 @@
             console.log(message);
         });
     });
+
+    $: if (socket) {
+        socketStore.set(socket);
+    }
 </script>
 
 <div
     style="position:relative; height:100%; width:100%; background-color: rgb(14,22,37)"
 >
     <Canvas>
-        <UI {socket} />
+        <UI />
         <World>
             <Scene bind:this={scene} {socket} />
         </World>

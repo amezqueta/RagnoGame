@@ -8,11 +8,15 @@
   import { BoxGeometry, MeshStandardMaterial, Vector3 } from "three";
   import { onDestroy } from "svelte";
   import { RigidBody, Collider, useRapier } from "@threlte/rapier";
-  import { playerRigidbodyStore, playerTranslationStore } from "./stores";
+  import {
+    playerColorStore,
+    playerRigidbodyStore,
+    playerTranslationStore,
+  } from "./stores";
   import { clamp } from "svelte-tweakpane-ui/Utils.js";
   import TextBillboard from "./TextBillboard.svelte";
 
-  let rigidBody: RRigidBody = $playerRigidbodyStore;
+  let rigidBody: RRigidBody;
   let playerTranslation: Vector3 = $playerTranslationStore;
   const { camera } = useThrelte();
   const material = new MeshStandardMaterial();
@@ -23,7 +27,7 @@
 
   export let socket: any = null;
   export let userId: string = "";
-  export let color: string = "#FF0000";
+  export let color: string = "";
 
   let forward = false;
   let backward = false;
@@ -194,6 +198,10 @@
 
   $: if (playerTranslation) {
     playerTranslationStore.set(playerTranslation);
+  }
+
+  $: if (color) {
+    playerColorStore.set(color);
   }
 </script>
 
