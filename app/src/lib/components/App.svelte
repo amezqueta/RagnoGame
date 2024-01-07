@@ -5,7 +5,7 @@
     import io from "socket.io-client";
     import { onMount } from "svelte";
     import { World } from "@threlte/rapier";
-    import { socketStore } from "./stores";
+    import { playerDataStore, serverPlayersStore, socketStore } from "./stores";
     import Scene from "./Scene.svelte";
 
     let socket: any = null;
@@ -27,11 +27,17 @@
     onMount(() => {
         socket = io("http://localhost:3000");
 
-        socket.on("user-connected", (playerData: any) => {
-            waitForPlayersWrapper().then(() => {
-                playersWrapper.OnUserConnected(playerData);
-            });
+        socket.on("connected", (playerData: any, serverPlayers: any[]) => {
+            console.log("New connection: (" + playerData.userId + ")");
+            playerDataStore.set(playerData);
+            serverPlayersStore.set(serverPlayers);
         });
+
+        socket.on("players-list", (serverPlayers: any[]) => {
+            serverPlayersStore.set(serverPlayers);
+        });
+
+        /*
 
         socket.on("user-disconnected", (userId: string) => {
             waitForPlayersWrapper().then(() => {
@@ -49,7 +55,7 @@
             waitForPlayersWrapper().then(() => {
                 playersWrapper.UpdatePlayersList(serverPlayers);
             });
-        });
+        });*/
 
         socket.on("disconnect", () => {
             window.location.reload();
@@ -71,7 +77,7 @@
     <Canvas>
         <UI />
         <World>
-            <PlayersWrapper bind:this={playersWrapper} {socket} />
+            <PlayersWrapper bind:this={playersWrapper} />
             <Scene />
         </World>
     </Canvas>

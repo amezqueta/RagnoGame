@@ -1,27 +1,90 @@
 <script lang="ts">
-    import { onMount } from "svelte";
     import Player from "$lib/components/Player.svelte";
     import OnlinePlayer from "$lib/components/OnlinePlayer.svelte";
-    import { serverPlayersStore } from "./stores";
+    import { playerDataStore, serverPlayersStore, socketStore } from "./stores";
 
     let player: any = null;
     let currentPlayerData: any = null;
     let scenePlayers: any[] = [];
 
-    export let socket: any;
+    let socket: any;
 
-    export function UpdatePlayersList(serverPlayers: any[]) {
-        serverPlayersStore.set(serverPlayers);
+    $: if (playerDataStore) currentPlayerData = $playerDataStore;
+    //Creates the player
+    $: if (currentPlayerData && !player) {
+        const params = new URLSearchParams(window.location.search);
+        let nick = params.get("nick") || "";
+        socket.emit("server-set-nick", nick);
+        player = new Player({
+            target: document.body,
+            props: {
+                socket: socket,
+                userId: currentPlayerData.userId,
+                color: currentPlayerData.color,
+                nick: nick,
+            },
+        });
     }
 
-    //On connecting to the client
-    export function OnConnected(playerData: any, serverPlayers: any[]) {
-        console.log("New connection: (" + playerData.userId + ")");
-        currentPlayerData = playerData;
+    $: if ($serverPlayersStore) {
+        UpdatePlayers($serverPlayersStore);
+        CreateFirstPlayers($serverPlayersStore);
+    }
 
-        //Updates the scenePlayers with the serverUsers
+    function UpdatePlayers(serverPlayers: any[]) {
+        if (scenePlayers.length == 0) return;
+        //Add new Player
+        serverPlayers
+            .filter((x) => x.userId !== currentPlayerData.userId)
+            .forEach((playerData) => {
+                const foundPlayer = scenePlayers.find(
+                    (p) => p.userId === playerData.userId,
+                );
+                if (!foundPlayer) {
+                    let playerInstance = new OnlinePlayer({
+                        target: document.body,
+                        props: {
+                            position: playerData.position,
+                            color: playerData.color,
+                            userId: playerData.userId,
+                            nick: playerData.nick,
+                        },
+                    });
+                    scenePlayers = [
+                        ...scenePlayers,
+                        {
+                            userId: playerData.userId,
+                            position: [
+                                playerData.position.x,
+                                playerData.position.y,
+                                playerData.position.z,
+                            ],
+                            color: playerData.color,
+                            nick: playerData.nick,
+                            playerInstance: playerInstance,
+                        },
+                    ];
+                    return;
+                }
+            });
+
+        //Remove Player
+        scenePlayers.forEach((playerData, index) => {
+            const foundPlayer = serverPlayers.find(
+                (p) => p.userId === playerData.userId,
+            );
+            if (!foundPlayer) {
+                playerData.playerInstance.$destroy();
+                scenePlayers.splice(index, 1);
+            }
+        });
+    }
+
+    function CreateFirstPlayers(serverPlayers: any[]) {
+        if (scenePlayers.length != 0) return;
+        //Creates an array to save the instances and its data
         serverPlayers.forEach((player) => {
-            if (player.userId != playerData.userId)
+            if (player.userId != currentPlayerData.userId) {
                 scenePlayers = [
                     ...scenePlayers,
                     {
@@ -36,87 +99,29 @@
                         playerInstance: null,
                     },
                 ];
-        });
-    }
-
-    //On a new user is connected to the server
-    export function OnUserConnected(playerData: any) {
-        if (currentPlayerData.userId == playerData.userId)
-            //If is the current user, it ignores it
-            return;
-
-        console.log("New user connected: (" + playerData.userId + ")");
-
-        scenePlayers = [
-            ...scenePlayers,
-            {
-                userId: playerData.userId,
-                position: [
-                    playerData.position.x,
-                    playerData.position.y,
-                    playerData.position.z,
-                ],
-                color: playerData.color,
-                nick: playerData.nick,
-                playerInstance: null,
-            },
-        ];
-    }
-
-    export function OnUserDisconnected(userId: string) {
-        const userIndex = scenePlayers.findIndex(
-            (user) => user.userId === userId,
-        );
-        if (userIndex !== -1) {
-            scenePlayers[userIndex].disconnected = true;
-        }
-    }
-
-    //Creates the player
-    $: if (currentPlayerData && !player) {
-        const params = new URLSearchParams(window.location.search);
-        let nick = params.get("nick") || "";
-        socket.emit("server-set-nick", nick);
-        player = new Player({
-            target: canvas,
-            props: {
-                socket: socket,
-                userId: currentPlayerData.userId,
-                color: currentPlayerData.color,
-                nick: nick,
-            },
-        });
-    }
-
-    $: {
-        scenePlayers.forEach((player, index) => {
-            //If it is marked for desconnection
-            if (player.disconnected && player.playerInstance) {
-                player.playerInstance.$destroy();
-                player.playerInstance = null;
-                scenePlayers.splice(index, 1);
-            } else {
-                //Creates the online players
-                if (player.playerInstance == null) {
-                    let onlinePlayer = new OnlinePlayer({
-                        target: canvas,
-                        props: {
-                            position: player.position,
-                            color: player.color,
-                            userId: player.userId,
-                            nick: player.nick,
-                        },
-                    });
-                    player.playerInstance = onlinePlayer;
-                }
             }
         });
+
+        //Creates an instance of each player
+        scenePlayers.forEach((player, index) => {
+            let onlinePlayer = new OnlinePlayer({
+                target: document.body,
+                props: {
+                    position: player.position,
+                    color: player.color,
+                    userId: player.userId,
+                    nick: player.nick,
+                },
+            });
+            player.playerInstance = onlinePlayer;
+        });
     }
 
-    let canvas: any = null;
-    onMount(() => {
-        canvas = document.querySelector("Canvas");
+    $: if (socketStore) {
+        socket = $socketStore;
+    }
 
+    $: if (socket) {
         socket.on("move", (userId: string, newPos: any) => {
             const user = scenePlayers.find((user) => user.userId === userId);
             if (user) {
@@ -137,5 +142,5 @@
                 user.playerInstance?.SetNick(newNick);
             }
         });
-    });
+    }
 </script>

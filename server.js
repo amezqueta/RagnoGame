@@ -30,11 +30,14 @@ io.on('connection', (socket) => {
 
     const userAmount = serverPlayers.length;
     console.log('User (' + socket.id + ') connected to the server (' + userAmount + ')');
-    io.emit('msg', "User connected: (" + userAmount + ")");
+    io.emit('msg', "SERVER: User connected: (" + userAmount + ")");
 
     socket.emit('connected', player, serverPlayers);
-    io.emit('user-connected', player);
-    io.emit('players-list', serverPlayers);
+    io.sockets.sockets.forEach((sock) => {
+        if (sock.id != socket.id) {
+            sock.emit('players-list', serverPlayers);
+        }
+    });
 
     socket.on('msg', (msg) => {
         io.emit('msg', msg);
@@ -59,7 +62,7 @@ io.on('connection', (socket) => {
         player.nick = nick;
         io.emit('user-set-nick', socket.id, nick);
         io.emit('players-list', serverPlayers);
-    })
+    });
 
     socket.on('disconnect', (reason) => {
         const index = serverPlayers.findIndex(player => player.userId === socket.id);
@@ -68,8 +71,6 @@ io.on('connection', (socket) => {
         }
         const userAmount = serverPlayers.length;
         console.log('User (' + socket.id + ') disconnected from the server (' + userAmount + "): " + reason);
-        io.emit('msg', "User disconnected: (" + userAmount + ")");
-        io.emit('user-disconnected', socket.id);
         io.emit('players-list', serverPlayers);
     });
 });
