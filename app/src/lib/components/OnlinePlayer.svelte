@@ -12,7 +12,7 @@
     export let position = [0, 0, 0];
     let textPosition = [0, 2, 0];
     export let color: string = "#FF0000";
-    let nick: string = userId;
+    export let nick: string = userId;
 
     export function SetPosition(newPos: any) {
         position = [newPos.x, newPos.y, newPos.z];

@@ -23,18 +23,19 @@
         currentPlayerData = playerData;
 
         //Updates the scenePlayers with the serverUsers
-        serverPlayers.forEach((user) => {
-            if (user.userId != playerData.userId)
+        serverPlayers.forEach((player) => {
+            if (player.userId != playerData.userId)
                 scenePlayers = [
                     ...scenePlayers,
                     {
-                        userId: user.userId,
+                        userId: player.userId,
                         position: [
-                            user.position.x,
-                            user.position.y,
-                            user.position.z,
+                            player.position.x,
+                            player.position.y,
+                            player.position.z,
                         ],
-                        color: user.color,
+                        color: player.color,
+                        nick: player.nick,
                         playerInstance: null,
                     },
                 ];
@@ -78,21 +79,23 @@
     }
 
     $: {
-        scenePlayers.forEach((user, index) => {
+        scenePlayers.forEach((player, index) => {
             //If it is marked for desconnection
-            if (user.disconnected && user.playerInstance) {
-                user.playerInstance.$destroy();
-                user.playerInstance = null;
+            if (player.disconnected && player.playerInstance) {
+                player.playerInstance.$destroy();
+                player.playerInstance = null;
                 scenePlayers.splice(index, 1);
             } else {
                 //Creates the online players
-                if (user.playerInstance == null) {
-                    user.playerInstance = new OnlinePlayer({
+                if (player.playerInstance == null) {
+                    console.log(player.nick);
+                    player.playerInstance = new OnlinePlayer({
                         target: canvas,
                         props: {
-                            position: user.position,
-                            color: user.color,
-                            userId: user.userId,
+                            position: player.position,
+                            color: player.color,
+                            userId: player.userId,
+                            nick: player.nick,
                         },
                     });
                 }
