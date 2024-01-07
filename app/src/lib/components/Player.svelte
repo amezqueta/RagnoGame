@@ -45,10 +45,6 @@
   let collisionForce: any;
   let collisionMagnitude: number;
 
-  onMount(() => {
-    console.log("Player mounted");
-  });
-
   onDestroy(() => {
     console.log("Player destroyed (" + userId + ")");
   });
@@ -197,9 +193,15 @@
     playerTranslationStore.set(playerTranslation);
   }
 
-  $: if (color) {
-    playerColorStore.set(color);
+  $: if (color) playerColorStore.set(color);
+  $: if ($playerColorStore) {
+    color = $playerColorStore;
+    socket.emit("server-color", color);
   }
+
+  onMount(() => {
+    console.log("Player mounted " + color);
+  });
 </script>
 
 <svelte:window on:keydown|preventDefault={onKeyDown} on:keyup={onKeyUp} />

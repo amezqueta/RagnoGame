@@ -2,19 +2,13 @@
     import { Color, Folder, Pane, Text, ThemeUtils } from "svelte-tweakpane-ui";
     import { playerColorStore, serverPlayersStore } from "./stores";
 
-    let socket: any;
     let color = "#f33653";
-    let loadedColor = false;
 
     let serverPlayers: any[];
 
     $: if ($serverPlayersStore) serverPlayers = $serverPlayersStore;
-
-    $: if (loadedColor && socket) socket.emit("server-color", color);
-    $: if ($playerColorStore && !loadedColor) {
-        color = $playerColorStore;
-        loadedColor = true;
-    }
+    $: if (playerColorStore) color = $playerColorStore;
+    $: if (color) playerColorStore.set(color);
 </script>
 
 {#if serverPlayers}
