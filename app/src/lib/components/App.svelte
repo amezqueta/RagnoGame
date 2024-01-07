@@ -45,7 +45,7 @@
         });
 
         socket.on('disconnect', () => {
-            scene.OnDisconnected();
+            window.location.reload();
         })
 
         socket.on('msg', (message: string) => {

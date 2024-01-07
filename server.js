@@ -34,7 +34,6 @@ io.on('connection', (socket) => {
 
     socket.emit('connected', player, serverPlayers);
     io.emit('user-connected', socket.id);
-    io.emit('users-list', serverPlayers);
 
     socket.on('msg', (msg) => {
         io.emit('msg', msg);
@@ -53,6 +52,13 @@ io.on('connection', (socket) => {
         player.color = color;
         io.emit('user-color', socket.id, color);
     });
+
+    socket.on('server-set-nick', (nick) => {
+        let player = serverPlayers.find(x => x.userId === socket.id);
+        player.nick = nick;
+        io.emit('user-set-nick', socket.id, nick);
+        io.emit('users-list', serverPlayers);
+    })
 
     socket.on('disconnect', (reason) => {
         const index = serverPlayers.findIndex(player => player.userId === socket.id);

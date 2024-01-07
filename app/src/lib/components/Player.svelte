@@ -19,6 +19,7 @@
 
     export let socket: any = null;
     export let userId: string = "";
+    let nick = '';
 
     export let color: string = "#FF0000";
 
@@ -40,6 +41,9 @@
 
     onMount(() => {
         console.log("Player mounted");
+        const params = new URLSearchParams(window.location.search);
+        nick = params.get('nick') || userId;
+        socket.emit('server-set-nick', nick);
     })
 
     onDestroy(() => {
@@ -198,6 +202,6 @@
     }}
   bind:rigidBody={rigidBody} enabledRotations={[false, false, false]} >
     <T.Mesh castShadow {geometry} {material}/>
-    <Text text={userId} position="{[0, 3, 0]}" fontSize="1" outlineWidth={0.03} outlineColor={"#000000"} anchorX={"center"} />
+    <Text text={nick} position="{[0, 3, 0]}" fontSize="1" outlineWidth={0.03} color={color} outlineColor={"#000000"} anchorX={"center"} />
 		<Collider shape="capsule" args={[0.3, 0.2]} bind:collider={playerCollider} />
 	</RigidBody>

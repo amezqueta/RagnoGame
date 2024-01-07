@@ -10,24 +10,26 @@
     const material = new MeshStandardMaterial();
     const geometry = new BoxGeometry(2, 2, 2);
 
-    export let socket: any = null;
     export let userId: string = "";
     export let position = [0, 0, 0];
     let textPosition = [0, 2, 0];
     export let color: string = "#FF0000";
+    let nick: string = userId;
 
     export function SetPosition(newPos: any) {
         position = [newPos.x, newPos.y, newPos.z];
     }
 
+    export function SetColor(newColor: string){
+        color = newColor;
+    }
+
+    export function SetNick(newNick: string){
+        nick = newNick;
+    }
+
     onMount(() => {
         console.log("Online Player mounted");
-    })
-
-    socket.on('user-color', (id: string, newColor: string) => {
-        if (userId === id) {
-            color = newColor;
-        }
     })
 
     onDestroy(() => {
@@ -47,4 +49,4 @@
 </script>
 
 <T.Mesh castShadow {geometry} {material} position={position}/>
-<Text text={userId} position="{textPosition}" fontSize="1" outlineWidth={0.03} color={color} anchorX={"center"}  />
+<Text text={nick} position="{textPosition}" fontSize="1" outlineWidth={0.03} color={color} anchorX={"center"}  />

@@ -10,10 +10,10 @@
     export let socket: any;
 
     let color = '#f33653'
-    let connectedUsers: string[] = [];
+    let connectedUsers: any[] = [];
 
     socket.on('users-list', (userList: any[]) => {
-        connectedUsers = userList.map(x => x.userId);
+        connectedUsers = userList;
     })
 
     socket.on('connected', (player: any) => {
@@ -36,7 +36,7 @@
 
     <Folder title="Players:">
         {#each connectedUsers as user}
-            <Text bind:value={user}/>
+            <Text value={user.nick == null ? user.userId : user.nick}/>
         {/each}
     </Folder>
 

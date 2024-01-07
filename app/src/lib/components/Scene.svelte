@@ -21,7 +21,7 @@
 
     //On connecting to the client
     export function OnConnected(playerData: any, serverPlayers: any[]) {
-        console.log("New connection: (" + playerData.color + ")");
+        console.log("New connection: (" + playerData.userId + ")");
         currentPlayerData = playerData;
 
         //Updates the scenePlayers with the serverUsers
@@ -34,13 +34,6 @@
                     playerInstance: null
                 }];
         });
-    }
-
-    export function OnDisconnected() {
-        if (player) {
-            player.$destroy();
-            player = null;
-        }
     }
 
     //On a new user is connected to the server
@@ -82,11 +75,9 @@
                 scenePlayers.splice(index, 1);
             } else { //Creates the online players
                 if (user.playerInstance == null) {
-                    console.log(user.position);
                     user.playerInstance = new OnlinePlayer({
                         target: canvas,
                         props: {
-                            socket: socket,
                             position: user.position,
                             color: user.color,
                             userId: user.userId
@@ -102,17 +93,28 @@
         canvas = document.querySelector('Canvas');
 
         socket.on('move', (userId: string, newPos: any) => {
-            const userToUpdate = scenePlayers.find(user => user.userId === userId);
-            if (userToUpdate) {
-                userToUpdate.playerInstance?.SetPosition(newPos);
+            const user = scenePlayers.find(user => user.userId === userId);
+            if (user) {
+                user.playerInstance?.SetPosition(newPos);
             }
         })
+        
+        socket.on('user-color', (userId: string, newColor: string) => {
+            const user = scenePlayers.find(user => user.userId === userId);
+            if (user) {
+                user.playerInstance?.SetColor(newColor);
+            }
+        })
+
+        socket.on('user-set-nick', (userId: string, newNick: string) => {
+            const user = scenePlayers.find(user => user.userId === userId);
+            if (user) {
+                user.playerInstance?.SetNick(newNick);
+            }
+        })
+        
     });
-
-
 </script>
-
-
 
 <T.PerspectiveCamera
     makeDefault
