@@ -1,6 +1,6 @@
 const express = require('express');
 const http = require('http');
-const {Server} = require('socket.io');
+const { Server } = require('socket.io');
 const cors = require('cors');
 const path = require('path');
 
@@ -33,7 +33,8 @@ io.on('connection', (socket) => {
     io.emit('msg', "User connected: (" + userAmount + ")");
 
     socket.emit('connected', player, serverPlayers);
-    io.emit('user-connected', socket.id);
+    io.emit('user-connected', player);
+    io.emit('players-list', serverPlayers);
 
     socket.on('msg', (msg) => {
         io.emit('msg', msg);
@@ -57,7 +58,7 @@ io.on('connection', (socket) => {
         let player = serverPlayers.find(x => x.userId === socket.id);
         player.nick = nick;
         io.emit('user-set-nick', socket.id, nick);
-        io.emit('users-list', serverPlayers);
+        io.emit('players-list', serverPlayers);
     })
 
     socket.on('disconnect', (reason) => {
@@ -69,7 +70,7 @@ io.on('connection', (socket) => {
         console.log('User (' + socket.id + ') disconnected from the server (' + userAmount + "): " + reason);
         io.emit('msg', "User disconnected: (" + userAmount + ")");
         io.emit('user-disconnected', socket.id);
-        io.emit('users-list', serverPlayers);
+        io.emit('players-list', serverPlayers);
     });
 });
 

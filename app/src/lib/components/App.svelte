@@ -26,9 +26,9 @@
     onMount(() => {
         socket = io("http://localhost:3000");
 
-        socket.on("user-connected", (userId: string) => {
+        socket.on("user-connected", (playerData: any) => {
             waitForScene().then(() => {
-                scene.OnUserConnected(userId);
+                scene.OnUserConnected(playerData);
             });
         });
 
@@ -41,6 +41,12 @@
         socket.on("connected", (playerData: any, serverPlayers: any[]) => {
             waitForScene().then(() => {
                 scene.OnConnected(playerData, serverPlayers);
+            });
+        });
+
+        socket.on("players-list", (serverPlayers: any[]) => {
+            waitForScene().then(() => {
+                scene.UpdatePlayersList(serverPlayers);
             });
         });
 

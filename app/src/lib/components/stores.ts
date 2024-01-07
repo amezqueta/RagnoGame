@@ -6,3 +6,5 @@ export const cameraControls = writable(undefined)
 export const playerRigidbodyStore = writable<RRigidBody>(undefined)
 export const playerTranslationStore = writable(new Vector3())
 export const playerColorStore = writable<string>(undefined)
+
+export const serverPlayersStore = writable<any[]>(undefined)

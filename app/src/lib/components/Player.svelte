@@ -23,8 +23,8 @@
   const geometry = new BoxGeometry(2, 2, 2);
 
   let playerCollider: RCollider;
-  let nick = "";
 
+  export let nick: string = "";
   export let socket: any = null;
   export let userId: string = "";
   export let color: string = "";
@@ -47,9 +47,6 @@
 
   onMount(() => {
     console.log("Player mounted");
-    const params = new URLSearchParams(window.location.search);
-    nick = params.get("nick") || userId;
-    socket.emit("server-set-nick", nick);
   });
 
   onDestroy(() => {

@@ -8,6 +8,7 @@
     import { BoxGeometry, MeshStandardMaterial } from "three";
     import type CameraControls from "camera-controls";
     import CameraControlsComponent from "./CameraControls.svelte";
+    import { serverPlayersStore } from "./stores";
 
     let player: any = null;
     let currentPlayerData: any = null;
@@ -16,6 +17,10 @@
     let camera: CameraControls;
 
     export let socket: any;
+
+    export function UpdatePlayersList(serverPlayers: any[]) {
+        serverPlayersStore.set(serverPlayers);
+    }
 
     //On connecting to the client
     export function OnConnected(playerData: any, serverPlayers: any[]) {
@@ -43,17 +48,26 @@
     }
 
     //On a new user is connected to the server
-    export function OnUserConnected(userId: string) {
-        if (currentPlayerData.userId == userId)
+    export function OnUserConnected(playerData: any) {
+        if (currentPlayerData.userId == playerData.userId)
             //If is the current user, it ignores it
             return;
 
-        console.log("New user connected: (" + userId + ")");
+        console.log("New user connected: (" + playerData.userId + ")");
 
-        //La creacion de new Player se tiene que hacer desde $:, desde aqui no tiene alcance ¯\_(ツ)_/¯
         scenePlayers = [
             ...scenePlayers,
-            { userId: userId, playerInstance: null },
+            {
+                userId: playerData.userId,
+                position: [
+                    playerData.position.x,
+                    playerData.position.y,
+                    playerData.position.z,
+                ],
+                color: playerData.color,
+                nick: playerData.nick,
+                playerInstance: null,
+            },
         ];
     }
 
@@ -68,12 +82,16 @@
 
     //Creates the player
     $: if (currentPlayerData && !player) {
+        const params = new URLSearchParams(window.location.search);
+        let nick = params.get("nick") || "";
+        socket.emit("server-set-nick", nick);
         player = new Player({
             target: canvas,
             props: {
                 socket: socket,
                 userId: currentPlayerData.userId,
                 color: currentPlayerData.color,
+                nick: nick,
             },
         });
     }
@@ -88,8 +106,7 @@
             } else {
                 //Creates the online players
                 if (player.playerInstance == null) {
-                    console.log(player.nick);
-                    player.playerInstance = new OnlinePlayer({
+                    let onlinePlayer = new OnlinePlayer({
                         target: canvas,
                         props: {
                             position: player.position,
@@ -98,6 +115,7 @@
                             nick: player.nick,
                         },
                     });
+                    player.playerInstance = onlinePlayer;
                 }
             }
         });
