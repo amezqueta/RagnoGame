@@ -10,18 +10,19 @@
     let socket: any;
 
     $: if (playerDataStore) currentPlayerData = $playerDataStore;
-    //Creates the player
+
     $: if (currentPlayerData && !player) {
+        //Creates the player
         const params = new URLSearchParams(window.location.search);
-        let nick = params.get("nick") || "";
-        socket.emit("server-set-nick", nick);
+        let nick = params.get("nick") || null;
+        if (nick) socket.emit("server-set-nick", nick);
         player = new Player({
             target: document.body,
             props: {
                 socket: socket,
                 userId: currentPlayerData.userId,
                 color: currentPlayerData.color,
-                nick: nick,
+                nick: nick ? nick : currentPlayerData.userId,
             },
         });
     }
