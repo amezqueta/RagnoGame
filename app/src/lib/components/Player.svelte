@@ -1,11 +1,17 @@
 <script lang="ts">
   import {
+    CharacterCollision,
     type Collider as RCollider,
     type RigidBody as RRigidBody,
   } from "@dimforge/rapier3d-compat";
   import { onMount } from "svelte";
   import { T, useTask, useThrelte } from "@threlte/core";
-  import { BoxGeometry, MeshStandardMaterial, Vector3 } from "three";
+  import {
+    BoxGeometry,
+    MeshStandardMaterial,
+    Vector3,
+    type Vector,
+  } from "three";
   import { onDestroy } from "svelte";
   import { RigidBody, Collider, useRapier } from "@threlte/rapier";
   import {
@@ -56,44 +62,59 @@
   });
 
   let velocity = new Vector3();
+  let jumpVelocity: number = 0;
+
+  function DirectionCamera(direction: Vector3): Vector3 {
+    let forward = new Vector3();
+    camera.current.getWorldDirection(forward);
+    forward.y = 0;
+    forward.normalize();
+
+    let up = new Vector3(0, 1, 0);
+    let right = new Vector3();
+    right.crossVectors(up, forward).normalize();
+
+    let moveDirection = forward
+      .multiplyScalar(-direction.z)
+      .add(right.multiplyScalar(direction.x));
+    return moveDirection;
+  }
+
+  function PlayerJump(deltaTime: number) {
+    const playerIsgrounded = PlayerIsGrounded();
+    if (playerIsgrounded) jumpVelocity = 0;
+    else jumpVelocity -= 20 * deltaTime;
+    if (space && playerIsgrounded) jumpVelocity += 10;
+    jumpVelocity = clamp(jumpVelocity, -10, 10);
+  }
+
+  function PlayerMovement(deltaTime: number) {
+    velocity.z *= deltaTime;
+    velocity.x *= deltaTime;
+
+    const speed = 10;
+    if (forward) velocity.z -= speed;
+    if (backward) velocity.z += speed;
+    if (left) velocity.x -= speed;
+    if (right) velocity.x += speed;
+
+    velocity = DirectionCamera(velocity);
+    controller.computeColliderMovement(playerCollider, velocity);
+  }
+
+  function ReturnPlayerOnFall() {
+    if (rigidBody.translation().y < -2) {
+      rigidBody.setTranslation(new Vector3(0, 0, 0), true);
+    }
+  }
 
   useTask((deltaTime) => {
-    const playerIsgrounded = PlayerIsGrounded();
+    PlayerMovement(deltaTime);
+    PlayerJump(deltaTime);
+    velocity.y = jumpVelocity;
+    rigidBody.setLinvel(velocity, true);
 
-    if (playerIsgrounded) velocity.y = 0;
-    else velocity.y -= deltaTime * 20;
-
-    // Simulate movement damping
-    velocity.z *= playerIsgrounded ? 0.5 : 0.1;
-    velocity.x *= playerIsgrounded ? 0.5 : 0.1;
-
-    const speed = playerIsgrounded ? 300 : 300;
-    if (forward) velocity.z -= deltaTime * speed;
-    if (backward) velocity.z += deltaTime * speed;
-    if (left) velocity.x -= deltaTime * speed;
-    if (right) velocity.x += deltaTime * speed;
-    if (space && playerIsgrounded) velocity.y += 10;
-
-    controller.computeColliderMovement(playerCollider, velocity);
-
-    /*
-      // (optional) Check collisions
-      for (var i = 0; i < controller.numComputedCollisions(); i++) {
-        let out;
-        let collision = controller.computedCollision(i, out);
-          console.log(controller.numComputedCollisions()+" "+collision?.collider);
-
-        if(out){
-        }
-        if(collisionForce!=null && collision && collision.normal1.y > 0)
-        {
-          //console.log(controller.numComputedCollisions());
-          velocity.y = 0;
-        }
-      }*/
-
-    velocity.y = clamp(velocity.y, -10, 10);
-    MoveToCamera(velocity, velocity.y, deltaTime);
+    ReturnPlayerOnFall();
 
     if (!rigidBody.isSleeping())
       socket.emit(
@@ -106,34 +127,6 @@
         ),
       );
   });
-
-  export function MoveToCamera(
-    direction: Vector3,
-    yVelocity: number,
-    deltaTime: number,
-  ) {
-    if (!rigidBody) return;
-
-    let forward = new Vector3();
-    camera.current.getWorldDirection(forward);
-    forward.y = 0;
-    forward.normalize();
-
-    let up = new Vector3(0, 1, 0);
-    let right = new Vector3();
-    right.crossVectors(up, forward).normalize();
-    right.y = 0;
-    right.normalize();
-
-    let moveDirection = forward
-      .multiplyScalar(-direction.z)
-      .add(right.multiplyScalar(direction.x));
-    moveDirection.clampScalar(-7, 7);
-    moveDirection.multiplyScalar(deltaTime * 100);
-    moveDirection.y = yVelocity;
-    playerTranslation = moveDirection;
-    rigidBody.setLinvel(moveDirection, true);
-  }
 
   function PlayerIsGrounded(): boolean {
     return collisionForce != null && collisionForce.y > 1;

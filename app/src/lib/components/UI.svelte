@@ -1,6 +1,15 @@
 ﻿<script lang="ts">
-    import { Color, Folder, Pane, Text, ThemeUtils } from "svelte-tweakpane-ui";
+    import {
+        Color,
+        Folder,
+        FpsGraph,
+        Pane,
+        Text,
+        ThemeUtils,
+    } from "svelte-tweakpane-ui";
     import { playerColorStore, serverPlayersStore } from "./stores";
+    import { onMount } from "svelte";
+    import { useTask } from "@threlte/core";
 
     let color = "#f33653";
 
@@ -21,5 +30,6 @@
                 <Text value={user.nick == null ? user.userId : user.nick} />
             {/each}
         </Folder>
+        <FpsGraph interval={50} label="FPS" rows={5} />
     </Pane>
 {/if}
