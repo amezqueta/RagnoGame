@@ -7,6 +7,7 @@
     import { World } from "@threlte/rapier";
     import { playerDataStore, serverPlayersStore, socketStore } from "./stores";
     import Scene from "./Scene.svelte";
+    import { Audio, AudioListener } from "@threlte/extras";
 
     let socket: any = null;
 
@@ -25,7 +26,7 @@
         });
 
     onMount(() => {
-        socket = io("http://localhost:3000");
+        socket = io("http://26.132.182.96:3000");
 
         socket.on("connected", (playerData: any, serverPlayers: any[]) => {
             console.log("New connection: (" + playerData.userId + ")");
@@ -36,26 +37,6 @@
         socket.on("players-list", (serverPlayers: any[]) => {
             serverPlayersStore.set(serverPlayers);
         });
-
-        /*
-
-        socket.on("user-disconnected", (userId: string) => {
-            waitForPlayersWrapper().then(() => {
-                playersWrapper.OnUserDisconnected(userId);
-            });
-        });
-
-        socket.on("connected", (playerData: any, serverPlayers: any[]) => {
-            waitForPlayersWrapper().then(() => {
-                playersWrapper.OnConnected(playerData, serverPlayers);
-            });
-        });
-
-        socket.on("players-list", (serverPlayers: any[]) => {
-            waitForPlayersWrapper().then(() => {
-                playersWrapper.UpdatePlayersList(serverPlayers);
-            });
-        });*/
 
         socket.on("disconnect", () => {
             window.location.reload();
@@ -75,6 +56,7 @@
     style="position:relative; height:100%; width:100%; background-color: rgb(14,22,37)"
 >
     <Canvas>
+        <AudioListener />
         <UI />
         <World>
             <PlayersWrapper bind:this={playersWrapper} />

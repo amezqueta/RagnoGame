@@ -1,8 +1,8 @@
 <script lang="ts">
     import { AutoColliders } from "@threlte/rapier";
     import { T } from "@threlte/core";
-    import { ContactShadows, Grid, OrbitControls, Text } from "@threlte/extras";
-    import { BoxGeometry, Group, MeshStandardMaterial } from "three";
+    import { ContactShadows, Grid, OrbitControls } from "@threlte/extras";
+    import { BoxGeometry, MeshStandardMaterial } from "three";
     import CameraControlsComponent from "./CameraControls.svelte";
 </script>
 

@@ -1,17 +1,11 @@
 <script lang="ts">
   import {
-    CharacterCollision,
     type Collider as RCollider,
     type RigidBody as RRigidBody,
   } from "@dimforge/rapier3d-compat";
   import { onMount } from "svelte";
   import { T, useTask, useThrelte } from "@threlte/core";
-  import {
-    BoxGeometry,
-    MeshStandardMaterial,
-    Vector3,
-    type Vector,
-  } from "three";
+  import { BoxGeometry, MeshStandardMaterial, Vector3 } from "three";
   import { onDestroy } from "svelte";
   import { RigidBody, Collider, useRapier } from "@threlte/rapier";
   import {
@@ -24,7 +18,6 @@
 
   let rigidBody: RRigidBody;
   let playerTranslation: Vector3 = $playerTranslationStore;
-  const { camera } = useThrelte();
   const material = new MeshStandardMaterial();
   const geometry = new BoxGeometry(2, 2, 2);
 
@@ -41,6 +34,7 @@
   let left = false;
   let space = false;
 
+  const { camera } = useThrelte();
   const { world } = useRapier();
   let controller = world.createCharacterController(0.01);
   controller.setMaxSlopeClimbAngle((45 * Math.PI) / 180);
@@ -81,10 +75,12 @@
   }
 
   function PlayerJump(deltaTime: number) {
-    const playerIsgrounded = PlayerIsGrounded();
+    const playerIsgrounded = playerIsGrounded();
     if (playerIsgrounded) jumpVelocity = 0;
     else jumpVelocity -= 20 * deltaTime;
-    if (space && playerIsgrounded) jumpVelocity += 10;
+    if (space && playerIsgrounded) {
+      jumpVelocity += 10;
+    }
     jumpVelocity = clamp(jumpVelocity, -10, 10);
   }
 
@@ -128,7 +124,7 @@
       );
   });
 
-  function PlayerIsGrounded(): boolean {
+  function playerIsGrounded(): boolean {
     return collisionForce != null && collisionForce.y > 1;
   }
 
@@ -197,7 +193,7 @@
   });
 </script>
 
-<svelte:window on:keydown|preventDefault={onKeyDown} on:keyup={onKeyUp} />
+<svelte:window on:keydown={onKeyDown} on:keyup={onKeyUp} />
 
 <RigidBody
   on:collisionexit={() => {
@@ -213,5 +209,5 @@
 >
   <T.Mesh castShadow {geometry} {material} />
   <TextBillboard text={nick} position={[0, 3, 0]} {color} />
-  <Collider shape="capsule" args={[0.3, 0.2]} bind:collider={playerCollider} />
+  <Collider shape="capsule" args={[0.3, 1]} bind:collider={playerCollider} />
 </RigidBody>
