@@ -50,11 +50,7 @@ io.on('connection', (socket) => {
     io.emit('msg', "SERVER: User connected: (" + userAmount + ")");
 
     socket.emit('connected', player, serverPlayers);
-    io.sockets.sockets.forEach((sock) => {
-        if (sock.id != socket.id) {
-            sock.emit('players-list', serverPlayers);
-        }
-    });
+    socket.broadcast.emit('players-list', serverPlayers);
 
     socket.on('msg', (msg) => {
         io.emit('msg', msg);
