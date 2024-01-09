@@ -109,6 +109,7 @@
     PlayerJump(deltaTime);
     velocity.y = jumpVelocity;
     rigidBody.setLinvel(velocity, true);
+    window.addCameraOffset(velocity);
 
     ReturnPlayerOnFall();
 

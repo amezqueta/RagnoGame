@@ -3,11 +3,7 @@
 </script>
 
 <script lang="ts">
-  import {
-    useTask,
-    useParent,
-    useThrelte,
-  } from "@threlte/core";
+  import { useTask, useParent, useThrelte } from "@threlte/core";
   import type {
     CameraControlsEvents,
     CameraControlsProps,
@@ -69,18 +65,29 @@
   getControls().mouseButtons.middle = CameraControls.ACTION.NONE;
   getControls().smoothTime = 0.01;
 
-  useTask(
-    (delta) => {
-      FollowPlayer();
-      const updated = getControls().update(delta);
-      if (updated) invalidate();
-    },
-  );
+  useTask((delta) => {
+    followPlayer();
+    const updated = getControls().update(delta);
+    if (updated) invalidate();
+  });
 
-  function FollowPlayer() {
+  const followPlayer = () => {
     if (!$playerRigidbodyStore) return;
-
     let translation = $playerRigidbodyStore.translation();
     getControls().setTarget(translation.x, translation.y, translation.z, true);
-  }
+  };
+
+  const addCameraOffset = (velocity: Vector3) => {
+    let cameraPosition: Vector3 = new Vector3();
+    getControls().getPosition(cameraPosition);
+    cameraPosition.addScaledVector(velocity, 0.01);
+    getControls().setPosition(
+      cameraPosition.x,
+      cameraPosition.y,
+      cameraPosition.z,
+      false,
+    );
+  };
+
+  window.addCameraOffset = (velocity: Vector3) => addCameraOffset(velocity);
 </script>
