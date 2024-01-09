@@ -12,9 +12,9 @@
     playerColorStore,
     playerRigidbodyStore,
     playerTranslationStore,
-  } from "./stores";
+  } from "../stores";
   import { clamp } from "svelte-tweakpane-ui/Utils.js";
-  import TextBillboard from "./TextBillboard.svelte";
+  import TextBillboard from "../TextBillboard.svelte";
 
   let rigidBody: RRigidBody;
   let playerTranslation: Vector3 = $playerTranslationStore;

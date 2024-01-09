@@ -3,7 +3,7 @@
     import { T } from "@threlte/core";
     import { BoxGeometry, Group, MeshStandardMaterial } from "three";
     import { onDestroy } from "svelte";
-    import TextBillboard from "./TextBillboard.svelte";
+    import TextBillboard from "../TextBillboard.svelte";
     import { Collider } from "@threlte/rapier";
 
     const material = new MeshStandardMaterial();

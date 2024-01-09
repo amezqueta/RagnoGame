@@ -1,6 +1,6 @@
 <script lang="ts">
     import { Canvas } from "@threlte/core";
-    import PlayersWrapper from "./PlayersWrapper.svelte";
+    import PlayersWrapper from "./Players/PlayersWrapper.svelte";
     import UI from "./UI.svelte";
     import io from "socket.io-client";
     import { onMount } from "svelte";
@@ -10,20 +10,6 @@
     import { Audio, AudioListener } from "@threlte/extras";
 
     let socket: any = null;
-
-    let playersWrapper: any;
-
-    const waitForPlayersWrapper = () =>
-        new Promise<void>((resolve) => {
-            const checkPlayersWrapper = () => {
-                if (playersWrapper) {
-                    resolve();
-                } else {
-                    setTimeout(checkPlayersWrapper, 50);
-                }
-            };
-            checkPlayersWrapper();
-        });
 
     onMount(() => {
         socket = io("http://26.132.182.96:3000");
@@ -59,7 +45,7 @@
         <AudioListener />
         <UI />
         <World>
-            <PlayersWrapper bind:this={playersWrapper} />
+            <PlayersWrapper />
             <Scene />
         </World>
     </Canvas>

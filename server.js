@@ -3,6 +3,7 @@ const http = require('http');
 const { Server } = require('socket.io');
 const cors = require('cors');
 const path = require('path');
+const readline = require('readline');
 
 const app = express();
 app.use(cors());
@@ -13,6 +14,22 @@ const io = new Server(server, {
     cors: {
         origin: "http://26.132.182.96:5173",
         credentials: true
+    }
+});
+
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
+
+rl.on('line', (input) => {
+    if (input.toLowerCase() === 'r') {
+        console.log('Restarting server...');
+        io.close(() => {
+            process.exit(0);
+        });
+    }else {
+        io.emit('msg', "SERVER: " + input + "");
     }
 });
 
@@ -76,5 +93,8 @@ io.on('connection', (socket) => {
 });
 
 server.listen(3000, () => {
+    console.log('-----------RAGNO SERVER-----------');
     console.log('Server working on port 3000');
+    console.log('Type r to restart the server');
+    console.log('----------------------------------');
 });

@@ -1,7 +1,7 @@
 <script lang="ts">
-    import Player from "$lib/components/Player.svelte";
-    import OnlinePlayer from "$lib/components/OnlinePlayer.svelte";
-    import { playerDataStore, serverPlayersStore, socketStore } from "./stores";
+    import Player from "$lib/components/Players/Player.svelte";
+    import OnlinePlayer from "$lib/components/Players/OnlinePlayer.svelte";
+    import { playerDataStore, serverPlayersStore, socketStore } from "../stores";
 
     let player: any = null;
     let currentPlayerData: any = null;
