@@ -12,7 +12,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
     cors: {
-        origin: "http://26.132.182.96:5173",
+        origin: "http://localhost:5173",
         credentials: true
     }
 });
@@ -28,12 +28,16 @@ rl.on('line', (input) => {
         io.close(() => {
             process.exit(0);
         });
-    }else {
+    } else if (input.toLowerCase() === 'a') {
+        showAmountOfMsg = !showAmountOfMsg;
+    } else {
         io.emit('msg', "SERVER: " + input + "");
     }
 });
 
-const serverPlayers = [];
+let serverPlayers = [];
+let amountOfMsg = 0;
+let showAmountOfMsg = false;
 
 io.on('connection', (socket) => {
 
@@ -62,12 +66,14 @@ io.on('connection', (socket) => {
             player.position = newPos;
             io.emit('move', userId, newPos);
         }
+        amountOfMsg++;
     })
 
     socket.on('server-color', (color) => {
         let player = serverPlayers.find(x => x.userId === socket.id);
         player.color = color;
         io.emit('user-color', socket.id, color);
+        amountOfMsg++;
     });
 
     socket.on('server-set-nick', (nick) => {
@@ -88,9 +94,17 @@ io.on('connection', (socket) => {
     });
 });
 
+function resetMessageCounter() {
+    if (!showAmountOfMsg)
+        return;
+    console.log(`Amount of messages in the last second: ${amountOfMsg}`);
+    amountOfMsg = 0;
+}
+
 server.listen(3000, () => {
     console.log('-----------RAGNO SERVER-----------');
     console.log('Server working on port 3000');
     console.log('Type r to restart the server');
     console.log('----------------------------------');
+    setInterval(resetMessageCounter, 1000);
 });

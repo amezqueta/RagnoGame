@@ -12,7 +12,7 @@
     let socket: any = null;
 
     onMount(() => {
-        socket = io("http://26.132.182.96:3000");
+        socket = io("http://localhost:3000");
 
         socket.on("connected", (playerData: any, serverPlayers: any[]) => {
             console.log("New connection: (" + playerData.userId + ")");

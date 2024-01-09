@@ -45,6 +45,11 @@
   let collisionForce: any;
   let collisionMagnitude: number;
 
+  let velocity = new Vector3();
+  let jumpVelocity: number = 0;
+  let position: Vector3 = new Vector3();
+  let deltaPosition: Vector3 = new Vector3();
+
   onDestroy(() => {
     console.log("Player destroyed (" + userId + ")");
   });
@@ -54,9 +59,6 @@
       color = newColor;
     }
   });
-
-  let velocity = new Vector3();
-  let jumpVelocity: number = 0;
 
   function DirectionCamera(direction: Vector3): Vector3 {
     let forward = new Vector3();
@@ -74,7 +76,7 @@
     return moveDirection;
   }
 
-  function PlayerJump(deltaTime: number) {
+  function playerJump(deltaTime: number) {
     const playerIsgrounded = playerIsGrounded();
     if (playerIsgrounded) jumpVelocity = 0;
     else jumpVelocity -= 20 * deltaTime;
@@ -84,7 +86,7 @@
     jumpVelocity = clamp(jumpVelocity, -10, 10);
   }
 
-  function PlayerMovement(deltaTime: number) {
+  function playerMovement(deltaTime: number) {
     velocity.z *= deltaTime;
     velocity.x *= deltaTime;
 
@@ -95,23 +97,32 @@
     if (right) velocity.x += speed;
 
     velocity = DirectionCamera(velocity);
-    controller.computeColliderMovement(playerCollider, velocity);
   }
 
-  function ReturnPlayerOnFall() {
+  function returnPlayerOnFall() {
     if (rigidBody.translation().y < -2) {
       rigidBody.setTranslation(new Vector3(0, 0, 0), true);
     }
   }
 
   useTask((deltaTime) => {
-    PlayerMovement(deltaTime);
-    PlayerJump(deltaTime);
+    returnPlayerOnFall();
+    playerMovement(deltaTime);
+    playerJump(deltaTime);
     velocity.y = jumpVelocity;
+    controller.computeColliderMovement(playerCollider, velocity);
     rigidBody.setLinvel(velocity, true);
-    window.addCameraOffset(velocity);
+    deltaPosition = new Vector3(
+      position.x - rigidBody.translation().x,
+      position.y - rigidBody.translation().y,
+      position.z - rigidBody.translation().z,
+    );
 
-    ReturnPlayerOnFall();
+    //Checks that the player has moved enough
+    if (deltaPosition.lengthSq() < deltaTime) return;
+    position = rigidBody.translation();
+
+    window.addCameraOffset(deltaPosition);
 
     if (!rigidBody.isSleeping())
       socket.emit(
