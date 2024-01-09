@@ -33,6 +33,9 @@
     }
 
     function UpdatePlayers(serverPlayers: any[]) {
+        //If the serverplayers and sceneplayers are the same it doesn't do anything
+        if(serverPlayers.length == scenePlayers.length + 1)
+            return;
         if (scenePlayers.length == 0) return;
         //Add new Player
         serverPlayers
