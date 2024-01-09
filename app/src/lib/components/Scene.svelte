@@ -7,7 +7,6 @@
 </script>
 
 <T.PerspectiveCamera makeDefault position={[-30, 30, 30]} fov={15}>
-    <OrbitControls enableZoom={true} enableDamping target.y={1.5} />
     <CameraControlsComponent />
 </T.PerspectiveCamera>
 <T.DirectionalLight intensity={1} position.x={5} position.y={10} />

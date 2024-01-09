@@ -4,8 +4,6 @@
 
 <script lang="ts">
   import {
-    T,
-    forwardEventHandlers,
     useTask,
     useParent,
     useThrelte,
@@ -33,7 +31,6 @@
     Vector4,
     type PerspectiveCamera,
   } from "three";
-  import { DEG2RAD } from "three/src/math/MathUtils.js";
   import { playerRigidbodyStore } from "./stores";
 
   const subsetOfTHREE = {
@@ -61,29 +58,22 @@
 
   const { renderer, invalidate } = useThrelte();
 
-  export let autoRotate = false;
-  export let autoRotateSpeed = 1;
-
   export const ref = new CameraControls(
     $parent as PerspectiveCamera,
     renderer?.domElement,
   );
 
   const getControls = () => ref;
-
-  let disableAutoRotate = false;
+  getControls().mouseButtons.right = CameraControls.ACTION.ROTATE;
+  getControls().mouseButtons.left = CameraControls.ACTION.NONE;
+  getControls().mouseButtons.middle = CameraControls.ACTION.NONE;
+  getControls().smoothTime = 0.01;
 
   useTask(
     (delta) => {
       FollowPlayer();
-      if (autoRotate && !disableAutoRotate) {
-        getControls().azimuthAngle += 4 * delta * DEG2RAD * autoRotateSpeed;
-      }
       const updated = getControls().update(delta);
       if (updated) invalidate();
-    },
-    {
-      autoInvalidate: false,
     },
   );
 
@@ -93,23 +83,4 @@
     let translation = $playerRigidbodyStore.translation();
     getControls().setTarget(translation.x, translation.y, translation.z, true);
   }
-
-  const forwardingComponent = forwardEventHandlers();
 </script>
-
-<T
-  is={ref}
-  on:controlstart={(e) => {
-    disableAutoRotate = true;
-  }}
-  on:zoom={(e) => {
-    console.log("zoomstart", e);
-  }}
-  on:controlend={() => {
-    disableAutoRotate = false;
-  }}
-  {...$$restProps}
-  bind:this={$forwardingComponent}
->
-  <slot {ref} />
-</T>
