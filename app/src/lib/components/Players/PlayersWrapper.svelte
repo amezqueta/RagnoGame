@@ -1,7 +1,11 @@
 <script lang="ts">
     import Player from "$lib/components/Players/Player.svelte";
     import OnlinePlayer from "$lib/components/Players/OnlinePlayer.svelte";
-    import { playerDataStore, serverPlayersStore, socketStore } from "../stores";
+    import {
+        playerDataStore,
+        serverPlayersStore,
+        socketStore,
+    } from "../stores";
 
     let player: any = null;
     let currentPlayerData: any = null;
@@ -13,29 +17,25 @@
 
     $: if (currentPlayerData && !player) {
         //Creates the player
-        const params = new URLSearchParams(window.location.search);
-        let nick = params.get("nick") || null;
-        if (nick) socket.emit("server-set-nick", nick);
         player = new Player({
             target: document.body,
             props: {
                 socket: socket,
                 userId: currentPlayerData.userId,
                 color: currentPlayerData.color,
-                nick: nick ? nick : currentPlayerData.userId,
+                nick: currentPlayerData.nick,
             },
         });
     }
 
-    $: if ($serverPlayersStore) {
+    $: if ($serverPlayersStore && currentPlayerData.userId) {
         UpdatePlayers($serverPlayersStore);
         CreateFirstPlayers($serverPlayersStore);
     }
 
     function UpdatePlayers(serverPlayers: any[]) {
         //If the serverplayers and sceneplayers are the same it doesn't do anything
-        if(serverPlayers.length == scenePlayers.length + 1)
-            return;
+        if (serverPlayers.length == scenePlayers.length + 1) return;
         if (scenePlayers.length == 0) return;
         //Add new Player
         serverPlayers

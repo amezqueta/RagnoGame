@@ -102,13 +102,6 @@
   const onMouseUp = (key: MouseEvent) => {
     document.body.style.cursor = "auto";
   };
-
-  document.addEventListener("mousemove", (event) => {
-    const halfWidth = window.innerWidth / 2;
-    const halfHeight = window.innerHeight / 2;
-
-    window.scrollTo(halfWidth, halfHeight);
-  });
 </script>
 
 <svelte:window on:mousedown={onMouseDown} on:mouseup={onMouseUp} />

@@ -30,6 +30,8 @@
                 <Text value={user.nick == null ? user.userId : user.nick} />
             {/each}
         </Folder>
-        <FpsGraph interval={50} label="FPS" rows={5} />
+        <Folder expanded={false} title="FPS:">
+            <FpsGraph interval={50} rows={5} />
+        </Folder>
     </Pane>
 {/if}

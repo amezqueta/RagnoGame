@@ -14,6 +14,14 @@
     onMount(() => {
         socket = io("http://localhost:3000");
 
+        socket.on("get-browser", () => {
+            const params = new URLSearchParams(window.location.search);
+            let browserData = {
+                nick: params.get("nick") || null,
+            };
+            socket.emit("browser-data", browserData);
+        });
+
         socket.on("connected", (playerData: any, serverPlayers: any[]) => {
             console.log("New connection: (" + playerData.userId + ")");
             playerDataStore.set(playerData);

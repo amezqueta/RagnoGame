@@ -41,57 +41,57 @@ let showAmountOfMsg = false;
 
 io.on('connection', (socket) => {
 
-    const player = {
-        userId: socket.id,
-        position: [0, 50, 0],
-        color: '#' + Math.floor(Math.random() * 16777215).toString(16)
-    };
+    socket.emit('get-browser');
+    socket.on('browser-data', (data) => {
+        console.log(data.nick);
 
-    serverPlayers.push(player);
+        const player = {
+            userId: socket.id,
+            position: [0, 50, 0],
+            color: '#' + Math.floor(Math.random() * 16777215).toString(16),
+            nick: data.nick || socket.id
+        };
 
-    const userAmount = serverPlayers.length;
-    console.log('User (' + socket.id + ') connected to the server (' + userAmount + ')');
-    io.emit('msg', "SERVER: User connected: (" + userAmount + ")");
+        serverPlayers.push(player);
 
-    socket.emit('connected', player, serverPlayers);
-    socket.broadcast.emit('players-list', serverPlayers);
+        const userAmount = serverPlayers.length;
+        console.log('User (' + socket.id + ') connected to the server (' + userAmount + ')');
+        io.emit('msg', "SERVER: User connected: (" + userAmount + ")");
 
-    socket.on('msg', (msg) => {
-        io.emit('msg', msg);
-    });
+        socket.emit('connected', player, serverPlayers);
+        socket.broadcast.emit('players-list', serverPlayers);
 
-    socket.on('move', (userId, newPos) => {
-        const player = serverPlayers.find(player => player.userId === userId);
-        if (player) {
-            player.position = newPos;
-            io.emit('move', userId, newPos);
-        }
-        amountOfMsg++;
+        socket.on('msg', (msg) => {
+            io.emit('msg', msg);
+        });
+
+        socket.on('move', (userId, newPos) => {
+            const player = serverPlayers.find(player => player.userId === userId);
+            if (player) {
+                player.position = newPos;
+                io.emit('move', userId, newPos);
+            }
+            amountOfMsg++;
+        })
+
+        socket.on('server-color', (color) => {
+            let player = serverPlayers.find(x => x.userId === socket.id);
+            player.color = color;
+            io.emit('user-color', socket.id, color);
+            amountOfMsg++;
+        });
+
+        socket.on('disconnect', (reason) => {
+            const index = serverPlayers.findIndex(player => player.userId === socket.id);
+            if (index !== -1) {
+                serverPlayers.splice(index, 1);
+            }
+            const userAmount = serverPlayers.length;
+            console.log('User (' + socket.id + ') disconnected from the server (' + userAmount + "): " + reason);
+            io.emit('players-list', serverPlayers);
+        });
     })
 
-    socket.on('server-color', (color) => {
-        let player = serverPlayers.find(x => x.userId === socket.id);
-        player.color = color;
-        io.emit('user-color', socket.id, color);
-        amountOfMsg++;
-    });
-
-    socket.on('server-set-nick', (nick) => {
-        let player = serverPlayers.find(x => x.userId === socket.id);
-        player.nick = nick;
-        io.emit('user-set-nick', socket.id, nick);
-        io.emit('players-list', serverPlayers);
-    });
-
-    socket.on('disconnect', (reason) => {
-        const index = serverPlayers.findIndex(player => player.userId === socket.id);
-        if (index !== -1) {
-            serverPlayers.splice(index, 1);
-        }
-        const userAmount = serverPlayers.length;
-        console.log('User (' + socket.id + ') disconnected from the server (' + userAmount + "): " + reason);
-        io.emit('players-list', serverPlayers);
-    });
 });
 
 function resetMessageCounter() {
