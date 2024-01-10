@@ -28,7 +28,7 @@
     type PerspectiveCamera,
   } from "three";
   import { playerRigidbodyStore } from "./stores";
-  import { getContext } from "svelte";
+  import { getContext, onMount } from "svelte";
 
   const subsetOfTHREE = {
     Vector2,
@@ -65,6 +65,7 @@
   getControls().mouseButtons.left = CameraControls.ACTION.NONE;
   getControls().mouseButtons.middle = CameraControls.ACTION.NONE;
   getControls().smoothTime = 0.01;
+  getControls().draggingSmoothTime = 0;
   getControls().maxPolarAngle = 3;
   getControls().minPolarAngle = 0.05;
   getControls().minDistance = 50;
@@ -93,6 +94,16 @@
     getControls().setTarget(translation.x, translation.y, translation.z, true);
     getControls().distance = currentDistance;
   };
+
+  //Makes sure that on load the player, the camera is automatically looking at the player
+  $: if ($playerRigidbodyStore) {
+    getControls().setTarget(
+      $playerRigidbodyStore.translation().x,
+      $playerRigidbodyStore.translation().y,
+      $playerRigidbodyStore.translation().z,
+      false,
+    );
+  }
 
   window.addCameraOffset = (velocity: Vector3) => addCameraOffset(velocity);
 

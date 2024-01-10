@@ -3,13 +3,8 @@
     import { T } from "@threlte/core";
     import { ContactShadows, Grid, OrbitControls } from "@threlte/extras";
     import { BoxGeometry, MeshStandardMaterial } from "three";
-    import CameraControlsComponent from "./CameraControls.svelte";
 </script>
 
-<T.PerspectiveCamera makeDefault position={[-30, 30, 30]} fov={15}>
-    <CameraControlsComponent />
-</T.PerspectiveCamera>
-<T.DirectionalLight intensity={1} position.x={5} position.y={10} />
 <T.AmbientLight intensity={0.5} />
 <Grid
     position.y={-0.001}

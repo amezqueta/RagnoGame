@@ -42,7 +42,7 @@
   controller.enableAutostep(0.5, 0.2, true);
   controller.enableSnapToGround(0.5);
 
-  let collisionForce: any;
+  let collisionForce: Vector3 = new Vector3(0, 0, 0);
   let collisionMagnitude: number;
 
   let velocity = new Vector3();
@@ -137,7 +137,7 @@
   });
 
   function playerIsGrounded(): boolean {
-    return collisionForce != null && collisionForce.y > 1;
+    return collisionForce.y > 1;
   }
 
   function onKeyDown(e: KeyboardEvent) {
@@ -209,7 +209,7 @@
 
 <RigidBody
   on:collisionexit={() => {
-    collisionForce = null;
+    collisionForce = new Vector3(0, 0, 0);
     collisionMagnitude = 0;
   }}
   on:contact={({ totalForce, maxForceMagnitude }) => {

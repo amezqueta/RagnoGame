@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { Canvas } from "@threlte/core";
+    import { Canvas, T } from "@threlte/core";
     import PlayersWrapper from "./Players/PlayersWrapper.svelte";
     import UI from "./UI.svelte";
     import io from "socket.io-client";
@@ -8,6 +8,7 @@
     import { playerDataStore, serverPlayersStore, socketStore } from "./stores";
     import Scene from "./Scene.svelte";
     import { Audio, AudioListener } from "@threlte/extras";
+    import CameraControlsComponent from "./CameraControls.svelte";
 
     let socket: any = null;
 
@@ -54,6 +55,10 @@
         <UI />
         <World>
             <PlayersWrapper />
+            <T.PerspectiveCamera makeDefault position={[-30, 30, 30]} fov={15}>
+                <CameraControlsComponent />
+            </T.PerspectiveCamera>
+            <T.DirectionalLight intensity={1} position.x={5} position.y={10} />
             <Scene />
         </World>
     </Canvas>
