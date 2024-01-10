@@ -15,6 +15,7 @@
     import Scene from "./Scene.svelte";
     import { Audio, AudioListener } from "@threlte/extras";
     import CameraControlsComponent from "./CameraControls.svelte";
+    import FakeMouse from "./FakeMouse.svelte";
 
     let socket: any = null;
 
@@ -59,19 +60,16 @@
     }
 </script>
 
-<div
-    style="position:relative; height:100%; width:100%; background-color: rgb(14,22,37)"
->
-    <Canvas>
-        <AudioListener />
-        <UI />
-        <World>
-            <PlayersWrapper />
-            <T.PerspectiveCamera makeDefault position={[-30, 30, 30]} fov={15}>
-                <CameraControlsComponent />
-            </T.PerspectiveCamera>
-            <T.DirectionalLight intensity={1} position.x={5} position.y={10} />
-            <Scene />
-        </World>
-    </Canvas>
-</div>
+<Canvas>
+    <AudioListener />
+    <UI />
+    <World>
+        <PlayersWrapper />
+        <T.PerspectiveCamera makeDefault position={[-30, 30, 30]} fov={15}>
+            <CameraControlsComponent />
+        </T.PerspectiveCamera>
+        <T.DirectionalLight intensity={1} position.x={5} position.y={10} />
+        <Scene />
+    </World>
+    <FakeMouse />
+</Canvas>
