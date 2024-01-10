@@ -5,7 +5,13 @@
     import io from "socket.io-client";
     import { onMount } from "svelte";
     import { World } from "@threlte/rapier";
-    import { playerDataStore, serverPlayersStore, socketStore } from "./stores";
+    import {
+        playerDataStore,
+        privilegesStore,
+        serverDebugMsgAmountStore,
+        serverPlayersStore,
+        socketStore,
+    } from "./stores";
     import Scene from "./Scene.svelte";
     import { Audio, AudioListener } from "@threlte/extras";
     import CameraControlsComponent from "./CameraControls.svelte";
@@ -26,6 +32,7 @@
         socket.on("connected", (playerData: any, serverPlayers: any[]) => {
             console.log("New connection: (" + playerData.userId + ")");
             playerDataStore.set(playerData);
+            privilegesStore.set(playerData.privileges);
             serverPlayersStore.set(serverPlayers);
         });
 
@@ -37,8 +44,13 @@
             window.location.reload();
         });
 
+        //Debugging messages
         socket.on("msg", (message: string) => {
             console.log(message);
+        });
+
+        socket.on("server-debug-msgAmount", (serverDebugMsgAmount: number) => {
+            serverDebugMsgAmountStore.set(serverDebugMsgAmount);
         });
     });
 

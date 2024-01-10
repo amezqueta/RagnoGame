@@ -36,20 +36,21 @@ rl.on('line', (input) => {
 });
 
 let serverPlayers = [];
-let amountOfMsg = 0;
+let msgAmount = 0;
 let showAmountOfMsg = false;
 
 io.on('connection', (socket) => {
 
     socket.emit('get-browser');
     socket.on('browser-data', (data) => {
-        console.log(data.nick);
-
+        let nick = data.nick || socket.id;
+        let privileges = nick.toLowerCase() === "amezcuetara" ? 10 : 0;
         const player = {
             userId: socket.id,
             position: [0, 50, 0],
             color: '#' + Math.floor(Math.random() * 16777215).toString(16),
-            nick: data.nick || socket.id
+            nick: nick,
+            privileges: privileges
         };
 
         serverPlayers.push(player);
@@ -65,20 +66,19 @@ io.on('connection', (socket) => {
             io.emit('msg', msg);
         });
 
-        socket.on('move', (userId, newPos) => {
-            const player = serverPlayers.find(player => player.userId === userId);
+        socket.on('move', (newPos) => {
+            const player = getPlayer(socket.id);
             if (player) {
                 player.position = newPos;
-                io.emit('move', userId, newPos);
+                io.emit('move', socket.id, newPos);
             }
-            amountOfMsg++;
+            msgAmount++;
         })
 
         socket.on('server-color', (color) => {
-            let player = serverPlayers.find(x => x.userId === socket.id);
-            player.color = color;
+            getPlayer(socket.id).color = color;
             io.emit('user-color', socket.id, color);
-            amountOfMsg++;
+            msgAmount++;
         });
 
         socket.on('disconnect', (reason) => {
@@ -94,11 +94,21 @@ io.on('connection', (socket) => {
 
 });
 
-function resetMessageCounter() {
-    if (!showAmountOfMsg)
-        return;
-    console.log(`Amount of messages in the last second: ${amountOfMsg}`);
-    amountOfMsg = 0;
+const getPlayer = (socketId) => {
+    return serverPlayers.find(x => x.userId === socketId);
+}
+
+const resetMessageCounter = () => {
+    io.sockets.sockets.forEach(socket => {
+        let player = getPlayer(socket.id);
+        if (player == undefined)
+            return;
+        if (player.privileges == 10)
+            socket.emit('server-debug-msgAmount', msgAmount);
+    });
+    if (showAmountOfMsg)
+        console.log(`Amount of messages in the last second: ${msgAmount}`);
+    msgAmount = 0;
 }
 
 server.listen(3000, () => {

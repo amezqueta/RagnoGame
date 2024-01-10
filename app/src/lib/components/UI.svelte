@@ -3,21 +3,33 @@
         Color,
         Folder,
         FpsGraph,
+        Monitor,
         Pane,
         Text,
         ThemeUtils,
     } from "svelte-tweakpane-ui";
-    import { playerColorStore, serverPlayersStore } from "./stores";
+    import {
+        playerColorStore,
+        privilegesStore,
+        serverDebugMsgAmountStore,
+        serverPlayersStore,
+    } from "./stores";
     import { onMount } from "svelte";
     import { useTask } from "@threlte/core";
 
-    let color = "#f33653";
+    let serverDebugMsgAmount: number;
 
+    let privileges: number = 0;
+
+    let color = "#f33653";
     let serverPlayers: any[];
 
     $: if ($serverPlayersStore) serverPlayers = $serverPlayersStore;
     $: if (playerColorStore) color = $playerColorStore;
     $: if (color) playerColorStore.set(color);
+    $: if (serverDebugMsgAmountStore)
+        serverDebugMsgAmount = $serverDebugMsgAmountStore;
+    $: if (privilegesStore) privileges = $privilegesStore;
 </script>
 
 {#if serverPlayers}
@@ -33,5 +45,18 @@
         <Folder expanded={false} title="FPS:">
             <FpsGraph interval={50} rows={5} />
         </Folder>
+        {#if privileges == 10}
+            <Folder title="Server:">
+                {#if serverDebugMsgAmount != undefined}
+                    <Monitor
+                        value={$serverDebugMsgAmountStore}
+                        graph={true}
+                        interval={1000}
+                        max={500}
+                        bufferSize={40}
+                    />
+                {/if}
+            </Folder>
+        {/if}
     </Pane>
 {/if}

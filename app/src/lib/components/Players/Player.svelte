@@ -12,6 +12,7 @@
     playerColorStore,
     playerRigidbodyStore,
     playerTranslationStore,
+    privilegesStore,
   } from "../stores";
   import { clamp } from "svelte-tweakpane-ui/Utils.js";
   import TextBillboard from "../TextBillboard.svelte";
@@ -27,6 +28,7 @@
   export let socket: any = null;
   export let userId: string = "";
   export let color: string = "";
+  let outlineColor: string = "#000000";
 
   let forward = false;
   let backward = false;
@@ -127,7 +129,6 @@
     if (!rigidBody.isSleeping())
       socket.emit(
         "move",
-        userId,
         new Vector3(
           rigidBody.translation().x,
           rigidBody.translation().y,
@@ -200,6 +201,8 @@
     socket.emit("server-color", color);
   }
 
+  $: if ($privilegesStore == 10) outlineColor = "#85641b";
+
   onMount(() => {
     console.log("Player mounted " + color);
   });
@@ -220,6 +223,6 @@
   enabledRotations={[false, false, false]}
 >
   <T.Mesh castShadow {geometry} {material} />
-  <TextBillboard text={nick} position={[0, 3, 0]} {color} />
+  <TextBillboard text={nick} position={[0, 3, 0]} {color} {outlineColor} />
   <Collider shape="capsule" args={[0.3, 1]} bind:collider={playerCollider} />
 </RigidBody>

@@ -28,7 +28,7 @@
         });
     }
 
-    $: if ($serverPlayersStore && currentPlayerData.userId) {
+    $: if ($serverPlayersStore && currentPlayerData?.userId) {
         UpdatePlayers($serverPlayersStore);
         CreateFirstPlayers($serverPlayersStore);
     }
