@@ -3,23 +3,18 @@
     import { useThrelte } from "@threlte/core";
     import { clamp } from "svelte-tweakpane-ui/Utils.js";
     import { onDestroy, onMount } from "svelte";
+    import { cursorShowStore } from "./stores";
 
-    let mousex = 0;
-    let mousey = 0;
+    let mousex: number = 0;
+    let mousey: number = 0;
+    let show = false;
 
     const { renderer } = useThrelte();
     const domElement = renderer.domElement;
     addEventListener("mousemove", onMouseMove);
     addEventListener("mouseenter", onMouseEnter);
-    addEventListener("pointerlockchange", onPointerlockchange);
 
     function onMouseEnter(e: MouseEvent) {}
-    function onPointerlockchange(e: Event) {
-        if (cursor)
-            cursor.style.display = document.pointerLockElement
-                ? "block"
-                : "none";
-    }
 
     function simulateClick(e: MouseEvent, x: number, y: number) {
         var event = new MouseEvent("click", {
@@ -47,11 +42,12 @@
             mousex = e.clientX;
             mousey = e.clientY;
         } else {
-            //simulateClick(e, mousex, mousey);
+            simulateClick(e, mousex, mousey);
         }
     }
 
     function onMouseMove(e: MouseEvent) {
+        if (!show) return;
         const { movementX, movementY } = e;
         mousex += movementX;
         mousey += movementY;
@@ -72,8 +68,13 @@
     onDestroy(() => {
         removeEventListener("mousemove", onMouseMove);
         removeEventListener("mouseenter", onMouseEnter);
-        removeEventListener("pointerlockchange", onPointerlockchange);
     });
+
+    $: if (cursorShowStore) show = $cursorShowStore;
+
+    $: if (cursor)
+        cursor.style.display =
+            document.pointerLockElement && show ? "block" : "none";
 </script>
 
 <svelte:window on:mousedown={onMouseDown} />

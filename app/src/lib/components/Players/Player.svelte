@@ -123,11 +123,12 @@
       position.z - rigidBody.translation().z,
     );
 
-    //Checks that the player has moved enough
-    if (deltaPosition.lengthSq() < deltaTime) return;
     position = rigidBody.translation();
 
     window.addCameraOffset(deltaPosition);
+
+    //Checks that the player has moved enough
+    if (deltaPosition.lengthSq() < deltaTime) return;
 
     if (!rigidBody.isSleeping())
       socket.emit(
@@ -204,14 +205,11 @@
     socket.emit("server-color", color);
   }
 
-  //$: if ($privilegesStore == 10) outlineColor = "#85641b";
-  $: outlineColor = $hovering ? "#dddddd" : "#FE3D00";
+  $: if ($privilegesStore == 10) outlineColor = "#85641b";
 
   onMount(() => {
     console.log("Player mounted " + color);
   });
-
-  const { hovering } = useCursor();
 </script>
 
 <svelte:window on:keydown={onKeyDown} on:keyup={onKeyUp} />
@@ -228,14 +226,7 @@
   bind:rigidBody
   enabledRotations={[false, false, false]}
 >
-  <T.Mesh
-    castShadow
-    {geometry}
-    {material}
-    interactive
-    on:pointerenter={() => ($hovering = true)}
-    on:pointerleave={() => ($hovering = false)}
-  />
+  <T.Mesh castShadow {geometry} {material} />
   <TextBillboard text={nick} position={[0, 3, 0]} {color} {outlineColor} />
   <Collider shape="capsule" args={[0.3, 1]} bind:collider={playerCollider} />
 </RigidBody>

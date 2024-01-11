@@ -58,7 +58,17 @@
     $: if (socket) {
         socketStore.set(socket);
     }
+
+    let debugFakeMouse = true;
+    const onKeyDown = (e: KeyboardEvent) => {
+        if (e.ctrlKey && e.key === "1") {
+            e.preventDefault();
+            debugFakeMouse = !debugFakeMouse;
+        }
+    };
 </script>
+
+<svelte:window on:keydown={onKeyDown} />
 
 <Canvas>
     <AudioListener />
@@ -70,6 +80,8 @@
         </T.PerspectiveCamera>
         <T.DirectionalLight intensity={1} position.x={5} position.y={10} />
         <Scene />
+        {#if debugFakeMouse}
+            <FakeMouse />
+        {/if}
     </World>
-    <FakeMouse />
 </Canvas>

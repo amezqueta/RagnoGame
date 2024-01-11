@@ -12,3 +12,5 @@ export const playerTranslationStore = writable(new Vector3())
 export const playerColorStore = writable<string>(undefined)
 export const playerDataStore = writable(undefined)
 export const privilegesStore = writable<number>(undefined)
+
+export const cursorShowStore = writable<boolean>(false)

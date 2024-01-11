@@ -27,7 +27,7 @@
     Vector4,
     type PerspectiveCamera,
   } from "three";
-  import { playerRigidbodyStore } from "./stores";
+  import { cursorShowStore, playerRigidbodyStore } from "./stores";
   import { getContext, onMount } from "svelte";
 
   const subsetOfTHREE = {
@@ -108,10 +108,10 @@
   window.addCameraOffset = (velocity: Vector3) => addCameraOffset(velocity);
 
   const onMouseDown = (key: MouseEvent) => {
-    document.body.style.cursor = "none";
+    cursorShowStore.set(false);
   };
   const onMouseUp = (key: MouseEvent) => {
-    document.body.style.cursor = 'url("/img/icon/cursor/cursor.gif"), auto';
+    cursorShowStore.set(true);
   };
 </script>
 
