@@ -111,7 +111,7 @@
     document.body.style.cursor = "none";
   };
   const onMouseUp = (key: MouseEvent) => {
-    document.body.style.cursor = "auto";
+    document.body.style.cursor = 'url("/img/icon/cursor/cursor.gif"), auto';
   };
 </script>
 

@@ -16,6 +16,9 @@
   } from "../stores";
   import { clamp } from "svelte-tweakpane-ui/Utils.js";
   import TextBillboard from "../TextBillboard.svelte";
+  import { useCursor } from "@threlte/extras";
+  import { interactivity } from "@threlte/extras";
+  interactivity();
 
   let rigidBody: RRigidBody;
   let playerTranslation: Vector3 = $playerTranslationStore;
@@ -201,11 +204,14 @@
     socket.emit("server-color", color);
   }
 
-  $: if ($privilegesStore == 10) outlineColor = "#85641b";
+  //$: if ($privilegesStore == 10) outlineColor = "#85641b";
+  $: outlineColor = $hovering ? "#dddddd" : "#FE3D00";
 
   onMount(() => {
     console.log("Player mounted " + color);
   });
+
+  const { hovering } = useCursor();
 </script>
 
 <svelte:window on:keydown={onKeyDown} on:keyup={onKeyUp} />
@@ -222,7 +228,14 @@
   bind:rigidBody
   enabledRotations={[false, false, false]}
 >
-  <T.Mesh castShadow {geometry} {material} />
+  <T.Mesh
+    castShadow
+    {geometry}
+    {material}
+    interactive
+    on:pointerenter={() => ($hovering = true)}
+    on:pointerleave={() => ($hovering = false)}
+  />
   <TextBillboard text={nick} position={[0, 3, 0]} {color} {outlineColor} />
   <Collider shape="capsule" args={[0.3, 1]} bind:collider={playerCollider} />
 </RigidBody>

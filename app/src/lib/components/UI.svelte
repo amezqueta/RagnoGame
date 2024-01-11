@@ -14,9 +14,15 @@
         serverDebugMsgAmountStore,
         serverPlayersStore,
     } from "./stores";
-    import { onMount } from "svelte";
-    import { useTask } from "@threlte/core";
+    addEventListener("pointerlockchange", onPointerlockchange);
 
+    function onMouseEnter(e: MouseEvent) {}
+    function onPointerlockchange(e: Event) {
+        theme = document.pointerLockElement
+            ? ThemeUtils.presets.translucent
+            : ThemeUtils.presets.light;
+    }
+    let theme = ThemeUtils.presets.light;
     let serverDebugMsgAmount: number;
 
     let privileges: number = 0;
@@ -33,7 +39,7 @@
 </script>
 
 {#if serverPlayers}
-    <Pane theme={ThemeUtils.presets.light} position="fixed" title="Config">
+    <Pane {theme} position="fixed" title="Config">
         {#if color}
             <Color bind:value={color} label="Color" />
         {/if}
