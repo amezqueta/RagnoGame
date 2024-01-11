@@ -123,12 +123,11 @@
       position.z - rigidBody.translation().z,
     );
 
-    position = rigidBody.translation();
-
     window.addCameraOffset(deltaPosition);
 
     //Checks that the player has moved enough
-    if (deltaPosition.lengthSq() < deltaTime) return;
+    if (deltaPosition.lengthSq() < deltaTime / 10) return;
+    position = rigidBody.translation() as Vector3;
 
     if (!rigidBody.isSleeping())
       socket.emit(
