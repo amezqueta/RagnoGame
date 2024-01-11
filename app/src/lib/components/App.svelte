@@ -1,7 +1,6 @@
 <script lang="ts">
     import { Canvas, T } from "@threlte/core";
     import PlayersWrapper from "./Players/PlayersWrapper.svelte";
-    import UI from "./UI.svelte";
     import io from "socket.io-client";
     import { onMount } from "svelte";
     import { World } from "@threlte/rapier";
@@ -16,6 +15,8 @@
     import { Audio, AudioListener } from "@threlte/extras";
     import CameraControlsComponent from "./CameraControls.svelte";
     import FakeMouse from "./FakeMouse.svelte";
+    import DomPortal from "./Utilities/DomPortal.svelte";
+    import Ui from "./UI/UI.svelte";
 
     let socket: any = null;
 
@@ -72,7 +73,7 @@
 
 <Canvas>
     <AudioListener />
-    <UI />
+    <Ui />
     <World>
         <PlayersWrapper />
         <T.PerspectiveCamera makeDefault position={[-30, 30, 30]} fov={15}>

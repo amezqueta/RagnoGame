@@ -108,10 +108,10 @@
   window.addCameraOffset = (velocity: Vector3) => addCameraOffset(velocity);
 
   const onMouseDown = (key: MouseEvent) => {
-    cursorShowStore.set(false);
+    if (key.button == 2) cursorShowStore.set(false);
   };
   const onMouseUp = (key: MouseEvent) => {
-    cursorShowStore.set(true);
+    if (key.button == 2) cursorShowStore.set(true);
   };
 </script>
 

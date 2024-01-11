@@ -13,7 +13,7 @@
         privilegesStore,
         serverDebugMsgAmountStore,
         serverPlayersStore,
-    } from "./stores";
+    } from "../stores";
     addEventListener("pointerlockchange", onPointerlockchange);
 
     function onMouseEnter(e: MouseEvent) {}

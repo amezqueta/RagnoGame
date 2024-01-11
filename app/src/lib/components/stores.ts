@@ -13,4 +13,4 @@ export const playerColorStore = writable<string>(undefined)
 export const playerDataStore = writable(undefined)
 export const privilegesStore = writable<number>(undefined)
 
-export const cursorShowStore = writable<boolean>(false)
+export const cursorShowStore = writable<boolean>(true)

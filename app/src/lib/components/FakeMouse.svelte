@@ -1,20 +1,39 @@
 <script lang="ts">
     import DomPortal from "./Utilities/DomPortal.svelte";
-    import { useThrelte } from "@threlte/core";
+    import { useTask, useThrelte } from "@threlte/core";
     import { clamp } from "svelte-tweakpane-ui/Utils.js";
     import { onDestroy, onMount } from "svelte";
     import { cursorShowStore } from "./stores";
 
+    let prev_hoverElementUI: Element | null;
+    let hoverElementUI: Element | null;
+    let pressedElementUI: Element | null;
+
     let mousex: number = 0;
     let mousey: number = 0;
-    let show = false;
+    let show = true;
+    let pointerLocked: boolean = false;
 
     const { renderer } = useThrelte();
     const domElement = renderer.domElement;
-    addEventListener("mousemove", onMouseMove);
-    addEventListener("mouseenter", onMouseEnter);
+    addEventListener("pointerlockchange", onPointerlockChange);
 
-    function onMouseEnter(e: MouseEvent) {}
+    function onPointerlockChange() {
+        pointerLocked = document.pointerLockElement != null;
+        if (!pointerLocked) hoverElementUI = null;
+    }
+
+    function onMouseDown(e: MouseEvent) {
+        let targetTag = e?.target as Element;
+        if (targetTag == null) return;
+        if (!pointerLocked && targetTag.classList.contains("svelte-o3oskp")) {
+            domElement.requestPointerLock();
+            mousex = e.clientX;
+            mousey = e.clientY;
+        } else if (isBeingShown()) {
+            simulateClick(e, mousex, mousey);
+        }
+    }
 
     function simulateClick(e: MouseEvent, x: number, y: number) {
         var event = new MouseEvent("click", {
@@ -27,37 +46,33 @@
             buttons: 1,
             ctrlKey: e.ctrlKey,
         });
-        var element = document.elementFromPoint(x, y);
-        element?.dispatchEvent(event);
+        hoverElementUI?.dispatchEvent(event);
+        hoverElementUI?.classList.add("clicked");
+        pressedElementUI = hoverElementUI;
     }
 
-    function onMouseDown(e: MouseEvent) {
-        let targetTag = e?.target as Element;
-        if (targetTag == null) return;
-        if (
-            !document.pointerLockElement &&
-            targetTag.tagName.toLowerCase() === "canvas"
-        ) {
-            domElement.requestPointerLock();
-            mousex = e.clientX;
-            mousey = e.clientY;
-        } else {
-            simulateClick(e, mousex, mousey);
-        }
-    }
+    const isBeingShown = () => {
+        return pointerLocked && show;
+    };
 
     function onMouseMove(e: MouseEvent) {
-        if (!show) return;
+        if (!isBeingShown()) return;
         const { movementX, movementY } = e;
         mousex += movementX;
         mousey += movementY;
         mousex = clamp(mousex, 0, window.innerWidth);
         mousey = clamp(mousey, 0, window.innerHeight);
+        hoverElementUI = document.elementFromPoint(mousex, mousey);
 
         if (cursor) {
             cursor.style.left = `${mousex}px`;
             cursor.style.top = `${mousey}px`;
         }
+    }
+
+    function onMouseUp(e: MouseEvent) {
+        pressedElementUI?.classList.remove("clicked");
+        pressedElementUI = null;
     }
 
     let cursor = document.getElementById("fake-cursor");
@@ -66,18 +81,26 @@
     });
 
     onDestroy(() => {
-        removeEventListener("mousemove", onMouseMove);
-        removeEventListener("mouseenter", onMouseEnter);
+        removeEventListener("pointerlockchange", onPointerlockChange);
     });
 
     $: if (cursorShowStore) show = $cursorShowStore;
 
     $: if (cursor)
-        cursor.style.display =
-            document.pointerLockElement && show ? "block" : "none";
+        cursor.style.display = pointerLocked && show ? "block" : "none";
+
+    $: if (hoverElementUI != prev_hoverElementUI) {
+        prev_hoverElementUI?.classList.remove("hovered");
+        hoverElementUI?.classList.add("hovered");
+        prev_hoverElementUI = hoverElementUI;
+    }
 </script>
 
-<svelte:window on:mousedown={onMouseDown} />
+<svelte:window
+    on:mousedown={onMouseDown}
+    on:mousemove={onMouseMove}
+    on:mouseup={onMouseUp}
+/>
 <DomPortal>
     <div id="cursor-wrapper">
         <div id="fake-cursor"></div>
