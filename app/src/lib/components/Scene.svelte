@@ -3,6 +3,7 @@
     import { T } from "@threlte/core";
     import { ContactShadows, Grid, OrbitControls } from "@threlte/extras";
     import { BoxGeometry, MeshStandardMaterial } from "three";
+    import MovingPlatform from "./Scene/MovingPlatform.svelte";
 </script>
 
 <T.AmbientLight intensity={0.5} />
@@ -51,3 +52,4 @@
         })}
     />
 </AutoColliders>
+<MovingPlatform position1={[0, 0, 0]} position2={[0, 5, 5]} />

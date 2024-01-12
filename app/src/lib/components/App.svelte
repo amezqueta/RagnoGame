@@ -5,6 +5,7 @@
     import { onMount } from "svelte";
     import { World } from "@threlte/rapier";
     import {
+        SCDiffTimeStore,
         playerDataStore,
         privilegesStore,
         serverDebugMsgAmountStore,
@@ -15,12 +16,11 @@
     import { Audio, AudioListener } from "@threlte/extras";
     import CameraControlsComponent from "./CameraControls.svelte";
     import FakeMouse from "./FakeMouse.svelte";
-    import DomPortal from "./Utilities/DomPortal.svelte";
     import Ui from "./UI/UI.svelte";
-    import { LatheGeometry } from "three";
 
     let socket: any = null;
     let serverLatency: number;
+    let SCDiffTime: number;
 
     onMount(() => {
         let serverToClientTimeDiff: number;
@@ -39,14 +39,13 @@
 
         socket.on("initial-pong", () => {
             serverLatency = Date.now() - pingSentTimestamp;
-            let realServerClientDiffTime =
-                serverToClientTimeDiff - serverLatency;
+            SCDiffTime = serverToClientTimeDiff - serverLatency;
 
             const params = new URLSearchParams(window.location.search);
             let browserData = {
                 nick: params.get("nick") || null,
                 latency: serverLatency,
-                playerDiffTime: realServerClientDiffTime,
+                playerDiffTime: SCDiffTime,
             };
 
             socket.emit("onboarding", browserData);
@@ -80,6 +79,8 @@
     $: if (socket) {
         socketStore.set(socket);
     }
+
+    $: if (SCDiffTime) SCDiffTimeStore.set(SCDiffTime);
 
     let debugFakeMouse = true;
     const onKeyDown = (e: KeyboardEvent) => {
