@@ -18,12 +18,15 @@
   import TextBillboard from "../TextBillboard.svelte";
   import { useCursor } from "@threlte/extras";
   import { interactivity } from "@threlte/extras";
+  import { lerpAngle } from "../Utilities/Utils";
+
   interactivity();
 
   let rigidBody: RRigidBody;
   let playerTranslation: Vector3 = $playerTranslationStore;
   const material = new MeshStandardMaterial();
   const geometry = new BoxGeometry(2, 2, 2);
+  let meshRotation: number = 0;
 
   let playerCollider: RCollider;
 
@@ -110,12 +113,22 @@
     }
   }
 
+  const updateMeshRotation = (velocity: Vector3) => {
+    if (velocity.lengthSq() < 1) return;
+    meshRotation = lerpAngle(
+      meshRotation,
+      Math.atan2(velocity.x, velocity.z),
+      0.2,
+    );
+  };
+
   useTask((deltaTime) => {
     returnPlayerOnFall();
     playerMovement(deltaTime);
     playerJump(deltaTime);
     velocity.y = jumpVelocity;
     controller.computeColliderMovement(playerCollider, velocity);
+    updateMeshRotation(velocity);
     rigidBody.setLinvel(velocity, true);
     deltaPosition = new Vector3(
       position.x - rigidBody.translation().x,
@@ -225,7 +238,7 @@
   bind:rigidBody
   enabledRotations={[false, false, false]}
 >
-  <T.Mesh castShadow {geometry} {material} />
+  <T.Mesh castShadow {geometry} {material} rotation.y={meshRotation} />
   <TextBillboard text={nick} position={[0, 3, 0]} {color} {outlineColor} />
   <Collider shape="capsule" args={[0.3, 1]} bind:collider={playerCollider} />
 </RigidBody>
