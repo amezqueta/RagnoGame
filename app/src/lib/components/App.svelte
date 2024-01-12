@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { Canvas, T } from "@threlte/core";
+    import { Canvas, T, useTask } from "@threlte/core";
     import PlayersWrapper from "./Players/PlayersWrapper.svelte";
     import io from "socket.io-client";
     import { onMount } from "svelte";
@@ -17,18 +17,39 @@
     import FakeMouse from "./FakeMouse.svelte";
     import DomPortal from "./Utilities/DomPortal.svelte";
     import Ui from "./UI/UI.svelte";
+    import { LatheGeometry } from "three";
 
     let socket: any = null;
+    let serverLatency: number;
 
     onMount(() => {
-        socket = io("http://localhost:3000");
+        let serverToClientTimeDiff: number;
+        let pingSentTimestamp: number;
 
-        socket.on("get-browser", () => {
+        const direction = window.location.origin;
+        const ip = "http:" + direction.split(":")[1] + ":3000";
+        console.log(ip);
+        socket = io(ip);
+
+        socket.on("check-timestampDiff", (serverTimestamp: number) => {
+            pingSentTimestamp = Date.now();
+            serverToClientTimeDiff = pingSentTimestamp - serverTimestamp;
+            socket.emit("initial-ping");
+        });
+
+        socket.on("initial-pong", () => {
+            serverLatency = Date.now() - pingSentTimestamp;
+            let realServerClientDiffTime =
+                serverToClientTimeDiff - serverLatency;
+
             const params = new URLSearchParams(window.location.search);
             let browserData = {
                 nick: params.get("nick") || null,
+                latency: serverLatency,
+                playerDiffTime: realServerClientDiffTime,
             };
-            socket.emit("browser-data", browserData);
+
+            socket.emit("onboarding", browserData);
         });
 
         socket.on("connected", (playerData: any, serverPlayers: any[]) => {
@@ -71,18 +92,31 @@
 
 <svelte:window on:keydown={onKeyDown} />
 
-<Canvas>
-    <AudioListener />
-    <Ui />
-    <World>
-        <PlayersWrapper />
-        <T.PerspectiveCamera makeDefault position={[-30, 30, 30]} fov={15}>
-            <CameraControlsComponent />
-        </T.PerspectiveCamera>
-        <T.DirectionalLight intensity={1} position.x={5} position.y={10} />
-        <Scene />
-        {#if debugFakeMouse}
-            <FakeMouse />
-        {/if}
-    </World>
-</Canvas>
+{#if serverLatency}
+    <Canvas>
+        <AudioListener />
+        <Ui />
+        <World>
+            <T.PerspectiveCamera makeDefault position={[-30, 30, 30]} fov={15}>
+                <CameraControlsComponent />
+            </T.PerspectiveCamera>
+            <T.DirectionalLight intensity={1} position.x={5} position.y={10} />
+            <Scene />
+            {#if debugFakeMouse}
+                <FakeMouse />
+            {/if}
+            {#if socket}
+                <PlayersWrapper />
+            {/if}
+        </World>
+    </Canvas>
+{:else}
+    <div id="loading-wrapper">LOADING SERVER...</div>
+{/if}
+
+<style>
+    #loading-wrapper {
+        color: white;
+        text-align: center;
+    }
+</style>

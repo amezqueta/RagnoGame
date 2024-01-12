@@ -12,7 +12,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
     cors: {
-        origin: "http://localhost:5173",
+        origin: "*",
         credentials: true
     }
 });
@@ -41,8 +41,13 @@ let showAmountOfMsg = false;
 
 io.on('connection', (socket) => {
 
-    socket.emit('get-browser');
-    socket.on('browser-data', (data) => {
+    socket.emit('check-timestampDiff', Date.now());
+    socket.on("initial-ping", (timestampDiff) => {
+        socket.emit("initial-pong");
+    });
+
+    socket.on('onboarding', (data) => {
+        console.log("ms from server " + data.playerDiffTime + " | ms latency: " + data.latency);
         let nick = data.nick || socket.id;
         let privileges = nick.toLowerCase() === "amezcuetara" ? 10 : 0;
         const player = {
@@ -90,6 +95,10 @@ io.on('connection', (socket) => {
             console.log('User (' + socket.id + ') disconnected from the server (' + userAmount + "): " + reason);
             io.emit('players-list', serverPlayers);
         });
+
+        socket.on('ping', () => {
+            socket.emit('pong');
+        })
     })
 
 });
@@ -115,6 +124,8 @@ server.listen(3000, () => {
     console.log('-----------RAGNO SERVER-----------');
     console.log('Server working on port 3000');
     console.log('Type r to restart the server');
+    console.log('Type a to show messages/second');
+    console.log('Type anything else to send a console log to the clients');
     console.log('----------------------------------');
     setInterval(resetMessageCounter, 1000);
 });

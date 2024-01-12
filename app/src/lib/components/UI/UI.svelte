@@ -1,21 +1,38 @@
-<script>
+<script lang="ts">
     import DomPortal from "../Utilities/DomPortal.svelte";
+    import { playerDataStore, socketStore } from "../stores";
     import UiDebug from "./UIDebug.svelte";
 
-    function clickButton() {}
+    let value = "";
+    let socket: any;
+    let playerData: any;
+
+    function clickButton() {
+        if (value == "") return;
+        socket?.emit("msg", playerData.nick + ": " + value);
+        value = "";
+    }
+
+    function onTextInput() {}
+
+    $: if (socketStore) socket = $socketStore;
+    $: if (playerDataStore) playerData = $playerDataStore;
 </script>
 
 <UiDebug />
-<DomPortal
-    ><div id="UI-wrapper">
-        <button type="button" on:click={clickButton}>Click Me!</button>
-    </div></DomPortal
->
+{#if socket && playerData}
+    <DomPortal
+        ><div id="UI-wrapper">
+            <input bind:value on:input={onTextInput} />
+            <button type="button" on:click={clickButton}>Send</button>
+        </div></DomPortal
+    >
+{/if}
 
 <style>
     #UI-wrapper {
         position: absolute;
         width: 100%;
-        top: 0;
+        bottom: 0;
     }
 </style>
