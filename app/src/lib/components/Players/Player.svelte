@@ -9,6 +9,7 @@
   import { onDestroy } from "svelte";
   import { RigidBody, Collider, useRapier } from "@threlte/rapier";
   import {
+    cameraControlPressedStore,
     playerColorStore,
     playerRigidbodyStore,
     playerTranslationStore,
@@ -36,11 +37,9 @@
   export let color: string = "";
   let outlineColor: string = "#000000";
 
-  let forward = false;
-  let backward = false;
-  let right = false;
-  let left = false;
   let space = false;
+  let forwardPressed: number = 0;
+  let rightPressed: number = 0;
 
   const { camera } = useThrelte();
   const { world } = useRapier();
@@ -57,6 +56,7 @@
   let jumpVelocity: number = 0;
   let position: Vector3 = new Vector3();
   let deltaPosition: Vector3 = new Vector3();
+  let cameraControlPressed = false;
 
   onDestroy(() => {
     console.log("Player destroyed (" + userId + ")");
@@ -68,17 +68,21 @@
     }
   });
 
-  function DirectionCamera(direction: Vector3): Vector3 {
+  const getForwardCamera = (): Vector3 => {
     let forward = new Vector3();
     camera.current.getWorldDirection(forward);
     forward.y = 0;
     forward.normalize();
+    return forward;
+  };
 
+  function DirectionCamera(direction: Vector3): Vector3 {
+    let forwardCamera: Vector3 = getForwardCamera();
     let up = new Vector3(0, 1, 0);
     let right = new Vector3();
-    right.crossVectors(up, forward).normalize();
+    right.crossVectors(up, forwardCamera).normalize();
 
-    let moveDirection = forward
+    let moveDirection = forwardCamera
       .multiplyScalar(-direction.z)
       .add(right.multiplyScalar(direction.x));
     return moveDirection;
@@ -99,10 +103,8 @@
     velocity.x *= deltaTime;
 
     const speed = 10;
-    if (forward) velocity.z -= speed;
-    if (backward) velocity.z += speed;
-    if (left) velocity.x -= speed;
-    if (right) velocity.x += speed;
+    if (forwardPressed != 0) velocity.z -= forwardPressed * speed;
+    if (rightPressed != 0) velocity.x += rightPressed * speed;
 
     velocity = DirectionCamera(velocity);
   }
@@ -115,11 +117,20 @@
 
   const updateMeshRotation = (velocity: Vector3) => {
     if (velocity.lengthSq() < 1) return;
-    meshRotation = lerpAngle(
-      meshRotation,
-      Math.atan2(velocity.x, velocity.z),
-      0.2,
-    );
+    if (cameraControlPressed) {
+      let forwardCamera: Vector3 = getForwardCamera();
+      meshRotation = lerpAngle(
+        meshRotation,
+        Math.atan2(forwardCamera.x, forwardCamera.z),
+        0.5,
+      );
+    } else {
+      meshRotation = lerpAngle(
+        meshRotation,
+        Math.atan2(velocity.x, velocity.z),
+        0.2,
+      );
+    }
   };
 
   useTask((deltaTime) => {
@@ -160,16 +171,16 @@
   function onKeyDown(e: KeyboardEvent) {
     switch (e.key) {
       case "s":
-        backward = true;
+        forwardPressed = -1;
         break;
       case "w":
-        forward = true;
+        forwardPressed = 1;
         break;
       case "a":
-        right = true;
+        rightPressed = 1;
         break;
       case "d":
-        left = true;
+        rightPressed = -1;
         break;
       case " ":
         space = true;
@@ -182,16 +193,16 @@
   function onKeyUp(e: KeyboardEvent) {
     switch (e.key) {
       case "s":
-        backward = false;
+        forwardPressed = 0;
         break;
       case "w":
-        forward = false;
+        forwardPressed = 0;
         break;
       case "a":
-        right = false;
+        rightPressed = 0;
         break;
       case "d":
-        left = false;
+        rightPressed = 0;
         break;
       case " ":
         space = false;
@@ -218,6 +229,9 @@
   }
 
   $: if ($privilegesStore == 10) outlineColor = "#85641b";
+
+  $: if (cameraControlPressedStore)
+    cameraControlPressed = $cameraControlPressedStore;
 
   onMount(() => {
     console.log("Player mounted " + color);

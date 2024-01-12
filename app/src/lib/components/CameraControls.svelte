@@ -27,7 +27,11 @@
     Vector4,
     type PerspectiveCamera,
   } from "three";
-  import { cursorShowStore, playerRigidbodyStore } from "./stores";
+  import {
+    cameraControlPressedStore,
+    cursorShowStore,
+    playerRigidbodyStore,
+  } from "./stores";
   import { getContext, onMount } from "svelte";
 
   const subsetOfTHREE = {
@@ -108,10 +112,16 @@
   window.addCameraOffset = (velocity: Vector3) => addCameraOffset(velocity);
 
   const onMouseDown = (key: MouseEvent) => {
-    if (key.button == 2) cursorShowStore.set(false);
+    if (key.button == 2) {
+      cameraControlPressedStore.set(true);
+      cursorShowStore.set(false);
+    }
   };
   const onMouseUp = (key: MouseEvent) => {
-    if (key.button == 2) cursorShowStore.set(true);
+    if (key.button == 2) {
+      cameraControlPressedStore.set(false);
+      cursorShowStore.set(true);
+    }
   };
 </script>
 
