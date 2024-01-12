@@ -28,8 +28,8 @@
 declare module '$env/static/private' {
 	export const ALLUSERSPROFILE: string;
 	export const APPDATA: string;
-	export const BPPDOMAIN_MANAGER_ASM: string;
-	export const BPPDOMAIN_MANAGER_TYPE: string;
+	export const ChocolateyInstall: string;
+	export const ChocolateyLastPathUpdate: string;
 	export const COLOR: string;
 	export const CommonProgramFiles: string;
 	export const CommonProgramW6432: string;
@@ -37,13 +37,15 @@ declare module '$env/static/private' {
 	export const ComSpec: string;
 	export const DriverData: string;
 	export const EDITOR: string;
+	export const FPS_BROWSER_APP_PROFILE_STRING: string;
+	export const FPS_BROWSER_USER_PROFILE_STRING: string;
+	export const GTK_BASEPATH: string;
 	export const HOME: string;
 	export const HOMEDRIVE: string;
 	export const HOMEPATH: string;
 	export const INIT_CWD: string;
-	export const JAVA_HOME: string;
+	export const INTEL_DEV_REDIST: string;
 	export const LOCALAPPDATA: string;
-	export const LOG4J_FORMAT_MSG_NO_LOOKUPS: string;
 	export const LOGONSERVER: string;
 	export const NODE: string;
 	export const NODE_ENV: string;
@@ -71,8 +73,9 @@ declare module '$env/static/private' {
 	export const npm_package_version: string;
 	export const NPM_PREFIX_NPM_CLI_JS: string;
 	export const NUMBER_OF_PROCESSORS: string;
+	export const OculusBase: string;
 	export const OneDrive: string;
-	export const OneDriveCommercial: string;
+	export const OneDriveConsumer: string;
 	export const OS: string;
 	export const Path: string;
 	export const PATHEXT: string;
@@ -87,12 +90,10 @@ declare module '$env/static/private' {
 	export const PSModulePath: string;
 	export const PUBLIC: string;
 	export const SESSIONNAME: string;
-	export const SNOW_AGENT: string;
 	export const SystemDrive: string;
 	export const SystemRoot: string;
 	export const TEMP: string;
 	export const TMP: string;
-	export const USERDNSDOMAIN: string;
 	export const USERDOMAIN: string;
 	export const USERDOMAIN_ROAMINGPROFILE: string;
 	export const USERNAME: string;
@@ -131,8 +132,8 @@ declare module '$env/dynamic/private' {
 	export const env: {
 		ALLUSERSPROFILE: string;
 		APPDATA: string;
-		BPPDOMAIN_MANAGER_ASM: string;
-		BPPDOMAIN_MANAGER_TYPE: string;
+		ChocolateyInstall: string;
+		ChocolateyLastPathUpdate: string;
 		COLOR: string;
 		CommonProgramFiles: string;
 		CommonProgramW6432: string;
@@ -140,13 +141,15 @@ declare module '$env/dynamic/private' {
 		ComSpec: string;
 		DriverData: string;
 		EDITOR: string;
+		FPS_BROWSER_APP_PROFILE_STRING: string;
+		FPS_BROWSER_USER_PROFILE_STRING: string;
+		GTK_BASEPATH: string;
 		HOME: string;
 		HOMEDRIVE: string;
 		HOMEPATH: string;
 		INIT_CWD: string;
-		JAVA_HOME: string;
+		INTEL_DEV_REDIST: string;
 		LOCALAPPDATA: string;
-		LOG4J_FORMAT_MSG_NO_LOOKUPS: string;
 		LOGONSERVER: string;
 		NODE: string;
 		NODE_ENV: string;
@@ -174,8 +177,9 @@ declare module '$env/dynamic/private' {
 		npm_package_version: string;
 		NPM_PREFIX_NPM_CLI_JS: string;
 		NUMBER_OF_PROCESSORS: string;
+		OculusBase: string;
 		OneDrive: string;
-		OneDriveCommercial: string;
+		OneDriveConsumer: string;
 		OS: string;
 		Path: string;
 		PATHEXT: string;
@@ -190,12 +194,10 @@ declare module '$env/dynamic/private' {
 		PSModulePath: string;
 		PUBLIC: string;
 		SESSIONNAME: string;
-		SNOW_AGENT: string;
 		SystemDrive: string;
 		SystemRoot: string;
 		TEMP: string;
 		TMP: string;
-		USERDNSDOMAIN: string;
 		USERDOMAIN: string;
 		USERDOMAIN_ROAMINGPROFILE: string;
 		USERNAME: string;

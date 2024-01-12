@@ -5,7 +5,7 @@
     import { onMount } from "svelte";
     import { World } from "@threlte/rapier";
     import {
-        SCDiffTimeStore,
+        serverTimestampStore,
         playerDataStore,
         privilegesStore,
         serverDebugMsgAmountStore,
@@ -20,32 +20,23 @@
 
     let socket: any = null;
     let serverLatency: number;
-    let SCDiffTime: number;
+    let serverConnected = false;
 
     onMount(() => {
-        let serverToClientTimeDiff: number;
-        let pingSentTimestamp: number;
-
-        const direction = window.location.origin;
-        const ip = "http:" + direction.split(":")[1] + ":3000";
-        console.log(ip);
+        const origin = window.location.origin;
+        const ip = "http:" + origin.split(":")[1] + ":3000";
         socket = io(ip);
+        console.log("App mounted");
 
-        socket.on("check-timestampDiff", (serverTimestamp: number) => {
-            pingSentTimestamp = Date.now();
-            serverToClientTimeDiff = pingSentTimestamp - serverTimestamp;
-            socket.emit("initial-ping");
-        });
+        socket.emit("initiate-ping");
 
-        socket.on("initial-pong", () => {
-            serverLatency = Date.now() - pingSentTimestamp;
-            SCDiffTime = serverToClientTimeDiff - serverLatency;
+        socket.on("initiate-pong", (serverTimestamp: number) => {
+            serverTimestampStore.set(serverTimestamp - performance.now());
 
             const params = new URLSearchParams(window.location.search);
             let browserData = {
                 nick: params.get("nick") || null,
                 latency: serverLatency,
-                playerDiffTime: SCDiffTime,
             };
 
             socket.emit("onboarding", browserData);
@@ -56,6 +47,7 @@
             playerDataStore.set(playerData);
             privilegesStore.set(playerData.privileges);
             serverPlayersStore.set(serverPlayers);
+            serverConnected = true;
         });
 
         socket.on("players-list", (serverPlayers: any[]) => {
@@ -66,7 +58,7 @@
             window.location.reload();
         });
 
-        //Debugging messages
+        //Chat messages
         socket.on("msg", (message: string) => {
             console.log(message);
         });
@@ -80,9 +72,7 @@
         socketStore.set(socket);
     }
 
-    $: if (SCDiffTime) SCDiffTimeStore.set(SCDiffTime);
-
-    let debugFakeMouse = true;
+    let debugFakeMouse = false;
     const onKeyDown = (e: KeyboardEvent) => {
         if (e.ctrlKey && e.key === "1") {
             e.preventDefault();
@@ -93,7 +83,7 @@
 
 <svelte:window on:keydown={onKeyDown} />
 
-{#if serverLatency}
+{#if serverConnected}
     <Canvas>
         <AudioListener />
         <Ui />

@@ -41,13 +41,12 @@ let showAmountOfMsg = false;
 
 io.on('connection', (socket) => {
 
-    socket.emit('check-timestampDiff', Date.now());
-    socket.on("initial-ping", (timestampDiff) => {
-        socket.emit("initial-pong");
+    socket.on("initiate-ping", () => {
+        socket.emit("initiate-pong", performance.now());
     });
 
     socket.on('onboarding', (data) => {
-        console.log("ms from server " + data.playerDiffTime + " | ms latency: " + data.latency);
+        console.log("ms latency: " + data.latency);
         let nick = data.nick || socket.id;
         let privileges = nick.toLowerCase() === "amezcuetara" ? 10 : 0;
         const player = {
