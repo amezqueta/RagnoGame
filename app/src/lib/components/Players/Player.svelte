@@ -37,9 +37,11 @@
   export let color: string = "";
   let outlineColor: string = "#000000";
 
-  let space = false;
-  let forwardPressed: number = 0;
-  let rightPressed: number = 0;
+  let spacePressed = false;
+  let WKeyPressed = false;
+  let AKeyPressed = false;
+  let SKeyPressed = false;
+  let DKeyPressed = false;
 
   const { camera } = useThrelte();
   const { world } = useRapier();
@@ -92,7 +94,7 @@
     const playerIsgrounded = playerIsGrounded();
     if (playerIsgrounded) jumpVelocity = 0;
     else jumpVelocity -= 20 * deltaTime;
-    if (space && playerIsgrounded) {
+    if (spacePressed && playerIsgrounded) {
       jumpVelocity += 10;
     }
     jumpVelocity = clamp(jumpVelocity, -10, 10);
@@ -103,8 +105,10 @@
     velocity.x *= deltaTime;
 
     const speed = 10;
-    if (forwardPressed != 0) velocity.z -= forwardPressed * speed;
-    if (rightPressed != 0) velocity.x += rightPressed * speed;
+    if (WKeyPressed) velocity.z -= speed;
+    if (AKeyPressed) velocity.x += speed;
+    if (SKeyPressed) velocity.z += speed;
+    if (DKeyPressed) velocity.x -= speed;
 
     velocity = DirectionCamera(velocity);
   }
@@ -170,20 +174,20 @@
 
   function onKeyDown(e: KeyboardEvent) {
     switch (e.key) {
-      case "s":
-        forwardPressed = -1;
-        break;
       case "w":
-        forwardPressed = 1;
+        WKeyPressed = true;
         break;
       case "a":
-        rightPressed = 1;
+        AKeyPressed = true;
+        break;
+      case "s":
+        SKeyPressed = true;
         break;
       case "d":
-        rightPressed = -1;
+        DKeyPressed = true;
         break;
       case " ":
-        space = true;
+        spacePressed = true;
         break;
       default:
         break;
@@ -192,20 +196,20 @@
 
   function onKeyUp(e: KeyboardEvent) {
     switch (e.key) {
-      case "s":
-        forwardPressed = 0;
-        break;
       case "w":
-        forwardPressed = 0;
+        WKeyPressed = false;
         break;
       case "a":
-        rightPressed = 0;
+        AKeyPressed = false;
+        break;
+      case "s":
+        SKeyPressed = false;
         break;
       case "d":
-        rightPressed = 0;
+        DKeyPressed = false;
         break;
       case " ":
-        space = false;
+        spacePressed = false;
         break;
       default:
         break;
