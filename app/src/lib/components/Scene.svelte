@@ -52,4 +52,5 @@
         })}
     />
 </AutoColliders>
-<MovingPlatform position1={[0, 0, 0]} position2={[0, 5, 5]} />
+<MovingPlatform position1={[0, 0, 0]} position2={[0, 5, 1]} />
+<MovingPlatform position1={[6, 1, 3]} position2={[8, 1, 3]} />

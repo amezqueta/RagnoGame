@@ -11,7 +11,7 @@ export const cameraControls = writable(undefined)
 export const cameraControlPressedStore = writable<boolean>(false)
 
 export const playerRigidbodyStore = writable<RRigidBody>(undefined)
-export const playerTranslationStore = writable(new Vector3())
+export const playerPositionStore = writable<Vector3>(undefined)
 export const playerColorStore = writable<string>(undefined)
 export const playerDataStore = writable(undefined)
 export const privilegesStore = writable<number>(undefined)

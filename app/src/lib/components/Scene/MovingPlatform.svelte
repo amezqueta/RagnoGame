@@ -1,6 +1,10 @@
 <script lang="ts">
+    import {
+        type Collider as RCollider,
+        type RigidBody as RRigidBody,
+    } from "@dimforge/rapier3d-compat";
     import { T, useTask } from "@threlte/core";
-    import { AutoColliders } from "@threlte/rapier";
+    import { Collider, RigidBody } from "@threlte/rapier";
     import {
         BoxGeometry,
         MeshStandardMaterial,
@@ -8,26 +12,28 @@
         type Vector,
         MathUtils,
     } from "three";
-    import { lerp } from "three/src/math/MathUtils.js";
-    import { serverTimestampStore } from "../stores";
+    import { playerRigidbodyStore, serverTimestampStore } from "../stores";
+    import { playerPositionStore } from "../stores";
 
     let serverTimestamp: number;
-    let serverLatency: number;
     export let position1: number[];
     let p1: Vector3 = new Vector3(position1[0], position1[1], position1[2]);
     export let position2: number[];
     let p2: Vector3 = new Vector3(position2[0], position2[1], position2[2]);
-    let position: Vector3 = new Vector3(0, 3, 5);
+    let position: Vector3 = new Vector3(0, 0, 0);
+    let playerPosition: Vector3 = new Vector3(0, 0, 0);
 
     useTask(() => {
         if (!serverTimestamp) return;
         let time = serverTimestamp + performance.now();
-        console.log(serverLatency);
 
         let sine = normalizedSin(time / 1000);
 
         let v = p1.clone().lerp(p2, sine);
         position = v;
+        rigidBody?.setTranslation(v, true);
+        //collider.setTranslation(position);
+        //playerRigidbody?.setLinvel(v, true);
     });
 
     $: if (serverTimestampStore) serverTimestamp = $serverTimestampStore;
@@ -37,19 +43,42 @@
         const normalizedSin: number = (sinValue + 1) / 2;
         return normalizedSin;
     }
+
+    $: {
+        if (playerPositionStore) playerPosition = $playerPositionStore;
+    }
+    //TODO: Si esta encima de la plataforma que la colision aparezca. Sino que no, para que puedas subirte desde abajo
+    //Si das a control, se baja
+    let rigidBody: RRigidBody;
+    let _targetCollider: RCollider | null;
+
+    // $: {
+    //     if (_targetCollider) console.log(_targetCollider);
+    // }
 </script>
 
-{#if position}
-    <T.Group position={position.toArray()}>
-        <AutoColliders shape={"cuboid"}>
-            <T.Mesh
-                receiveShadow
-                castShadow
-                geometry={new BoxGeometry(2, 2, 2)}
-                material={new MeshStandardMaterial({
-                    color: "#00ff00",
-                })}
+{#if position && playerPosition}
+    <RigidBody type="kinematicPosition" bind:rigidBody>
+        {#if playerPosition.y > position.y + 1}
+            <Collider
+                shape={"cuboid"}
+                args={[1.5, 0.2, 1.5]}
+                on:collisionexit={(targetCollider) => {
+                    if (targetCollider) _targetCollider = null;
+                }}
+                on:collisionenter={({ targetCollider }) => {
+                    _targetCollider = targetCollider;
+                }}
             />
-        </AutoColliders>
-    </T.Group>
+        {/if}
+
+        <T.Mesh
+            receiveShadow
+            castShadow
+            geometry={new BoxGeometry(3, 1, 3)}
+            material={new MeshStandardMaterial({
+                color: "#00ff00",
+            })}
+        />
+    </RigidBody>
 {/if}

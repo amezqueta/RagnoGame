@@ -12,19 +12,17 @@
     cameraControlPressedStore,
     playerColorStore,
     playerRigidbodyStore,
-    playerTranslationStore,
     privilegesStore,
+    playerPositionStore,
   } from "../stores";
   import { clamp } from "svelte-tweakpane-ui/Utils.js";
   import TextBillboard from "../TextBillboard.svelte";
-  import { useCursor } from "@threlte/extras";
   import { interactivity } from "@threlte/extras";
   import { lerpAngle } from "../Utilities/Utils";
 
   interactivity();
 
   let rigidBody: RRigidBody;
-  let playerTranslation: Vector3 = $playerTranslationStore;
   const material = new MeshStandardMaterial();
   const geometry = new BoxGeometry(2, 2, 2);
   let meshRotation: number = 0;
@@ -36,6 +34,7 @@
   export let userId: string = "";
   export let color: string = "";
   let outlineColor: string = "#000000";
+  let playerPosition: Vector3 = new Vector3();
 
   let spacePressed = false;
   let WKeyPressed = false;
@@ -52,11 +51,10 @@
   controller.enableSnapToGround(0.5);
 
   let collisionForce: Vector3 = new Vector3(0, 0, 0);
-  let collisionMagnitude: number;
 
   let velocity = new Vector3();
   let jumpVelocity: number = 0;
-  let position: Vector3 = new Vector3();
+  let positionCheck: Vector3 = new Vector3();
   let deltaPosition: Vector3 = new Vector3();
   let cameraControlPressed = false;
 
@@ -119,7 +117,7 @@
     }
   }
 
-  const updateMeshRotation = (velocity: Vector3) => {
+  const updateMeshRotation = () => {
     if (velocity.lengthSq() < 1) return;
     if (cameraControlPressed) {
       let forwardCamera: Vector3 = getForwardCamera();
@@ -143,19 +141,23 @@
     playerJump(deltaTime);
     velocity.y = jumpVelocity;
     controller.computeColliderMovement(playerCollider, velocity);
-    updateMeshRotation(velocity);
+    const computedMovement = controller.computedMovement() as Vector3;
+    //velocity = computedMovement as Vector3;
+    updateMeshRotation();
     rigidBody.setLinvel(velocity, true);
     deltaPosition = new Vector3(
-      position.x - rigidBody.translation().x,
-      position.y - rigidBody.translation().y,
-      position.z - rigidBody.translation().z,
+      positionCheck.x - rigidBody.translation().x,
+      positionCheck.y - rigidBody.translation().y,
+      positionCheck.z - rigidBody.translation().z,
     );
-
+    playerPosition = rigidBody.translation() as Vector3;
+    playerPositionStore.set(playerPosition);
     window.addCameraOffset(deltaPosition);
+    groundedRigidbodyImpulse();
 
     //Checks that the player has moved enough
     if (deltaPosition.lengthSq() < deltaTime / 10) return;
-    position = rigidBody.translation() as Vector3;
+    positionCheck = $playerPositionStore;
 
     if (!rigidBody.isSleeping())
       socket.emit(
@@ -167,6 +169,18 @@
         ),
       );
   });
+
+  let groundedRigidbodyImpulse = () => {
+    // if (_targetRigidBody == null) return;
+    // let platformTranslation = _targetRigidBody.translation() as Vector3;
+    // let platformNextTranslation = _targetRigidBody.nextTranslation() as Vector3;
+    //addExternalForce(platformTranslation.clone().sub(platformNextTranslation));
+  };
+
+  let addExternalForce = (direction: Vector3) => {
+    console.log(direction);
+    velocity.add(direction);
+  };
 
   function playerIsGrounded(): boolean {
     return collisionForce.y > 1;
@@ -222,10 +236,6 @@
     playerRigidbodyStore.set(rigidBody);
   }
 
-  $: if (playerTranslation) {
-    playerTranslationStore.set(playerTranslation);
-  }
-
   $: if (color) playerColorStore.set(color);
   $: if ($playerColorStore) {
     color = $playerColorStore;
@@ -247,11 +257,9 @@
 <RigidBody
   on:collisionexit={() => {
     collisionForce = new Vector3(0, 0, 0);
-    collisionMagnitude = 0;
   }}
-  on:contact={({ totalForce, maxForceMagnitude }) => {
+  on:contact={({ totalForce }) => {
     collisionForce = totalForce;
-    collisionMagnitude = maxForceMagnitude;
   }}
   bind:rigidBody
   enabledRotations={[false, false, false]}
