@@ -46,7 +46,6 @@ io.on('connection', (socket) => {
     });
 
     socket.on('onboarding', (data) => {
-        console.log("ms latency: " + data.latency);
         let nick = data.nick || socket.id;
         let privileges = nick.toLowerCase() === "amezcuetara" ? 10 : 0;
         const player = {
@@ -70,14 +69,23 @@ io.on('connection', (socket) => {
             io.emit('msg', msg);
         });
 
-        socket.on('move', (newPos) => {
+        socket.on('player-move', (newPos) => {
             const player = getPlayer(socket.id);
             if (player) {
                 player.position = newPos;
-                io.emit('move', socket.id, newPos);
+                io.emit('player-move', socket.id, newPos);
             }
             msgAmount++;
-        })
+        });
+
+        socket.on('player-rotate', (newRot) => {
+            const player = getPlayer(socket.id);
+            if (player) {
+                player.rotation = newRot;
+                io.emit('player-rotate', socket.id, newRot);
+            }
+            msgAmount++;
+        });
 
         socket.on('server-color', (color) => {
             getPlayer(socket.id).color = color;
@@ -97,14 +105,14 @@ io.on('connection', (socket) => {
 
         socket.on('ping', () => {
             socket.emit('pong');
-        })
-    })
+        });
+    });
 
 });
 
 const getPlayer = (socketId) => {
     return serverPlayers.find(x => x.userId === socketId);
-}
+};
 
 const resetMessageCounter = () => {
     io.sockets.sockets.forEach(socket => {
@@ -117,7 +125,7 @@ const resetMessageCounter = () => {
     if (showAmountOfMsg)
         console.log(`Amount of messages in the last second: ${msgAmount}`);
     msgAmount = 0;
-}
+};
 
 server.listen(3000, () => {
     console.log('-----------RAGNO SERVER-----------');

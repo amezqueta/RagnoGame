@@ -98,13 +98,15 @@
   }
 
   const updateMeshRotation = () => {
-    if (playerVelocity.lengthSq() < 1) return;
+    const playerVelocityXZ = new Vector3(playerVelocity.x, 0, playerVelocity.z);
+    if (playerVelocityXZ.lengthSq() < 1) return;
     if (cameraControlPressed) {
       let forwardCamera: Vector3 = getForwardCamera();
       meshRotation = lerpAngle(meshRotation, Math.atan2(forwardCamera.x, forwardCamera.z), 0.5);
     } else {
-      meshRotation = lerpAngle(meshRotation, Math.atan2(playerVelocity.x, playerVelocity.z), 0.2);
+      meshRotation = lerpAngle(meshRotation, Math.atan2(playerVelocityXZ.x, playerVelocityXZ.z), 0.2);
     }
+    socket.emit("player-rotate", meshRotation);
   };
 
   const raycastDirection = new Vector3(0, -5, 0);
@@ -148,7 +150,7 @@
     if (deltaPosition.lengthSq() < deltaTime / 10) return;
     positionCheck = playerPosition;
 
-    if (!rigidBody.isSleeping()) socket.emit("move", new Vector3(rigidBody.translation().x, rigidBody.translation().y, rigidBody.translation().z));
+    if (!rigidBody.isSleeping()) socket.emit("player-move", new Vector3(rigidBody.translation().x, rigidBody.translation().y, rigidBody.translation().z));
   });
 
   let surfaceRigidbodyInfo: any;

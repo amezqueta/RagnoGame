@@ -12,7 +12,6 @@
     import Ui from "./UI/UI.svelte";
 
     let socket: any = null;
-    let serverLatency: number;
     let serverConnected = false;
 
     onMount(() => {
@@ -29,7 +28,6 @@
             const params = new URLSearchParams(window.location.search);
             let browserData = {
                 nick: params.get("nick") || null,
-                latency: serverLatency,
             };
 
             socket.emit("onboarding", browserData);

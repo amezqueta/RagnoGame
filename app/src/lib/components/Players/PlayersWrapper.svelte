@@ -110,10 +110,17 @@
     }
 
     $: if (socket) {
-        socket.on("move", (userId: string, newPos: any) => {
+        socket.on("player-move", (userId: string, newPos: any) => {
             const user = scenePlayers.find((user) => user.userId === userId);
             if (user) {
                 user.playerInstance?.SetPosition(newPos);
+            }
+        });
+
+        socket.on("player-rotate", (userId: string, newRot: number) => {
+            const user = scenePlayers.find((user) => user.userId === userId);
+            if (user) {
+                user.playerInstance?.SetRotation(newRot);
             }
         });
 

@@ -8,6 +8,7 @@
 
     const material = new MeshStandardMaterial();
     const geometry = new BoxGeometry(2, 2, 2);
+    let meshRotation: number = 0;
 
     export let userId: string = "";
     export let position = [0, 0, 0];
@@ -16,6 +17,10 @@
 
     export function SetPosition(newPos: any) {
         position = [newPos.x, newPos.y, newPos.z];
+    }
+
+    export function SetRotation(newRot: number) {
+        meshRotation = newRot;
     }
 
     export function SetColor(newColor: string) {
@@ -40,6 +45,6 @@
 </script>
 
 <T.Group {position}>
-    <T.Mesh castShadow {geometry} {material} />
+    <T.Mesh castShadow {geometry} {material} rotation.y={meshRotation} />
     <TextBillboard text={nick} position={[0, 3, 0]} {color} />
 </T.Group>
