@@ -34,7 +34,7 @@
   const { world } = useRapier();
 
   let playerVelocity = new Vector3();
-  let jumpVelocity: number = 0;
+  let playerVerticalVelocity: number = 0;
   let positionCheck: Vector3 = new Vector3();
   let deltaPosition: Vector3 = new Vector3();
   let cameraControlPressed = false;
@@ -68,14 +68,15 @@
     return moveDirection;
   }
 
+  const jumpForce = 10;
   const applyVerticalVelocity = (deltaTime: number) => {
-    if (isGrounded) jumpVelocity = 0;
-    else jumpVelocity -= 20 * deltaTime;
+    if (isGrounded) playerVerticalVelocity = 0;
+    else playerVerticalVelocity -= 20 * deltaTime;
     if (spacePressed && isGrounded) {
-      jumpVelocity += 10;
+      playerVerticalVelocity += jumpForce;
     }
-    jumpVelocity = clamp(jumpVelocity, -10, 10);
-    playerVelocity.y = jumpVelocity;
+    playerVerticalVelocity = clamp(playerVerticalVelocity, -jumpForce, jumpForce);
+    playerVelocity.y = playerVerticalVelocity;
   };
 
   const playerMovement = (deltaTime: number) => {
@@ -87,7 +88,7 @@
     if (AKeyPressed) playerVelocity.x += speed;
     if (SKeyPressed) playerVelocity.z += speed;
     if (DKeyPressed) playerVelocity.x -= speed;
-
+    playerVelocity.clampLength(0, 10);
     playerVelocity = passDirectionCameraForward(playerVelocity);
   };
 
@@ -140,11 +141,10 @@
 
     deltaPosition = new Vector3(positionCheck.x - rigidBody.translation().x, positionCheck.y - rigidBody.translation().y, positionCheck.z - rigidBody.translation().z);
     playerPosition.set(rigidBody.translation().x, rigidBody.translation().y, rigidBody.translation().z);
-    //Updates the store variable
-    if (playerVelocity.lengthSq() > 0.1) {
-      playerPositionStore.set(playerPosition);
-      playerVelocityStore.set(deltaPosition);
-    }
+
+    //Updates the store variables @todo update the store only if the variable changed enough respecting the one from the store
+    playerPositionStore.set(playerPosition);
+    playerVelocityStore.set(deltaPosition);
 
     //Checks that the player has moved enough
     if (deltaPosition.lengthSq() < deltaTime / 10) return;
