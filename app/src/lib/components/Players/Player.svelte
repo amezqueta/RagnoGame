@@ -1,26 +1,14 @@
 <script lang="ts">
-  import {
-    type Collider as RCollider,
-    type RigidBody as RRigidBody,
-  } from "@dimforge/rapier3d-compat";
+  import { type Collider as RCollider, type RigidBody as RRigidBody, Ray, RayColliderToi } from "@dimforge/rapier3d-compat";
   import { onMount } from "svelte";
   import { T, useTask, useThrelte } from "@threlte/core";
-  import { BoxGeometry, MeshStandardMaterial, Vector3 } from "three";
+  import { BoxGeometry, MeshStandardMaterial, Vector3, ArrowHelper } from "three";
   import { onDestroy } from "svelte";
   import { RigidBody, Collider, useRapier } from "@threlte/rapier";
-  import {
-    cameraControlPressedStore,
-    playerColorStore,
-    playerRigidbodyStore,
-    privilegesStore,
-    playerPositionStore,
-  } from "../stores";
+  import { cameraControlPressedStore, playerColorStore, playerRigidbodyStore, privilegesStore, playerPositionStore, playerVelocityStore } from "../stores";
   import { clamp } from "svelte-tweakpane-ui/Utils.js";
   import TextBillboard from "../TextBillboard.svelte";
-  import { interactivity } from "@threlte/extras";
   import { lerpAngle } from "../Utilities/Utils";
-
-  interactivity();
 
   let rigidBody: RRigidBody;
   const material = new MeshStandardMaterial();
@@ -44,19 +32,13 @@
 
   const { camera } = useThrelte();
   const { world } = useRapier();
-  let controller = world.createCharacterController(0.01);
-  controller.setMaxSlopeClimbAngle((45 * Math.PI) / 180);
-  controller.setMinSlopeSlideAngle((30 * Math.PI) / 180);
-  controller.enableAutostep(0.5, 0.2, true);
-  controller.enableSnapToGround(0.5);
 
-  let collisionForce: Vector3 = new Vector3(0, 0, 0);
-
-  let velocity = new Vector3();
+  let playerVelocity = new Vector3();
   let jumpVelocity: number = 0;
   let positionCheck: Vector3 = new Vector3();
   let deltaPosition: Vector3 = new Vector3();
   let cameraControlPressed = false;
+  let isGrounded: boolean = false;
 
   onDestroy(() => {
     console.log("Player destroyed (" + userId + ")");
@@ -76,40 +58,38 @@
     return forward;
   };
 
-  function DirectionCamera(direction: Vector3): Vector3 {
+  function passDirectionCameraForward(direction: Vector3): Vector3 {
     let forwardCamera: Vector3 = getForwardCamera();
     let up = new Vector3(0, 1, 0);
     let right = new Vector3();
     right.crossVectors(up, forwardCamera).normalize();
 
-    let moveDirection = forwardCamera
-      .multiplyScalar(-direction.z)
-      .add(right.multiplyScalar(direction.x));
+    let moveDirection = forwardCamera.multiplyScalar(-direction.z).add(right.multiplyScalar(direction.x));
     return moveDirection;
   }
 
-  function playerJump(deltaTime: number) {
-    const playerIsgrounded = playerIsGrounded();
-    if (playerIsgrounded) jumpVelocity = 0;
+  const applyVerticalVelocity = (deltaTime: number) => {
+    if (isGrounded) jumpVelocity = 0;
     else jumpVelocity -= 20 * deltaTime;
-    if (spacePressed && playerIsgrounded) {
+    if (spacePressed && isGrounded) {
       jumpVelocity += 10;
     }
     jumpVelocity = clamp(jumpVelocity, -10, 10);
-  }
+    playerVelocity.y = jumpVelocity;
+  };
 
-  function playerMovement(deltaTime: number) {
-    velocity.z *= deltaTime;
-    velocity.x *= deltaTime;
+  const playerMovement = (deltaTime: number) => {
+    playerVelocity.z *= deltaTime;
+    playerVelocity.x *= deltaTime;
 
     const speed = 10;
-    if (WKeyPressed) velocity.z -= speed;
-    if (AKeyPressed) velocity.x += speed;
-    if (SKeyPressed) velocity.z += speed;
-    if (DKeyPressed) velocity.x -= speed;
+    if (WKeyPressed) playerVelocity.z -= speed;
+    if (AKeyPressed) playerVelocity.x += speed;
+    if (SKeyPressed) playerVelocity.z += speed;
+    if (DKeyPressed) playerVelocity.x -= speed;
 
-    velocity = DirectionCamera(velocity);
-  }
+    playerVelocity = passDirectionCameraForward(playerVelocity);
+  };
 
   function returnPlayerOnFall() {
     if (rigidBody.translation().y < -2) {
@@ -118,73 +98,91 @@
   }
 
   const updateMeshRotation = () => {
-    if (velocity.lengthSq() < 1) return;
+    if (playerVelocity.lengthSq() < 1) return;
     if (cameraControlPressed) {
       let forwardCamera: Vector3 = getForwardCamera();
-      meshRotation = lerpAngle(
-        meshRotation,
-        Math.atan2(forwardCamera.x, forwardCamera.z),
-        0.5,
-      );
+      meshRotation = lerpAngle(meshRotation, Math.atan2(forwardCamera.x, forwardCamera.z), 0.5);
     } else {
-      meshRotation = lerpAngle(
-        meshRotation,
-        Math.atan2(velocity.x, velocity.z),
-        0.2,
-      );
+      meshRotation = lerpAngle(meshRotation, Math.atan2(playerVelocity.x, playerVelocity.z), 0.2);
     }
   };
 
+  const raycastDirection = new Vector3(0, -5, 0);
+  const minGroundDistance = 0.3;
+  /* createCharacterController is not working properly
+  let controller = world.createCharacterController(0.01);
+  controller.setMaxSlopeClimbAngle((45 * Math.PI) / 180);
+  controller.setMinSlopeSlideAngle((30 * Math.PI) / 180);
+  controller.enableAutostep(0.5, 0.2, true);
+  controller.enableSnapToGround(0.5);
+  */
   useTask((deltaTime) => {
     returnPlayerOnFall();
+
+    //Basic movements
     playerMovement(deltaTime);
-    playerJump(deltaTime);
-    velocity.y = jumpVelocity;
-    controller.computeColliderMovement(playerCollider, velocity);
-    const computedMovement = controller.computedMovement() as Vector3;
-    //velocity = computedMovement as Vector3;
+    applyVerticalVelocity(deltaTime);
+
+    //Raycast to the floor. @todo If the player is standing on an edge, isGrounded can be negative
+    const ray: Ray = new Ray(rigidBody.translation(), raycastDirection);
+    const raycastResult = world.castRay(ray, 1, false);
+    isGrounded = raycastResult ? raycastResult.toi < minGroundDistance : false;
+    checkSurfaceVelocity(raycastResult);
+
     updateMeshRotation();
-    rigidBody.setLinvel(velocity, true);
-    deltaPosition = new Vector3(
-      positionCheck.x - rigidBody.translation().x,
-      positionCheck.y - rigidBody.translation().y,
-      positionCheck.z - rigidBody.translation().z,
-    );
-    playerPosition = rigidBody.translation() as Vector3;
-    playerPositionStore.set(playerPosition);
-    window.addCameraOffset(deltaPosition);
-    groundedRigidbodyImpulse();
+
+    debugArrowDirection = playerVelocity;
+    if (surfaceVelocity) playerVelocity.add(surfaceVelocity.multiplyScalar(-1 / deltaTime));
+
+    rigidBody.setLinvel(playerVelocity, true);
+
+    deltaPosition = new Vector3(positionCheck.x - rigidBody.translation().x, positionCheck.y - rigidBody.translation().y, positionCheck.z - rigidBody.translation().z);
+    playerPosition.set(rigidBody.translation().x, rigidBody.translation().y, rigidBody.translation().z);
+    //Updates the store variable
+    if (playerVelocity.lengthSq() > 0.1) {
+      playerPositionStore.set(playerPosition);
+      playerVelocityStore.set(deltaPosition);
+    }
 
     //Checks that the player has moved enough
     if (deltaPosition.lengthSq() < deltaTime / 10) return;
-    positionCheck = $playerPositionStore;
+    positionCheck = playerPosition;
 
-    if (!rigidBody.isSleeping())
-      socket.emit(
-        "move",
-        new Vector3(
-          rigidBody.translation().x,
-          rigidBody.translation().y,
-          rigidBody.translation().z,
-        ),
-      );
+    if (!rigidBody.isSleeping()) socket.emit("move", new Vector3(rigidBody.translation().x, rigidBody.translation().y, rigidBody.translation().z));
   });
 
-  let groundedRigidbodyImpulse = () => {
-    // if (_targetRigidBody == null) return;
-    // let platformTranslation = _targetRigidBody.translation() as Vector3;
-    // let platformNextTranslation = _targetRigidBody.nextTranslation() as Vector3;
-    //addExternalForce(platformTranslation.clone().sub(platformNextTranslation));
-  };
+  let surfaceRigidbodyInfo: any;
+  let prevSurfacePosition: Vector3 | null;
+  let surfaceVelocity: Vector3 | null;
+  const checkSurfaceVelocity = (raycastResult: RayColliderToi | null) => {
+    if (!isGrounded || raycastResult == null) {
+      //No surface detected
+      surfaceRigidbodyInfo = null;
+      prevSurfacePosition = null;
+      surfaceVelocity = null;
+      return;
+    }
 
-  let addExternalForce = (direction: Vector3) => {
-    console.log(direction);
-    velocity.add(direction);
-  };
+    const currentColl = raycastResult.collider.parent();
+    if (surfaceRigidbodyInfo != currentColl) {
+      //A new surface is detected
+      surfaceRigidbodyInfo = raycastResult.collider.parent();
+      prevSurfacePosition = null;
+      surfaceVelocity = null;
+      return;
+    }
 
-  function playerIsGrounded(): boolean {
-    return collisionForce.y > 1;
-  }
+    if (!surfaceRigidbodyInfo) {
+      return;
+    }
+
+    const trans = surfaceRigidbodyInfo.nextTranslation();
+
+    if (prevSurfacePosition) {
+      surfaceVelocity = prevSurfacePosition.clone().sub(trans);
+    }
+    prevSurfacePosition = new Vector3(trans.x, trans.y, trans.z);
+  };
 
   function onKeyDown(e: KeyboardEvent) {
     switch (e.key) {
@@ -244,26 +242,17 @@
 
   $: if ($privilegesStore == 10) outlineColor = "#85641b";
 
-  $: if (cameraControlPressedStore)
-    cameraControlPressed = $cameraControlPressedStore;
+  $: if (cameraControlPressedStore) cameraControlPressed = $cameraControlPressedStore;
 
   onMount(() => {
     console.log("Player mounted " + color);
   });
+  let debugArrowDirection: Vector3 = new Vector3();
 </script>
 
 <svelte:window on:keydown={onKeyDown} on:keyup={onKeyUp} />
 
-<RigidBody
-  on:collisionexit={() => {
-    collisionForce = new Vector3(0, 0, 0);
-  }}
-  on:contact={({ totalForce }) => {
-    collisionForce = totalForce;
-  }}
-  bind:rigidBody
-  enabledRotations={[false, false, false]}
->
+<RigidBody bind:rigidBody enabledRotations={[false, false, false]}>
   <T.Mesh castShadow {geometry} {material} rotation.y={meshRotation} />
   <TextBillboard text={nick} position={[0, 3, 0]} {color} {outlineColor} />
   <Collider shape="capsule" args={[0.3, 1]} bind:collider={playerCollider} />

@@ -1,20 +1,12 @@
 <script lang="ts">
-    import {
-        type Collider as RCollider,
-        type RigidBody as RRigidBody,
-    } from "@dimforge/rapier3d-compat";
+    import { type Collider as RCollider, type RigidBody as RRigidBody } from "@dimforge/rapier3d-compat";
     import { T, useTask } from "@threlte/core";
     import { Collider, RigidBody } from "@threlte/rapier";
-    import {
-        BoxGeometry,
-        MeshStandardMaterial,
-        Vector3,
-        type Vector,
-        MathUtils,
-    } from "three";
-    import { playerRigidbodyStore, serverTimestampStore } from "../stores";
+    import { BoxGeometry, MeshStandardMaterial, Vector3, type Vector, MathUtils } from "three";
+    import { serverTimestampStore } from "../stores";
     import { playerPositionStore } from "../stores";
 
+    export let underPlatformClimb = false;
     let serverTimestamp: number;
     export let position1: number[];
     let p1: Vector3 = new Vector3(position1[0], position1[1], position1[2]);
@@ -31,9 +23,7 @@
 
         let v = p1.clone().lerp(p2, sine);
         position = v;
-        rigidBody?.setTranslation(v, true);
-        //collider.setTranslation(position);
-        //playerRigidbody?.setLinvel(v, true);
+        rigidBody?.setNextKinematicTranslation(v);
     });
 
     $: if (serverTimestampStore) serverTimestamp = $serverTimestampStore;
@@ -47,29 +37,14 @@
     $: {
         if (playerPositionStore) playerPosition = $playerPositionStore;
     }
-    //TODO: Si esta encima de la plataforma que la colision aparezca. Sino que no, para que puedas subirte desde abajo
-    //Si das a control, se baja
+    //@TODO Si das a control, se baja de la plataforma
     let rigidBody: RRigidBody;
-    let _targetCollider: RCollider | null;
-
-    // $: {
-    //     if (_targetCollider) console.log(_targetCollider);
-    // }
 </script>
 
 {#if position && playerPosition}
     <RigidBody type="kinematicPosition" bind:rigidBody>
-        {#if playerPosition.y > position.y + 1}
-            <Collider
-                shape={"cuboid"}
-                args={[1.5, 0.2, 1.5]}
-                on:collisionexit={(targetCollider) => {
-                    if (targetCollider) _targetCollider = null;
-                }}
-                on:collisionenter={({ targetCollider }) => {
-                    _targetCollider = targetCollider;
-                }}
-            />
+        {#if !underPlatformClimb || playerPosition.y > position.y + 1}
+            <Collider shape={"cuboid"} args={[1.5, 0.2, 1.5]} />
         {/if}
 
         <T.Mesh

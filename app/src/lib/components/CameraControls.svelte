@@ -4,35 +4,15 @@
 
 <script lang="ts">
   import { useTask, useParent, useThrelte } from "@threlte/core";
-  import type {
-    CameraControlsEvents,
-    CameraControlsProps,
-    CameraControlsSlots,
-  } from "./CameraControls.svelte";
+  import type { CameraControlsEvents, CameraControlsProps, CameraControlsSlots } from "./CameraControls.svelte";
 
   type $$Props = CameraControlsProps;
   type $$Events = CameraControlsEvents;
   type $$Slots = CameraControlsSlots;
 
   import CameraControls from "camera-controls";
-  import {
-    Box3,
-    Matrix4,
-    Quaternion,
-    Raycaster,
-    Sphere,
-    Spherical,
-    Vector2,
-    Vector3,
-    Vector4,
-    type PerspectiveCamera,
-  } from "three";
-  import {
-    cameraControlPressedStore,
-    cursorShowStore,
-    playerRigidbodyStore,
-  } from "./stores";
-  import { getContext, onMount } from "svelte";
+  import { Box3, Matrix4, Quaternion, Raycaster, Sphere, Spherical, Vector2, Vector3, Vector4, type PerspectiveCamera } from "three";
+  import { cameraControlPressedStore, cursorShowStore, playerPositionStore, playerVelocityStore } from "./stores";
 
   const subsetOfTHREE = {
     Vector2,
@@ -52,6 +32,7 @@
   }
 
   const parent = useParent();
+  const { camera } = useThrelte();
 
   if (!$parent) {
     throw new Error("CameraControls must be a child of a ThreeJS camera");
@@ -59,57 +40,54 @@
 
   const { renderer, invalidate } = useThrelte();
 
-  export const ref = new CameraControls(
-    $parent as PerspectiveCamera,
-    renderer?.domElement,
-  );
+  export const ref = new CameraControls($parent as PerspectiveCamera, renderer?.domElement);
 
   const getControls = () => ref;
   getControls().mouseButtons.right = CameraControls.ACTION.ROTATE;
   getControls().mouseButtons.left = CameraControls.ACTION.NONE;
   getControls().mouseButtons.middle = CameraControls.ACTION.NONE;
-  getControls().smoothTime = 0.01;
+  getControls().smoothTime = 0;
   getControls().draggingSmoothTime = 0;
   getControls().maxPolarAngle = 3;
   getControls().minPolarAngle = 0.05;
   getControls().minDistance = 50;
   getControls().maxDistance = 100;
+  getControls().setFocalOffset(0, -1, 0, false);
 
   useTask((delta) => {
     const updated = getControls().update(delta);
     if (updated) invalidate();
   });
 
-  const addCameraOffset = (velocity: Vector3) => {
-    if (!$playerRigidbodyStore) return;
-
+  $: if ($playerPositionStore) {
     let currentDistance = getControls().distance;
-
-    let cameraPosition: Vector3 = new Vector3();
-    getControls().getPosition(cameraPosition);
-    cameraPosition.addScaledVector(velocity, 0.017);
-    getControls().setPosition(
-      cameraPosition.x,
-      cameraPosition.y,
-      cameraPosition.z,
-      false,
-    );
-    let translation = $playerRigidbodyStore.translation();
-    getControls().setTarget(translation.x, translation.y, translation.z, true);
+    updateCameraRotation($playerPositionStore);
     getControls().distance = currentDistance;
-  };
-
-  //Makes sure that on load the player, the camera is automatically looking at the player
-  $: if ($playerRigidbodyStore) {
-    getControls().setTarget(
-      $playerRigidbodyStore.translation().x,
-      $playerRigidbodyStore.translation().y,
-      $playerRigidbodyStore.translation().z,
-      false,
-    );
   }
 
-  window.addCameraOffset = (velocity: Vector3) => addCameraOffset(velocity);
+  $: if ($playerVelocityStore) {
+    updateCameraPosition($playerVelocityStore);
+  }
+
+  const updateCameraPosition = (playerVelocity: Vector3) => {
+    let currentDistance = getControls().distance;
+    let cameraForward = new Vector3();
+    camera.current.getWorldDirection(cameraForward);
+
+    playerVelocity.clone().addScaledVector(cameraForward, currentDistance);
+
+    //Pass de camera direction
+    let up = new Vector3(0, 1, 0);
+    let right = new Vector3();
+    right.crossVectors(up, cameraForward);
+    let moveDirection = cameraForward.multiplyScalar(playerVelocity.z).add(right.multiplyScalar(-playerVelocity.x));
+
+    getControls().truck(-moveDirection.x, 0, false);
+  };
+
+  const updateCameraRotation = (playerPosition: Vector3) => {
+    getControls().setTarget(playerPosition.x, playerPosition.y, playerPosition.z, false);
+  };
 
   const onMouseDown = (key: MouseEvent) => {
     if (key.button == 2) {

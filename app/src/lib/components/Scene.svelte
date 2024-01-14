@@ -7,21 +7,9 @@
 </script>
 
 <T.AmbientLight intensity={0.5} />
-<Grid
-    position.y={-0.001}
-    cellColor="#ffffff"
-    sectionColor="#ffffff"
-    sectionThickness={0}
-    fadeDistance={250}
-    cellSize={2}
-/>
 <ContactShadows scale={10} blur={2} far={2.5} opacity={0.5} />
 <AutoColliders shape={"cuboid"}>
-    <T.Mesh
-        receiveShadow
-        geometry={new BoxGeometry(30, 1, 30)}
-        material={new MeshStandardMaterial()}
-    />
+    <T.Mesh receiveShadow geometry={new BoxGeometry(30, 1, 30)} material={new MeshStandardMaterial()} />
 </AutoColliders>
 <AutoColliders shape={"cuboid"}>
     <T.Mesh
@@ -52,5 +40,18 @@
         })}
     />
 </AutoColliders>
-<MovingPlatform position1={[0, 0, 0]} position2={[0, 5, 1]} />
-<MovingPlatform position1={[6, 1, 3]} position2={[8, 1, 3]} />
+<AutoColliders shape={"cuboid"}>
+    <T.Mesh
+        receiveShadow
+        castShadow
+        position.x={-6}
+        position.y={1.275}
+        rotation.x={Math.PI * 0.75}
+        geometry={new BoxGeometry(2, 50, 2)}
+        material={new MeshStandardMaterial({
+            color: 0x333333,
+        })}
+    />
+</AutoColliders>
+<MovingPlatform position1={[0, 0, 5]} position2={[0, 5, 6]} />
+<MovingPlatform position1={[6, 1, 3]} position2={[10, 1, 3]} />
