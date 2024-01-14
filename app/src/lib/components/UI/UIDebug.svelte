@@ -1,26 +1,10 @@
 ﻿<script lang="ts">
-    import {
-        Color,
-        Folder,
-        FpsGraph,
-        Monitor,
-        Pane,
-        Text,
-        ThemeUtils,
-    } from "svelte-tweakpane-ui";
-    import {
-        playerColorStore,
-        privilegesStore,
-        serverDebugMsgAmountStore,
-        serverPlayersStore,
-    } from "../stores";
+    import { Color, Folder, FpsGraph, Monitor, Pane, Text, ThemeUtils } from "svelte-tweakpane-ui";
+    import { playerColorStore, privilegesStore, serverDebugMsgAmountStore, serverPlayersStore } from "../stores";
     addEventListener("pointerlockchange", onPointerlockchange);
 
-    function onMouseEnter(e: MouseEvent) {}
     function onPointerlockchange(e: Event) {
-        theme = document.pointerLockElement
-            ? ThemeUtils.presets.translucent
-            : ThemeUtils.presets.light;
+        theme = document.pointerLockElement ? ThemeUtils.presets.translucent : ThemeUtils.presets.light;
     }
     let theme = ThemeUtils.presets.light;
     let serverDebugMsgAmount: number;
@@ -33,8 +17,7 @@
     $: if ($serverPlayersStore) serverPlayers = $serverPlayersStore;
     $: if (playerColorStore) color = $playerColorStore;
     $: if (color) playerColorStore.set(color);
-    $: if (serverDebugMsgAmountStore)
-        serverDebugMsgAmount = $serverDebugMsgAmountStore;
+    $: if (serverDebugMsgAmountStore) serverDebugMsgAmount = $serverDebugMsgAmountStore;
     $: if (privilegesStore) privileges = $privilegesStore;
 </script>
 
@@ -54,13 +37,7 @@
         {#if privileges == 10}
             <Folder title="Server:">
                 {#if serverDebugMsgAmount != undefined}
-                    <Monitor
-                        value={$serverDebugMsgAmountStore}
-                        graph={true}
-                        interval={1000}
-                        max={500}
-                        bufferSize={40}
-                    />
+                    <Monitor value={$serverDebugMsgAmountStore} graph={true} interval={1000} max={500} bufferSize={40} />
                 {/if}
             </Folder>
         {/if}

@@ -1,11 +1,7 @@
 <script lang="ts">
     import Player from "$lib/components/Players/Player.svelte";
     import OnlinePlayer from "$lib/components/Players/OnlinePlayer.svelte";
-    import {
-        playerDataStore,
-        serverPlayersStore,
-        socketStore,
-    } from "../stores";
+    import { playerDataStore, serverPlayersStore, socketStore } from "../stores";
 
     let player: any = null;
     let currentPlayerData: any = null;
@@ -41,9 +37,7 @@
         serverPlayers
             .filter((x) => x.userId !== currentPlayerData.userId)
             .forEach((playerData) => {
-                const foundPlayer = scenePlayers.find(
-                    (p) => p.userId === playerData.userId,
-                );
+                const foundPlayer = scenePlayers.find((p) => p.userId === playerData.userId);
                 if (!foundPlayer) {
                     let playerInstance = new OnlinePlayer({
                         target: document.body,
@@ -58,11 +52,7 @@
                         ...scenePlayers,
                         {
                             userId: playerData.userId,
-                            position: [
-                                playerData.position.x,
-                                playerData.position.y,
-                                playerData.position.z,
-                            ],
+                            position: [playerData.position.x, playerData.position.y, playerData.position.z],
                             color: playerData.color,
                             nick: playerData.nick,
                             playerInstance: playerInstance,
@@ -74,9 +64,7 @@
 
         //Remove Player
         scenePlayers.forEach((playerData, index) => {
-            const foundPlayer = serverPlayers.find(
-                (p) => p.userId === playerData.userId,
-            );
+            const foundPlayer = serverPlayers.find((p) => p.userId === playerData.userId);
             if (!foundPlayer) {
                 playerData.playerInstance.$destroy();
                 scenePlayers.splice(index, 1);
@@ -93,11 +81,7 @@
                     ...scenePlayers,
                     {
                         userId: player.userId,
-                        position: [
-                            player.position.x,
-                            player.position.y,
-                            player.position.z,
-                        ],
+                        position: [player.position.x, player.position.y, player.position.z],
                         color: player.color,
                         nick: player.nick,
                         playerInstance: null,

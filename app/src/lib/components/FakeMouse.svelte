@@ -86,8 +86,7 @@
 
     $: if (cursorShowStore) show = $cursorShowStore;
 
-    $: if (cursor)
-        cursor.style.display = pointerLocked && show ? "block" : "none";
+    $: if (cursor) cursor.style.display = pointerLocked && show ? "block" : "none";
 
     $: if (hoverElementUI != prev_hoverElementUI) {
         prev_hoverElementUI?.classList.remove("hovered");
@@ -96,11 +95,7 @@
     }
 </script>
 
-<svelte:window
-    on:mousedown={onMouseDown}
-    on:mousemove={onMouseMove}
-    on:mouseup={onMouseUp}
-/>
+<svelte:window on:mousedown={onMouseDown} on:mousemove={onMouseMove} on:mouseup={onMouseUp} />
 <DomPortal>
     <div id="cursor-wrapper">
         <div id="fake-cursor"></div>

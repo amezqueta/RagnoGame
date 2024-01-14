@@ -55,3 +55,5 @@
 </AutoColliders>
 <MovingPlatform position1={[0, 0, 5]} position2={[0, 5, 6]} />
 <MovingPlatform position1={[6, 1, 3]} position2={[10, 1, 3]} />
+<MovingPlatform position1={[2, 3, 2]} position2={[2, 3, 2]} underPlatformClimb={true} />
+<MovingPlatform position1={[2, 6, 2]} position2={[2, 6, 2]} underPlatformClimb={true} />

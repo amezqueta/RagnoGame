@@ -4,14 +4,7 @@
     import io from "socket.io-client";
     import { onMount } from "svelte";
     import { World } from "@threlte/rapier";
-    import {
-        serverTimestampStore,
-        playerDataStore,
-        privilegesStore,
-        serverDebugMsgAmountStore,
-        serverPlayersStore,
-        socketStore,
-    } from "./stores";
+    import { serverTimestampStore, playerDataStore, privilegesStore, serverDebugMsgAmountStore, serverPlayersStore, socketStore } from "./stores";
     import Scene from "./Scene.svelte";
     import { Audio, AudioListener } from "@threlte/extras";
     import CameraControlsComponent from "./CameraControls.svelte";
