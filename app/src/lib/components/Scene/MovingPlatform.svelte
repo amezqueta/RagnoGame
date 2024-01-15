@@ -43,14 +43,14 @@
 
 {#if position && playerPosition}
     <RigidBody type="kinematicPosition" bind:rigidBody>
-        {#if !underPlatformClimb || playerPosition.y > position.y + 1}
-            <Collider shape={"cuboid"} args={[1.5, 0.2, 1.5]} />
+        {#if !underPlatformClimb || playerPosition.y > position.y + 2.2}
+            <Collider shape={"cuboid"} args={[3, 0.2, 3]} />
         {/if}
 
         <T.Mesh
             receiveShadow
             castShadow
-            geometry={new BoxGeometry(3, 1, 3)}
+            geometry={new BoxGeometry(6, 1, 6)}
             material={new MeshStandardMaterial({
                 color: "#00ff00",
             })}

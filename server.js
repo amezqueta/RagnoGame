@@ -87,6 +87,14 @@ io.on('connection', (socket) => {
             msgAmount++;
         });
 
+        socket.on('player-pushed', (userId, direction) => {
+            io.sockets.sockets.forEach((sock) => {
+                if (sock.id == userId) {
+                    sock.emit('player-pushed', direction);
+                }
+            });
+        });
+
         socket.on('server-color', (color) => {
             getPlayer(socket.id).color = color;
             io.emit('user-color', socket.id, color);

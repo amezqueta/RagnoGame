@@ -9,7 +9,7 @@
 <T.AmbientLight intensity={0.5} />
 <ContactShadows scale={10} blur={2} far={2.5} opacity={0.5} />
 <AutoColliders shape={"cuboid"}>
-    <T.Mesh receiveShadow geometry={new BoxGeometry(30, 1, 30)} material={new MeshStandardMaterial()} />
+    <T.Mesh receiveShadow geometry={new BoxGeometry(60, 1, 60)} material={new MeshStandardMaterial()} />
 </AutoColliders>
 <AutoColliders shape={"cuboid"}>
     <T.Mesh
@@ -53,7 +53,9 @@
         })}
     />
 </AutoColliders>
-<MovingPlatform position1={[0, 0, 5]} position2={[0, 5, 6]} />
+
+<MovingPlatform position1={[10, 0, 10]} position2={[10, 25, 6]} />
 <MovingPlatform position1={[6, 1, 3]} position2={[10, 1, 3]} />
-<MovingPlatform position1={[2, 3, -5]} position2={[2, 3, -5]} underPlatformClimb={true} />
-<MovingPlatform position1={[2, 6, -5]} position2={[2, 6, -5]} underPlatformClimb={true} />
+
+<MovingPlatform position1={[2, 3, -15]} position2={[2, 3, -15]} underPlatformClimb={true} />
+<MovingPlatform position1={[2, 6, -15]} position2={[2, 6, -15]} underPlatformClimb={true} />

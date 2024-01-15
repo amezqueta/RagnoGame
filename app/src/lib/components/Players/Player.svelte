@@ -2,9 +2,9 @@
   import { type Collider as RCollider, type RigidBody as RRigidBody, Ray, RayColliderToi } from "@dimforge/rapier3d-compat";
   import { onMount } from "svelte";
   import { T, useTask, useThrelte } from "@threlte/core";
-  import { BoxGeometry, MeshStandardMaterial, Vector3, ArrowHelper } from "three";
+  import { BoxGeometry, MeshStandardMaterial, Vector3, ArrowHelper, VectorKeyframeTrack } from "three";
   import { onDestroy } from "svelte";
-  import { RigidBody, Collider, useRapier } from "@threlte/rapier";
+  import { RigidBody, Collider, useRapier, type ContactEvent } from "@threlte/rapier";
   import { cameraControlPressedStore, playerColorStore, playerRigidbodyStore, privilegesStore, playerPositionStore, playerVelocityStore } from "../stores";
   import { clamp } from "svelte-tweakpane-ui/Utils.js";
   import TextBillboard from "../TextBillboard.svelte";
@@ -12,7 +12,15 @@
 
   let rigidBody: RRigidBody;
   const material = new MeshStandardMaterial();
-  const geometry = new BoxGeometry(2, 2, 2);
+  const capsuleHeight = 1.6;
+  const capsuleRadius = 1;
+  const minGroundDistance = capsuleHeight + 0.1;
+  const geometry = new BoxGeometry(2, capsuleHeight * 3, 2);
+  const raycastFloorDirection = new Vector3(0, -2.9, 0);
+
+  const jumpForce = 10;
+  const speed = 10;
+
   let meshRotation: number = 0;
 
   let playerCollider: RCollider;
@@ -35,6 +43,9 @@
 
   let playerVelocity = new Vector3();
   let playerVerticalVelocity: number = 0;
+  let surfaceVelocity: Vector3 | null;
+  let pushVelocity: Vector3 = new Vector3(0, 0, 0);
+
   let positionCheck: Vector3 = new Vector3();
   let deltaPosition: Vector3 = new Vector3();
   let cameraControlPressed = false;
@@ -48,6 +59,11 @@
     if (userId === id) {
       color = newColor;
     }
+  });
+
+  socket.on("player-pushed", (velocity: Vector3) => {
+    const force = new Vector3(velocity.x, velocity.y, velocity.z);
+    pushVelocity.add(force);
   });
 
   const getForwardCamera = (): Vector3 => {
@@ -68,7 +84,6 @@
     return moveDirection;
   }
 
-  const jumpForce = 10;
   const applyVerticalVelocity = (deltaTime: number) => {
     if (isGrounded) playerVerticalVelocity = 0;
     else playerVerticalVelocity -= 20 * deltaTime;
@@ -83,18 +98,17 @@
     playerVelocity.z *= deltaTime;
     playerVelocity.x *= deltaTime;
 
-    const speed = 10;
     if (WKeyPressed) playerVelocity.z -= speed;
     if (AKeyPressed) playerVelocity.x += speed;
     if (SKeyPressed) playerVelocity.z += speed;
     if (DKeyPressed) playerVelocity.x -= speed;
-    playerVelocity.clampLength(0, 10);
+    playerVelocity.clampLength(0, speed);
     playerVelocity = passDirectionCameraForward(playerVelocity);
   };
 
   function returnPlayerOnFall() {
     if (rigidBody.translation().y < -2) {
-      rigidBody.setTranslation(new Vector3(0, 0, 0), true);
+      rigidBody.setTranslation(new Vector3(0, 10, 0), true);
     }
   }
 
@@ -110,8 +124,6 @@
     socket.emit("player-rotate", meshRotation);
   };
 
-  const raycastDirection = new Vector3(0, -5, 0);
-  const minGroundDistance = 0.3;
   /* createCharacterController is not working properly
   let controller = world.createCharacterController(0.01);
   controller.setMaxSlopeClimbAngle((45 * Math.PI) / 180);
@@ -127,16 +139,13 @@
     applyVerticalVelocity(deltaTime);
 
     //Raycast to the floor. @todo If the player is standing on an edge, isGrounded can be negative
-    const ray: Ray = new Ray(rigidBody.translation(), raycastDirection);
+    const ray: Ray = new Ray(rigidBody.translation(), raycastFloorDirection);
     const raycastResult = world.castRay(ray, 1, false);
     isGrounded = raycastResult ? raycastResult.toi < minGroundDistance : false;
-    checkSurfaceVelocity(raycastResult);
-
     updateMeshRotation();
 
-    debugArrowDirection = playerVelocity;
-    if (surfaceVelocity) playerVelocity.add(surfaceVelocity.multiplyScalar(-1 / deltaTime));
-
+    checkSurfaceVelocity(raycastResult, deltaTime);
+    checkPushVelocity(deltaTime);
     rigidBody.setLinvel(playerVelocity, true);
 
     deltaPosition = new Vector3(positionCheck.x - rigidBody.translation().x, positionCheck.y - rigidBody.translation().y, positionCheck.z - rigidBody.translation().z);
@@ -147,16 +156,20 @@
     playerVelocityStore.set(deltaPosition);
 
     //Checks that the player has moved enough
-    if (deltaPosition.lengthSq() < deltaTime / 10) return;
+    //if (deltaPosition.lengthSq() < deltaTime / 10) return;
     positionCheck = playerPosition;
 
     if (!rigidBody.isSleeping()) socket.emit("player-move", new Vector3(rigidBody.translation().x, rigidBody.translation().y, rigidBody.translation().z));
   });
 
+  const checkPushVelocity = (deltaTime: number) => {
+    pushVelocity.lerp(new Vector3(0, 0, 0), deltaTime * 7);
+    playerVelocity.add(pushVelocity);
+  };
+
   let surfaceRigidbodyInfo: any;
   let prevSurfacePosition: Vector3 | null;
-  let surfaceVelocity: Vector3 | null;
-  const checkSurfaceVelocity = (raycastResult: RayColliderToi | null) => {
+  const checkSurfaceVelocity = (raycastResult: RayColliderToi | null, deltaTime: number) => {
     if (!isGrounded || raycastResult == null) {
       //No surface detected
       surfaceRigidbodyInfo = null;
@@ -184,6 +197,8 @@
       surfaceVelocity = prevSurfacePosition.clone().sub(trans);
     }
     prevSurfacePosition = new Vector3(trans.x, trans.y, trans.z);
+
+    if (surfaceVelocity && deltaTime != 0) playerVelocity.add(surfaceVelocity.clone().multiplyScalar(-1 / deltaTime));
   };
 
   function onKeyDown(e: KeyboardEvent) {
@@ -249,13 +264,19 @@
   onMount(() => {
     console.log("Player mounted " + color);
   });
-  let debugArrowDirection: Vector3 = new Vector3();
 </script>
 
 <svelte:window on:keydown={onKeyDown} on:keyup={onKeyUp} />
 
-<RigidBody bind:rigidBody enabledRotations={[false, false, false]}>
+<RigidBody
+  bind:rigidBody
+  enabledRotations={[false, false, false]}
+  on:create={(ref) => {
+    const randomVector = new Vector3(Math.random() * 30, 5, Math.random() * 30);
+    ref.ref.setTranslation(randomVector);
+  }}
+>
   <T.Mesh castShadow {geometry} {material} rotation.y={meshRotation} />
-  <TextBillboard text={nick} position={[0, 3, 0]} {color} {outlineColor} />
-  <Collider shape="capsule" args={[0.3, 1]} bind:collider={playerCollider} />
+  <TextBillboard text={nick} position={[0, 4, 0]} {color} {outlineColor} />
+  <Collider shape="capsule" args={[capsuleHeight, capsuleRadius]} bind:collider={playerCollider} />
 </RigidBody>
