@@ -1,15 +1,14 @@
 <script lang="ts">
-    import { Canvas, T, useTask } from "@threlte/core";
-    import PlayersWrapper from "./Players/PlayersWrapper.svelte";
+    import { Canvas } from "@threlte/core";
     import io from "socket.io-client";
     import { onMount } from "svelte";
     import { World } from "@threlte/rapier";
     import { serverTimestampStore, playerDataStore, privilegesStore, serverDebugMsgAmountStore, serverPlayersStore, socketStore } from "./stores";
-    import Scene from "./Scene.svelte";
-    import { Audio, AudioListener } from "@threlte/extras";
-    import CameraControlsComponent from "./CameraControls.svelte";
-    import FakeMouse from "./FakeMouse.svelte";
+    import { AudioListener } from "@threlte/extras";
+
     import Ui from "./UI/UI.svelte";
+    import SceneWrapper from "./SceneWrapper.svelte";
+    import FakeMouse from "./FakeMouse.svelte";
 
     let socket: any = null;
     let serverConnected = false;
@@ -57,11 +56,8 @@
         socket.on("server-debug-msgAmount", (serverDebugMsgAmount: number) => {
             serverDebugMsgAmountStore.set(serverDebugMsgAmount);
         });
-    });
-
-    $: if (socket) {
         socketStore.set(socket);
-    }
+    });
 
     let debugFakeMouse = false;
     const onKeyDown = (e: KeyboardEvent) => {
@@ -73,24 +69,16 @@
 </script>
 
 <svelte:window on:keydown={onKeyDown} />
-
 {#if serverConnected}
     <Canvas>
         <AudioListener />
         <Ui />
         <World>
-            <T.PerspectiveCamera makeDefault position={[-30, 30, 30]} fov={15}>
-                <CameraControlsComponent />
-            </T.PerspectiveCamera>
-            <T.DirectionalLight intensity={1} position.x={5} position.y={10} />
-            <Scene />
-            {#if debugFakeMouse}
-                <FakeMouse />
-            {/if}
-            {#if socket}
-                <PlayersWrapper />
-            {/if}
+            <SceneWrapper socket />
         </World>
+        {#if debugFakeMouse}
+            <FakeMouse />
+        {/if}
     </Canvas>
 {:else}
     <div id="loading-wrapper">LOADING SERVER...</div>

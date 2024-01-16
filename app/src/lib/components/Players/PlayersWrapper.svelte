@@ -13,15 +13,11 @@
 
     $: if (currentPlayerData && !player) {
         //Creates the player
-        player = new Player({
-            target: document.body,
-            props: {
-                socket: socket,
-                userId: currentPlayerData.userId,
-                color: currentPlayerData.color,
-                nick: currentPlayerData.nick,
-            },
-        });
+        player = {
+            userId: currentPlayerData.userId,
+            color: currentPlayerData.color,
+            nick: currentPlayerData.nick,
+        };
     }
 
     $: if ($serverPlayersStore && currentPlayerData?.userId) {
@@ -138,4 +134,9 @@
             }
         });
     }
+    //@todo handle the created players with svelte/threlte philosophy
 </script>
+
+{#if player}
+    <Player {socket} userId={player.userId} color={player.color} nick={player.nick} />
+{/if}

@@ -2,25 +2,11 @@
     import { type Collider as RCollider, type RigidBody as RRigidBody } from "@dimforge/rapier3d-compat";
     import { onMount } from "svelte";
     import { T } from "@threlte/core";
-    import { BoxGeometry, Group, MeshStandardMaterial, Vector3 } from "three";
+    import { BoxGeometry, MeshStandardMaterial, Vector3 } from "three";
     import { onDestroy } from "svelte";
     import TextBillboard from "../TextBillboard.svelte";
-    import { Collider, RigidBody } from "@threlte/rapier";
-    import { cameraControlPressedStore, playerColorStore, playerRigidbodyStore, privilegesStore, playerPositionStore, playerVelocityStore, socketStore, mouseXStore, mouseYStore } from "../stores";
-    import { interactivity } from "@threlte/extras";
-
-    let mouseX: number = 0;
-    let mouseY: number = 0;
-    interactivity({
-        filter: (hits, state) => {
-            let x: number = (mouseX / window.innerWidth) * 2 - 1;
-            let y = mouseY / window.innerHeight - 0.5;
-            //state.pointer.current.x = x;
-            //state.pointer.current.y = y;
-            console.log(state.pointer.current.x + " " + x);
-            return hits;
-        },
-    });
+    import { Collider } from "@threlte/rapier";
+    import { playerPositionStore, socketStore } from "../stores";
 
     const material = new MeshStandardMaterial();
     const capsuleHeight = 1.6;
@@ -67,14 +53,8 @@
 
     $: if (socketStore) socket = $socketStore;
     $: if (playerPositionStore) mainPlayerPosition = $playerPositionStore;
-    $: if ($mouseXStore && $mouseYStore) {
-        mouseX = $mouseXStore;
-        mouseY = $mouseYStore;
-    }
 
     const playerPushed = () => {
-        console.log("pushed ");
-        return;
         if (mainPlayerPosition.distanceTo(position) > 10) return;
         let direction = mainPlayerPosition.clone().sub(position);
         direction.negate();
@@ -91,6 +71,8 @@
         on:click={() => {
             playerPushed();
         }}
+        on:pointerover={(e) => console.log("over")}
+        on:pointerout={(e) => console.log("out")}
         castShadow
         {geometry}
         {material}
