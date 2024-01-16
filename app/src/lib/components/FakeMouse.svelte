@@ -3,7 +3,7 @@
     import { useTask, useThrelte } from "@threlte/core";
     import { clamp } from "svelte-tweakpane-ui/Utils.js";
     import { onDestroy, onMount } from "svelte";
-    import { cursorShowStore } from "./stores";
+    import { cursorShowStore, mouseXStore, mouseYStore } from "./stores";
 
     let prev_hoverElementUI: Element | null;
     let hoverElementUI: Element | null;
@@ -62,6 +62,8 @@
         mousey += movementY;
         mousex = clamp(mousex, 0, window.innerWidth);
         mousey = clamp(mousey, 0, window.innerHeight);
+        mouseXStore.set(mousex);
+        mouseYStore.set(mousey);
         hoverElementUI = document.elementFromPoint(mousex, mousey);
 
         if (cursor) {

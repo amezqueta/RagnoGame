@@ -18,3 +18,6 @@ export const playerDataStore = writable(undefined);
 export const privilegesStore = writable<number>(undefined);
 
 export const cursorShowStore = writable<boolean>(true);
+
+export const mouseXStore = writable<number>(undefined);
+export const mouseYStore = writable<number>(undefined);

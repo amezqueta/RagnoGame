@@ -6,9 +6,21 @@
     import { onDestroy } from "svelte";
     import TextBillboard from "../TextBillboard.svelte";
     import { Collider, RigidBody } from "@threlte/rapier";
+    import { cameraControlPressedStore, playerColorStore, playerRigidbodyStore, privilegesStore, playerPositionStore, playerVelocityStore, socketStore, mouseXStore, mouseYStore } from "../stores";
     import { interactivity } from "@threlte/extras";
-    import { cameraControlPressedStore, playerColorStore, playerRigidbodyStore, privilegesStore, playerPositionStore, playerVelocityStore, socketStore } from "../stores";
-    interactivity();
+
+    let mouseX: number = 0;
+    let mouseY: number = 0;
+    interactivity({
+        filter: (hits, state) => {
+            let x: number = (mouseX / window.innerWidth) * 2 - 1;
+            let y = mouseY / window.innerHeight - 0.5;
+            //state.pointer.current.x = x;
+            //state.pointer.current.y = y;
+            console.log(state.pointer.current.x + " " + x);
+            return hits;
+        },
+    });
 
     const material = new MeshStandardMaterial();
     const capsuleHeight = 1.6;
@@ -55,8 +67,14 @@
 
     $: if (socketStore) socket = $socketStore;
     $: if (playerPositionStore) mainPlayerPosition = $playerPositionStore;
+    $: if ($mouseXStore && $mouseYStore) {
+        mouseX = $mouseXStore;
+        mouseY = $mouseYStore;
+    }
 
     const playerPushed = () => {
+        console.log("pushed ");
+        return;
         if (mainPlayerPosition.distanceTo(position) > 10) return;
         let direction = mainPlayerPosition.clone().sub(position);
         direction.negate();
