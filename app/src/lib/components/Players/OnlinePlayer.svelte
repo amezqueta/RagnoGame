@@ -1,7 +1,7 @@
 <script lang="ts">
     import { type Collider as RCollider, type RigidBody as RRigidBody } from "@dimforge/rapier3d-compat";
     import { onMount } from "svelte";
-    import { T } from "@threlte/core";
+    import { T, useTask } from "@threlte/core";
     import { BoxGeometry, MeshStandardMaterial, Vector3 } from "three";
     import { onDestroy } from "svelte";
     import TextBillboard from "../TextBillboard.svelte";
@@ -9,6 +9,8 @@
     import { playerPositionStore, socketStore } from "../stores";
 
     const material = new MeshStandardMaterial();
+    material.emissive.set("white");
+    let hover = false;
     const capsuleHeight = 1.6;
     const geometry = new BoxGeometry(2, capsuleHeight * 3, 2);
     let meshRotation: number = 0;
@@ -46,6 +48,11 @@
     $: {
         material.color.set(color);
     }
+
+    $: {
+        material.emissiveIntensity = hover ? 0.1 : 0;
+    }
+
     let rigidBody: RRigidBody;
     let collider: RCollider;
     let socket: any;
@@ -55,7 +62,7 @@
     $: if (playerPositionStore) mainPlayerPosition = $playerPositionStore;
 
     const playerPushed = () => {
-        if (mainPlayerPosition.distanceTo(position) > 10) return;
+        if (!distanceIsEnough()) return;
         let direction = mainPlayerPosition.clone().sub(position);
         direction.negate();
         direction.y = 0;
@@ -64,6 +71,10 @@
         direction.y = 20;
         socket.emit("player-pushed", userId, direction);
     };
+
+    const distanceIsEnough = (): boolean => {
+        return mainPlayerPosition.distanceTo(position) < 10;
+    };
 </script>
 
 <T.Group {position}>
@@ -71,8 +82,8 @@
         on:click={() => {
             playerPushed();
         }}
-        on:pointerover={(e) => console.log("over")}
-        on:pointerout={(e) => console.log("out")}
+        on:pointermove={(e) => (hover = distanceIsEnough())}
+        on:pointerout={(e) => (hover = false)}
         castShadow
         {geometry}
         {material}
