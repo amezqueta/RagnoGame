@@ -2,7 +2,9 @@
     import Player from "$lib/components/Players/Player.svelte";
     import OnlinePlayer from "$lib/components/Players/OnlinePlayer.svelte";
     import { playerDataStore, serverPlayersStore, socketStore } from "../stores";
+    import Emoji from "../UI/Emoji.svelte";
 
+    let emojis: any[] = [];
     let player: any = null;
     let currentPlayerData: any = null;
     let scenePlayers: any[] = [];
@@ -139,4 +141,10 @@
 
 {#if player}
     <Player {socket} userId={player.userId} color={player.color} nick={player.nick} />
+{/if}
+
+{#if emojis}
+    {#each emojis as emoji}
+        <Emoji />
+    {/each}
 {/if}

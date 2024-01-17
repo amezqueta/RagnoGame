@@ -73,7 +73,7 @@ io.on('connection', (socket) => {
             const player = getPlayer(socket.id);
             if (player) {
                 player.position = newPos;
-                io.emit('player-move', socket.id, newPos);
+                socket.broadcast.emit('player-move', socket.id, newPos);
             }
             msgAmount++;
         });
@@ -97,7 +97,7 @@ io.on('connection', (socket) => {
 
         socket.on('server-color', (color) => {
             getPlayer(socket.id).color = color;
-            io.emit('user-color', socket.id, color);
+            socket.broadcast.emit('user-color', socket.id, color);
             msgAmount++;
         });
 

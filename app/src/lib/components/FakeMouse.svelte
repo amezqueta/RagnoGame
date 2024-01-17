@@ -35,8 +35,13 @@
         }
     }
 
-    function simulateClick(e: MouseEvent, x: number, y: number) {
-        var event = new MouseEvent("click", {
+    const simulateClick = (e: MouseEvent, x: number, y: number) => {
+        if (hoverElementUI == null) return;
+
+        let tagName = hoverElementUI.tagName;
+        if (tagName === "CANVAS") return;
+
+        let event = new MouseEvent("click", {
             view: e.view,
             bubbles: true,
             cancelable: true,
@@ -49,7 +54,7 @@
         hoverElementUI?.dispatchEvent(event);
         hoverElementUI?.classList.add("clicked");
         pressedElementUI = hoverElementUI;
-    }
+    };
 
     const isBeingShown = () => {
         return pointerLocked && show;
