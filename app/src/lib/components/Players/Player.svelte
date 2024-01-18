@@ -10,6 +10,7 @@
   import TextBillboard from "../TextBillboard.svelte";
   import { lerpAngle } from "../Utilities/Utils";
   import { useControls } from "../../hooks/useControls";
+  import Emote from "../UI/Emote.svelte";
 
   let rigidBody: RRigidBody;
   const material = new MeshStandardMaterial();
@@ -18,6 +19,7 @@
   const minGroundDistance = capsuleHeight + 0.1;
   const geometry = new BoxGeometry(2, capsuleHeight * 3, 2);
   const raycastFloorDirection = new Vector3(0, -2.9, 0);
+  export let ref = 2;
 
   const { camera } = useThrelte();
   const { world } = useRapier();
@@ -35,6 +37,7 @@
   export let color: string = "";
   let outlineColor: string = "#000000";
   let playerPosition: Vector3 = new Vector3();
+  let currentEmote: number | null;
 
   let playerVelocity = new Vector3();
   let playerVerticalVelocity: number = 0;
@@ -214,6 +217,10 @@
   onMount(() => {
     console.log("Player mounted " + color);
   });
+
+  export const playEmote = (emoteID: number) => {
+    currentEmote = emoteID;
+  };
 </script>
 
 <RigidBody
@@ -227,4 +234,7 @@
   <T.Mesh castShadow {geometry} {material} rotation.y={meshRotation} />
   <TextBillboard text={nick} position={[0, 4, 0]} {color} {outlineColor} />
   <Collider shape="capsule" args={[capsuleHeight, capsuleRadius]} bind:collider={playerCollider} />
+  {#if currentEmote}
+    <Emote emoteId={currentEmote} />
+  {/if}
 </RigidBody>

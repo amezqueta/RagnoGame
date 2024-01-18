@@ -7,6 +7,7 @@
     import TextBillboard from "../TextBillboard.svelte";
     import { Collider } from "@threlte/rapier";
     import { playerPositionStore, socketStore } from "../stores";
+    import Emote from "../UI/Emote.svelte";
 
     const material = new MeshStandardMaterial();
     material.emissive.set("white");
@@ -37,6 +38,10 @@
         nick = newNick;
     }
 
+    export const playEmote = (emoteId: number) => {
+        currentEmote = emoteId;
+    };
+
     onMount(() => {
         console.log("Online Player mounted");
     });
@@ -57,6 +62,7 @@
     let collider: RCollider;
     let socket: any;
     let mainPlayerPosition: Vector3 = new Vector3();
+    let currentEmote: number | null;
 
     $: if (socketStore) socket = $socketStore;
     $: if (playerPositionStore) mainPlayerPosition = $playerPositionStore;
@@ -91,4 +97,7 @@
     />
     <TextBillboard text={nick} position={[0, 4, 0]} {color} />
     <Collider bind:collider shape="capsule" args={[0.3, 1]} />
+    {#if currentEmote}
+        <Emote emoteId={currentEmote} />
+    {/if}
 </T.Group>

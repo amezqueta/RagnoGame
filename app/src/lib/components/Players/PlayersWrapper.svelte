@@ -2,24 +2,15 @@
     import Player from "$lib/components/Players/Player.svelte";
     import OnlinePlayer from "$lib/components/Players/OnlinePlayer.svelte";
     import { playerDataStore, serverPlayersStore, socketStore } from "../stores";
+    import { useTask } from "@threlte/core";
 
-    let emojis: any[] = [];
-    let player: any = null;
+    let playerRef: any;
     let currentPlayerData: any = null;
     let scenePlayers: any[] = [];
 
     let socket: any;
 
     $: if (playerDataStore) currentPlayerData = $playerDataStore;
-
-    $: if (currentPlayerData && !player) {
-        //Creates the player
-        player = {
-            userId: currentPlayerData.userId,
-            color: currentPlayerData.color,
-            nick: currentPlayerData.nick,
-        };
-    }
 
     $: if ($serverPlayersStore && currentPlayerData?.userId) {
         UpdatePlayers($serverPlayersStore);
@@ -106,6 +97,10 @@
         socket = $socketStore;
     }
 
+    const findPlayerById = (userId: string): any => {
+        return scenePlayers.find((user) => user.userId === userId);
+    };
+
     $: if (socket) {
         socket.on("player-move", (userId: string, newPos: any) => {
             const user = scenePlayers.find((user) => user.userId === userId);
@@ -131,21 +126,22 @@
         socket.on("user-set-nick", (userId: string, newNick: string) => {
             const user = scenePlayers.find((user) => user.userId === userId);
             if (user) {
-                user.playerInstance?.SetNick(newNick);
+                user?.playerInstance?.SetNick(newNick);
             }
         });
 
         socket.on("player-emote", (userId: string, emoteId: number) => {
-            console.log("server " + emoteId);
+            if (userId === currentPlayerData.userId) playerRef?.playEmote(emoteId);
+            else {
+                const user = scenePlayers.find((user) => user.userId === userId);
+                user?.playerInstance?.playEmote(emoteId);
+            }
         });
     }
+
     //@todo handle the created players with svelte/threlte philosophy
 </script>
 
-{#if player}
-    <Player {socket} userId={player.userId} color={player.color} nick={player.nick} />
-{/if}
-
-{#if emojis}
-    {#each emojis as emoji}{/each}
+{#if currentPlayerData}
+    <Player bind:this={playerRef} {socket} userId={currentPlayerData.userId} color={currentPlayerData.color} nick={currentPlayerData.nick} />
 {/if}
