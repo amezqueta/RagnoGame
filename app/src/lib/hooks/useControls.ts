@@ -12,6 +12,7 @@ export const useControls = () => {
         d: false,
         ArrowRight: false,
         ' ': false,
+        e: false,
     });
     const onKeyDown = (e) => {
         if (!Object.keys(get(keys)).includes(e.key)) return;
@@ -43,6 +44,7 @@ export const useControls = () => {
     const controlActions = derived(keys, (keys) => {
         return {
             jump: !!keys[' '],
+            emotes: !!keys['e'],
         };
     });
 

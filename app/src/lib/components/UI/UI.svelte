@@ -2,7 +2,10 @@
     import DomPortal from "../Utilities/DomPortal.svelte";
     import { playerDataStore, socketStore } from "../stores";
     import UiDebug from "./UIDebug.svelte";
+    import EmotesUI from "./EmotesUI.svelte";
+    import { useControls } from "../../hooks/useControls";
 
+    const { controlActions } = useControls();
     let value = "";
     let socket: any;
     let playerData: any;
@@ -28,6 +31,8 @@
         </div></DomPortal
     >
 {/if}
+
+<EmotesUI />
 
 <style>
     #UI-wrapper {
