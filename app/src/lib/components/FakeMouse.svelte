@@ -3,7 +3,9 @@
     import { useTask, useThrelte } from "@threlte/core";
     import { clamp } from "svelte-tweakpane-ui/Utils.js";
     import { onDestroy, onMount } from "svelte";
-    import { cursorShowStore, mouseXStore, mouseYStore } from "./stores";
+    import { cursorShowStore, mouseXStore, mouseYStore, pointerLockerStore } from "./stores";
+    import { useControls } from "../hooks/useControls";
+    const { controlActions } = useControls();
 
     let prev_hoverElementUI: Element | null;
     let hoverElementUI: Element | null;
@@ -11,26 +13,26 @@
 
     let mousex: number = 0;
     let mousey: number = 0;
-    let show = true;
-    let pointerLocked: boolean = false;
+    let isCursorShown = false;
+    $: isCursorShown = $cursorShowStore && $pointerLockerStore && !$controlActions.emotes;
 
     const { renderer } = useThrelte();
     const domElement = renderer.domElement;
     addEventListener("pointerlockchange", onPointerlockChange);
 
     function onPointerlockChange() {
-        pointerLocked = document.pointerLockElement != null;
-        if (!pointerLocked) hoverElementUI = null;
+        pointerLockerStore.set(document.pointerLockElement != null);
+        if (!$pointerLockerStore) hoverElementUI = null;
     }
 
     function onMouseDown(e: MouseEvent) {
         let targetTag = e?.target as Element;
         if (targetTag == null) return;
-        if (!pointerLocked && targetTag.classList.contains("svelte-o3oskp")) {
+        if (!$pointerLockerStore && targetTag.tagName == "CANVAS") {
             domElement.requestPointerLock();
             mousex = e.clientX;
             mousey = e.clientY;
-        } else if (isBeingShown()) {
+        } else if (isCursorShown) {
             simulateClick(e, mousex, mousey);
         }
     }
@@ -56,12 +58,8 @@
         pressedElementUI = hoverElementUI;
     };
 
-    const isBeingShown = () => {
-        return pointerLocked && show;
-    };
-
     function onMouseMove(e: MouseEvent) {
-        if (!isBeingShown()) return;
+        if (!isCursorShown) return;
         const { movementX, movementY } = e;
         mousex += movementX;
         mousey += movementY;
@@ -70,11 +68,6 @@
         mouseXStore.set(mousex);
         mouseYStore.set(mousey);
         hoverElementUI = document.elementFromPoint(mousex, mousey);
-
-        if (cursor) {
-            cursor.style.left = `${mousex}px`;
-            cursor.style.top = `${mousey}px`;
-        }
     }
 
     function onMouseUp(e: MouseEvent) {
@@ -82,18 +75,9 @@
         pressedElementUI = null;
     }
 
-    let cursor = document.getElementById("fake-cursor");
-    onMount(() => {
-        cursor = document.getElementById("fake-cursor");
-    });
-
     onDestroy(() => {
         removeEventListener("pointerlockchange", onPointerlockChange);
     });
-
-    $: if (cursorShowStore) show = $cursorShowStore;
-
-    $: if (cursor) cursor.style.display = pointerLocked && show ? "block" : "none";
 
     $: if (hoverElementUI != prev_hoverElementUI) {
         prev_hoverElementUI?.classList.remove("hovered");
@@ -103,11 +87,13 @@
 </script>
 
 <svelte:window on:mousedown={onMouseDown} on:mousemove={onMouseMove} on:mouseup={onMouseUp} />
-<DomPortal>
-    <div id="cursor-wrapper">
-        <div id="fake-cursor"></div>
-    </div>
-</DomPortal>
+{#if isCursorShown}
+    <DomPortal>
+        <div id="cursor-wrapper">
+            <div id="fake-cursor" style="top:{mousey}px; left: {mousex}px;"></div>
+        </div>
+    </DomPortal>
+{/if}
 
 <style>
     #cursor-wrapper {
@@ -125,6 +111,5 @@
         height: 32px;
         position: absolute;
         background-image: url("/img/icon/cursor/cursor_open.gif");
-        display: none;
     }
 </style>

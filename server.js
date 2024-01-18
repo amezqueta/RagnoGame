@@ -95,6 +95,10 @@ io.on('connection', (socket) => {
             });
         });
 
+        socket.on('player-emote', (emoteId) => {
+            io.emit('player-emote', socket.id, emoteId);
+        });
+
         socket.on('server-color', (color) => {
             getPlayer(socket.id).color = color;
             socket.broadcast.emit('user-color', socket.id, color);

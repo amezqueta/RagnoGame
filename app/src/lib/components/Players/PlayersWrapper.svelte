@@ -134,6 +134,10 @@
                 user.playerInstance?.SetNick(newNick);
             }
         });
+
+        socket.on("player-emote", (userId: string, emoteId: number) => {
+            console.log("server " + emoteId);
+        });
     }
     //@todo handle the created players with svelte/threlte philosophy
 </script>

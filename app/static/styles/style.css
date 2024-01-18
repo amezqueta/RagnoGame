@@ -12,10 +12,10 @@ button {
 
 button:hover,
 button.hovered {
-    background-color: red;
+    background-color: rgb(255, 255, 255) !important;
 }
 
 button:active,
 button.clicked {
-    background-color: aqua;
+    background-color: rgb(158, 158, 158) !important;
 }
