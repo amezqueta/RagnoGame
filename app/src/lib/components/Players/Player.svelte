@@ -9,6 +9,7 @@
   import { clamp } from "svelte-tweakpane-ui/Utils.js";
   import TextBillboard from "../TextBillboard.svelte";
   import { lerpAngle } from "../Utilities/Utils";
+  import { useControls } from "../../hooks/useControls";
 
   let rigidBody: RRigidBody;
   const material = new MeshStandardMaterial();
@@ -18,6 +19,9 @@
   const geometry = new BoxGeometry(2, capsuleHeight * 3, 2);
   const raycastFloorDirection = new Vector3(0, -2.9, 0);
 
+  const { camera } = useThrelte();
+  const { world } = useRapier();
+  const { controlAxis, controlActions } = useControls();
   const jumpForce = 10;
   const speed = 10;
 
@@ -31,15 +35,6 @@
   export let color: string = "";
   let outlineColor: string = "#000000";
   let playerPosition: Vector3 = new Vector3();
-
-  let spacePressed = false;
-  let WKeyPressed = false;
-  let AKeyPressed = false;
-  let SKeyPressed = false;
-  let DKeyPressed = false;
-
-  const { camera } = useThrelte();
-  const { world } = useRapier();
 
   let playerVelocity = new Vector3();
   let playerVerticalVelocity: number = 0;
@@ -87,7 +82,7 @@
   const applyVerticalVelocity = (deltaTime: number) => {
     if (isGrounded) playerVerticalVelocity = 0;
     else playerVerticalVelocity -= 20 * deltaTime;
-    if (spacePressed && isGrounded) {
+    if ($controlActions.jump && isGrounded) {
       playerVerticalVelocity += jumpForce;
     }
     playerVerticalVelocity = clamp(playerVerticalVelocity, -jumpForce, jumpForce);
@@ -98,10 +93,9 @@
     playerVelocity.z *= deltaTime;
     playerVelocity.x *= deltaTime;
 
-    if (WKeyPressed) playerVelocity.z -= speed;
-    if (AKeyPressed) playerVelocity.x += speed;
-    if (SKeyPressed) playerVelocity.z += speed;
-    if (DKeyPressed) playerVelocity.x -= speed;
+    playerVelocity.x -= $controlAxis.x * speed;
+    playerVelocity.z -= $controlAxis.y * speed;
+
     playerVelocity.clampLength(0, speed);
     playerVelocity = passDirectionCameraForward(playerVelocity);
   };
@@ -201,50 +195,6 @@
     if (surfaceVelocity && deltaTime != 0) playerVelocity.add(surfaceVelocity.clone().multiplyScalar(-1 / deltaTime));
   };
 
-  function onKeyDown(e: KeyboardEvent) {
-    switch (e.key) {
-      case "w":
-        WKeyPressed = true;
-        break;
-      case "a":
-        AKeyPressed = true;
-        break;
-      case "s":
-        SKeyPressed = true;
-        break;
-      case "d":
-        DKeyPressed = true;
-        break;
-      case " ":
-        spacePressed = true;
-        break;
-      default:
-        break;
-    }
-  }
-
-  function onKeyUp(e: KeyboardEvent) {
-    switch (e.key) {
-      case "w":
-        WKeyPressed = false;
-        break;
-      case "a":
-        AKeyPressed = false;
-        break;
-      case "s":
-        SKeyPressed = false;
-        break;
-      case "d":
-        DKeyPressed = false;
-        break;
-      case " ":
-        spacePressed = false;
-        break;
-      default:
-        break;
-    }
-  }
-
   $: material.color.set(color);
 
   $: if (rigidBody) {
@@ -265,8 +215,6 @@
     console.log("Player mounted " + color);
   });
 </script>
-
-<svelte:window on:keydown={onKeyDown} on:keyup={onKeyUp} />
 
 <RigidBody
   bind:rigidBody
