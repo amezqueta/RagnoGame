@@ -4,7 +4,7 @@
     import { pointerLockerStore, socketStore } from "../stores";
     const { controlActions } = useControls();
 
-    let emotions = ["Feliz", "Triste", "Enojado", "Sorprendido", "ae", "srg", "srgsgs", "ssgrgrg"];
+    const emotionsAmount = 14;
 
     let pointerX: number = 0;
     let pointerY: number = 0;
@@ -81,29 +81,33 @@
     $: if (socketStore) socket = $socketStore;
 </script>
 
-{#if $controlActions.emotes && $pointerLockerStore}
+{#if true}// $controlActions.emotes && $pointerLockerStore}
     <DomPortal
         ><div id="emote-wrapper">
-            <div id="emote-panel">
+            <div id="ring-panel">
                 <ul>
-                    {#each emotions as emotion, index (emotion)}
-                        <li style="transform: rotate({(360 / emotions.length) * index}deg);">
+                    {#each Array(emotionsAmount) as _, index (index)}
+                        <li style="transform: rotate({(360 / emotionsAmount) * index}deg);">
                             <button
                                 on:click={() => {
                                     onClickEmote(index);
                                 }}
-                                value={emotion}
                                 type="button"
-                                style="transform: rotate({(360 / -emotions.length) * index}deg);">{emotion}</button
-                            >
+                                style="
+                                transform: rotate({(360 / -emotionsAmount) * index}deg);
+                                background-image: url('/img/icon/emote/emote_{index}.png');
+                                "
+                            ></button>
                         </li>
                     {/each}
                 </ul>
             </div>
         </div>
-        <div id="pointer-wrapper">
-            <div id="pointer" style="top: {pointerY - 8}px; left:{pointerX - 8}px;"></div>
-        </div>
+        {#if $controlActions.emotes}
+            <div id="pointer-wrapper">
+                <div id="pointer" style="top: {pointerY - 8}px; left:{pointerX - 8}px;"></div>
+            </div>
+        {/if}
     </DomPortal>
 {/if}
 
@@ -119,9 +123,9 @@
         align-items: center;
     }
 
-    #emote-panel {
-        width: 400px;
-        height: 400px;
+    #ring-panel {
+        width: 500px;
+        height: 500px;
         justify-content: center;
         align-items: center;
         border-radius: 50%;
@@ -131,10 +135,12 @@
     }
 
     button {
-        width: 100px;
-        height: 100px;
-        background-color: rgb(156, 135, 135);
+        width: 300px;
+        height: 300px;
         pointer-events: all;
+        background-size: 20%;
+        background-position: center;
+        background-repeat: no-repeat;
     }
 
     ul {
@@ -151,6 +157,7 @@
         position: absolute;
         justify-content: right;
         list-style: none;
+        clip-path: polygon(-37px 434px, 50% 50%, -108px 242px);
     }
 
     #pointer-wrapper {
