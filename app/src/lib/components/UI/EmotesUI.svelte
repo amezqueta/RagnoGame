@@ -40,15 +40,14 @@
         // Calculate radial distance from the center
         const distanceFromCenter = Math.sqrt(relativeX ** 2 + relativeY ** 2);
 
-        // Clamp the coordinates to be within the ring (between 100 and 200)
-        if (distanceFromCenter < 120) {
+        if (distanceFromCenter < 20) {
             const angle = Math.atan2(relativeY, relativeX);
-            relativeX = Math.cos(angle) * 120;
-            relativeY = Math.sin(angle) * 120;
-        } else if (distanceFromCenter > 160) {
+            relativeX = Math.cos(angle) * 20;
+            relativeY = Math.sin(angle) * 20;
+        } else if (distanceFromCenter > 200) {
             const angle = Math.atan2(relativeY, relativeX);
-            relativeX = Math.cos(angle) * 160;
-            relativeY = Math.sin(angle) * 160;
+            relativeX = Math.cos(angle) * 200;
+            relativeY = Math.sin(angle) * 200;
         }
 
         // Update the pointer coordinates
@@ -79,9 +78,12 @@
 
     let socket: any;
     $: if (socketStore) socket = $socketStore;
+    //For hovered and clicked class
+    let hovered = false;
+    let clicked = false;
 </script>
 
-{#if true}// $controlActions.emotes && $pointerLockerStore}
+{#if $controlActions.emotes && $pointerLockerStore}
     <DomPortal
         ><div id="emote-wrapper">
             <div id="ring-panel">
@@ -89,15 +91,18 @@
                     {#each Array(emotionsAmount) as _, index (index)}
                         <li style="transform: rotate({(360 / emotionsAmount) * index}deg);">
                             <button
+                                class:hovered
+                                class:clicked
                                 on:click={() => {
                                     onClickEmote(index);
                                 }}
                                 type="button"
-                                style="
-                                transform: rotate({(360 / -emotionsAmount) * index}deg);
-                                background-image: url('/img/icon/emote/emote_{index}.png');
-                                "
-                            ></button>
+                                ><div
+                                    class="emote"
+                                    style="background-image: url('/img/icon/emote/emote_{index}.png');
+                                transform: rotate({(360 / -emotionsAmount) * index}deg);"
+                                ></div></button
+                            >
                         </li>
                     {/each}
                 </ul>
@@ -121,6 +126,7 @@
         display: flex;
         justify-content: center;
         align-items: center;
+        overflow: hidden;
     }
 
     #ring-panel {
@@ -134,15 +140,6 @@
         overflow: hidden;
     }
 
-    button {
-        width: 300px;
-        height: 300px;
-        pointer-events: all;
-        background-size: 20%;
-        background-position: center;
-        background-repeat: no-repeat;
-    }
-
     ul {
         display: flex;
         align-items: center;
@@ -153,11 +150,41 @@
 
     li {
         width: 100%;
-        height: 100px;
+        height: 210px;
         position: absolute;
         justify-content: right;
         list-style: none;
-        clip-path: polygon(-37px 434px, 50% 50%, -108px 242px);
+        clip-path: polygon(-8px 225px, 50% 50%, -42px 98px);
+    }
+
+    button {
+        width: 248px;
+        height: 261px;
+        pointer-events: all;
+        background-color: transparent;
+    }
+    button.hovered .emote {
+        background-size: 100%;
+    }
+
+    button.clicked .emote {
+        background-size: 60%;
+    }
+    .emote {
+        width: 80px;
+        height: 80px;
+        background-size: 70%;
+        background-repeat: no-repeat;
+        background-position: center;
+        transition: all 0.2s;
+        pointer-events: none;
+    }
+    #pointer {
+        width: 16px;
+        height: 16px;
+        position: absolute;
+        background-image: url("/img/icon/cursor/cursor_pointer.png");
+        opacity: 0.6;
     }
 
     #pointer-wrapper {
@@ -169,13 +196,5 @@
         overflow: hidden;
         pointer-events: none;
         z-index: 99;
-    }
-
-    #pointer {
-        width: 16px;
-        height: 16px;
-        position: absolute;
-        background-image: url("/img/icon/cursor/cursor_pointer.png");
-        opacity: 0.6;
     }
 </style>

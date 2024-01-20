@@ -37,7 +37,6 @@
   export let color: string = "";
   let outlineColor: string = "#000000";
   let playerPosition: Vector3 = new Vector3();
-  let currentEmote: number | null;
 
   let playerVelocity = new Vector3();
   let playerVerticalVelocity: number = 0;
@@ -218,8 +217,9 @@
     console.log("Player mounted " + color);
   });
 
-  export const playEmote = (emoteID: number) => {
-    currentEmote = emoteID;
+  let emoteRef: Emote;
+  export const playEmote = (emoteId: number) => {
+    emoteRef.playEmote(emoteId);
   };
 </script>
 
@@ -234,7 +234,5 @@
   <T.Mesh castShadow {geometry} {material} rotation.y={meshRotation} />
   <TextBillboard text={nick} position={[0, 4, 0]} {color} {outlineColor} />
   <Collider shape="capsule" args={[capsuleHeight, capsuleRadius]} bind:collider={playerCollider} />
-  {#if currentEmote}
-    <Emote emoteId={currentEmote} />
-  {/if}
+  <Emote bind:this={emoteRef} />
 </RigidBody>

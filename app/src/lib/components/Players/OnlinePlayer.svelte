@@ -1,13 +1,15 @@
 <script lang="ts">
-    import { type Collider as RCollider, type RigidBody as RRigidBody } from "@dimforge/rapier3d-compat";
+    import { type Collider as RCollider } from "@dimforge/rapier3d-compat";
     import { onMount } from "svelte";
-    import { T, useTask } from "@threlte/core";
+    import { T } from "@threlte/core";
     import { BoxGeometry, MeshStandardMaterial, Vector3 } from "three";
     import { onDestroy } from "svelte";
     import TextBillboard from "../TextBillboard.svelte";
     import { Collider } from "@threlte/rapier";
     import { playerPositionStore, socketStore } from "../stores";
     import Emote from "../UI/Emote.svelte";
+    import { useControls } from "$lib/hooks/useControls";
+    const { controlActions } = useControls();
 
     const material = new MeshStandardMaterial();
     material.emissive.set("white");
@@ -38,8 +40,9 @@
         nick = newNick;
     }
 
+    let emoteRef: Emote;
     export const playEmote = (emoteId: number) => {
-        currentEmote = emoteId;
+        emoteRef.playEmote(emoteId);
     };
 
     onMount(() => {
@@ -55,14 +58,12 @@
     }
 
     $: {
-        material.emissiveIntensity = hover ? 0.1 : 0;
+        material.emissiveIntensity = hover && filtersPlayerPush() ? 0.1 : 0;
     }
 
-    let rigidBody: RRigidBody;
     let collider: RCollider;
     let socket: any;
     let mainPlayerPosition: Vector3 = new Vector3();
-    let currentEmote: number | null;
 
     $: if (socketStore) socket = $socketStore;
     $: if (playerPositionStore) mainPlayerPosition = $playerPositionStore;
@@ -79,7 +80,11 @@
     };
 
     const distanceIsEnough = (): boolean => {
-        return mainPlayerPosition.distanceTo(position) < 10;
+        return filtersPlayerPush() && mainPlayerPosition.distanceTo(position) < 10;
+    };
+
+    const filtersPlayerPush = (): boolean => {
+        return !$controlActions.emotes;
     };
 </script>
 
@@ -97,7 +102,5 @@
     />
     <TextBillboard text={nick} position={[0, 4, 0]} {color} />
     <Collider bind:collider shape="capsule" args={[0.3, 1]} />
-    {#if currentEmote}
-        <Emote emoteId={currentEmote} />
-    {/if}
+    <Emote bind:this={emoteRef} />
 </T.Group>
