@@ -5,7 +5,7 @@
   import { BoxGeometry, MeshStandardMaterial, Vector3, ArrowHelper, VectorKeyframeTrack } from "three";
   import { onDestroy } from "svelte";
   import { RigidBody, Collider, useRapier, type ContactEvent } from "@threlte/rapier";
-  import { cameraControlPressedStore, playerColorStore, playerRigidbodyStore, privilegesStore, playerPositionStore, playerVelocityStore } from "../stores";
+  import { cameraControlPressedStore, playerColorStore, playerRigidbodyStore, privilegesStore, playerPositionStore, playerVelocityStore, playerSpawnsStore } from "../stores";
   import { clamp } from "svelte-tweakpane-ui/Utils.js";
   import TextBillboard from "../TextBillboard.svelte";
   import { lerpAngle } from "../Utilities/Utils";
@@ -127,7 +127,7 @@
   controller.enableAutostep(0.5, 0.2, true);
   controller.enableSnapToGround(0.5);
   */
-  useTask((deltaTime) => {
+  const { stop, start } = useTask((deltaTime) => {
     returnPlayerOnFall();
 
     //Basic movements
@@ -157,6 +157,7 @@
 
     if (!rigidBody.isSleeping()) socket.emit("player-move", new Vector3(rigidBody.translation().x, rigidBody.translation().y, rigidBody.translation().z));
   });
+  stop();
 
   const checkPushVelocity = (deltaTime: number) => {
     pushVelocity.lerp(new Vector3(0, 0, 0), deltaTime * 7);
@@ -215,24 +216,33 @@
 
   onMount(() => {
     console.log("Player mounted " + color);
+    start();
   });
 
+  //Emotes
   let emoteRef: Emote;
   export const playEmote = (emoteId: number) => {
     emoteRef.playEmote(emoteId);
   };
 </script>
 
-<RigidBody
-  bind:rigidBody
-  enabledRotations={[false, false, false]}
-  on:create={(ref) => {
-    const randomVector = new Vector3(Math.random() * 30, 5, Math.random() * 30);
-    ref.ref.setTranslation(randomVector);
-  }}
->
-  <T.Mesh castShadow {geometry} {material} rotation.y={meshRotation} />
-  <TextBillboard text={nick} position={[0, 4, 0]} {color} {outlineColor} />
-  <Collider shape="capsule" args={[capsuleHeight, capsuleRadius]} bind:collider={playerCollider} />
-  <Emote bind:this={emoteRef} />
-</RigidBody>
+{#if playerSpawnsStore}
+  <RigidBody
+    bind:rigidBody
+    enabledRotations={[false, false, false]}
+    on:create={(ref) => {
+      try {
+        let r = Math.floor(Math.random() * $playerSpawnsStore.length);
+        const randomSpawn = new Vector3($playerSpawnsStore[r][0], $playerSpawnsStore[r][1], $playerSpawnsStore[r][2]);
+        ref.ref.setTranslation(randomSpawn);
+      } catch (error) {
+        console.error("The are any Spawns on the scene");
+      }
+    }}
+  >
+    <T.Mesh castShadow {geometry} {material} rotation.y={meshRotation} />
+    <TextBillboard text={nick} position={[0, 4, 0]} {color} {outlineColor} />
+    <Collider shape="capsule" args={[capsuleHeight, capsuleRadius]} bind:collider={playerCollider} />
+    <Emote bind:this={emoteRef} />
+  </RigidBody>
+{/if}

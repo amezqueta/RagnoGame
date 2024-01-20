@@ -4,6 +4,7 @@
     import { ContactShadows, Grid, OrbitControls } from "@threlte/extras";
     import { BoxGeometry, MeshStandardMaterial } from "three";
     import MovingPlatform from "./Scene/MovingPlatform.svelte";
+    import SpawnPlayer from "./Scene/SpawnPlayer.svelte";
 </script>
 
 <T.AmbientLight intensity={0.5} />
@@ -59,3 +60,6 @@
 
 <MovingPlatform position1={[2, 3, -15]} position2={[2, 3, -15]} underPlatformClimb={true} />
 <MovingPlatform position1={[2, 6, -15]} position2={[2, 6, -15]} underPlatformClimb={true} />
+
+<SpawnPlayer position={[25, 1, 10]} />
+<SpawnPlayer position={[-25, 1, -10]} />

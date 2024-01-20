@@ -22,3 +22,5 @@ export const cursorShowStore = writable<boolean>(true);
 export const mouseXStore = writable<number>(undefined);
 export const mouseYStore = writable<number>(undefined);
 export const pointerLockerStore = writable<boolean>(undefined);
+
+export const playerSpawnsStore = writable<position[]>([]);

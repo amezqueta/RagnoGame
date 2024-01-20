@@ -50,7 +50,7 @@ io.on('connection', (socket) => {
         let privileges = nick.toLowerCase() === "amezcuetara" ? 10 : 0;
         const player = {
             userId: socket.id,
-            position: [0, 50, 0],
+            position: [0, 10, 0],
             color: '#' + Math.floor(Math.random() * 16777215).toString(16),
             nick: nick,
             privileges: privileges

@@ -14,6 +14,7 @@
     const { camera } = useThrelte();
 
     useTask(() => {
+        if (textMesh == null) return;
         textMesh.lookAt(camera.current.position);
     });
 </script>
