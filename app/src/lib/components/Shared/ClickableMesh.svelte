@@ -28,7 +28,7 @@
     $: if (playerPositionStore) mainPlayerPosition = $playerPositionStore;
 
     $: {
-        material.emissiveIntensity = hover && filtersActive() ? 0.1 : 0;
+        material.emissiveIntensity = hover && distanceIsEnough() ? 0.1 : 0;
     }
 
     $: if (position) {
