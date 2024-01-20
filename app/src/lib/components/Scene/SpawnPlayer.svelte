@@ -1,8 +1,7 @@
 <script lang="ts">
-    import { T } from "@threlte/core";
     import { onMount } from "svelte";
-    import { BoxGeometry, MeshStandardMaterial } from "three";
     import { playerSpawnsStore } from "../stores";
+    import DebugObject from "../Scene/DebugObject.svelte";
     export let position: number[];
 
     onMount(() => {
@@ -10,14 +9,4 @@
     });
 </script>
 
-<T.Mesh
-    receiveShadow
-    castShadow
-    {position}
-    geometry={new BoxGeometry(1, 1, 1)}
-    material={new MeshStandardMaterial({
-        transparent: true,
-        opacity: 0.9,
-        color: "pink",
-    })}
-/>
+<DebugObject {position} text={"spawn"} />
