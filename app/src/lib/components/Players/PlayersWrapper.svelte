@@ -69,6 +69,7 @@
                     ...scenePlayers,
                     {
                         userId: player.userId,
+                        position: [player.position.x, player.position.y, player.position.z],
                         color: player.color,
                         nick: player.nick,
                         playerInstance: null,

@@ -6,6 +6,7 @@
     import TextBillboard from "../TextBillboard.svelte";
     export let position: number[];
     export let text: string;
+    export let color: string = "#FF00FF";
     let active: boolean;
 
     $: if (playerDataStore) {
@@ -14,6 +15,6 @@
 </script>
 
 {#if active}
-    <TextBillboard {text} {position} color={"#FF00FF"} fontSize={0.5} outlineWidth={0} />
-    <T.ArrowHelper args={[new Vector3(0, -1, 0), new Vector3(position[0], position[1] + 1, position[2]), 1, "#FF00FF", 0.2, 0.2]} />
+    <TextBillboard {text} {position} {color} fontSize={0.5} outlineWidth={0} />
+    <T.ArrowHelper args={[new Vector3(0, -1, 0), new Vector3(position[0], position[1] + 1, position[2]), 1, color, 0.2, 0.2]} />
 {/if}

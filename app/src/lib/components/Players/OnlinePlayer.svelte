@@ -6,14 +6,13 @@
     import { onDestroy } from "svelte";
     import TextBillboard from "../TextBillboard.svelte";
     import { Collider } from "@threlte/rapier";
-    import { playerPositionStore, socketStore } from "../stores";
+    import { socketStore } from "../stores";
     import Emote from "../UI/Emote.svelte";
     import { useControls } from "$lib/hooks/useControls";
-    const { controlActions } = useControls();
+    import ClickableMesh from "../Shared/ClickableMesh.svelte";
 
     const material = new MeshStandardMaterial();
     material.emissive.set("white");
-    let hover = false;
     const capsuleHeight = 1.6;
     const geometry = new BoxGeometry(2, capsuleHeight * 3, 2);
     let meshRotation: number = 0;
@@ -35,6 +34,9 @@
     export function SetColor(newColor: string) {
         color = newColor;
     }
+    $: {
+        material.color.set(color);
+    }
 
     export function SetNick(newNick: string) {
         nick = newNick;
@@ -53,23 +55,12 @@
         console.log("Player destroyed (" + userId + ")");
     });
 
-    $: {
-        material.color.set(color);
-    }
-
-    $: {
-        material.emissiveIntensity = hover && filtersPlayerPush() ? 0.1 : 0;
-    }
-
     let collider: RCollider;
     let socket: any;
-    let mainPlayerPosition: Vector3 = new Vector3();
 
     $: if (socketStore) socket = $socketStore;
-    $: if (playerPositionStore) mainPlayerPosition = $playerPositionStore;
 
-    const playerPushed = () => {
-        if (!distanceIsEnough()) return;
+    const onClickMesh = (mainPlayerPosition: Vector3) => {
         let direction = mainPlayerPosition.clone().sub(position);
         direction.negate();
         direction.y = 0;
@@ -78,28 +69,10 @@
         direction.y = 20;
         socket.emit("player-pushed", userId, direction);
     };
-
-    const distanceIsEnough = (): boolean => {
-        return filtersPlayerPush() && mainPlayerPosition.distanceTo(position) < 10;
-    };
-
-    const filtersPlayerPush = (): boolean => {
-        return !$controlActions.emotes;
-    };
 </script>
 
+<ClickableMesh position={[position.x, position.y, position.z]} {geometry} {material} {onClickMesh} rotation={meshRotation} />
 <T.Group {position}>
-    <T.Mesh
-        on:click={() => {
-            playerPushed();
-        }}
-        on:pointermove={(e) => (hover = distanceIsEnough())}
-        on:pointerout={(e) => (hover = false)}
-        castShadow
-        {geometry}
-        {material}
-        rotation.y={meshRotation}
-    />
     <TextBillboard text={nick} position={[0, 4, 0]} {color} />
     <Collider bind:collider shape="capsule" args={[0.3, 1]} />
     <Emote bind:this={emoteRef} />
