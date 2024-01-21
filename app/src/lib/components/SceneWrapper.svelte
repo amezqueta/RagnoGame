@@ -10,6 +10,7 @@
     let mouseX: number = 0;
     let mouseY: number = 0;
 
+    //The mouseX and mouseY values are passed to the interactivity
     const { camera } = useThrelte();
     interactivity({
         compute: (event, state) => {

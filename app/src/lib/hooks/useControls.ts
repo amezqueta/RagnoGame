@@ -14,6 +14,9 @@ export const useControls = () => {
         ' ': false,
         e: false,
     });
+
+    let wheel = writable(0);
+
     const onKeyDown = (e) => {
         if (!Object.keys(get(keys)).includes(e.key)) return;
         keys.update((keys) => {
@@ -28,6 +31,15 @@ export const useControls = () => {
             return keys;
         });
     };
+    let wheelTimeout: any;
+    const onWheel = (e) => {
+        wheel.update(() => e.wheelDelta);
+        clearTimeout(wheelTimeout);
+        wheelTimeout = setTimeout(() => {
+            wheel.set(0);
+        }, 100);
+    };
+
     const controlAxis = derived(keys, (keys) => {
         return {
             x:
@@ -48,15 +60,25 @@ export const useControls = () => {
         };
     });
 
+    const controlWheel = derived(wheel, (wheel) => {
+        return {
+            delta: wheel,
+        };
+    });
+
     window.addEventListener('keydown', onKeyDown, { passive: true });
     window.addEventListener('keyup', onKeyUp, { passive: true });
+    window.addEventListener("wheel", onWheel, { passive: true });
     onDestroy(() => {
         window.removeEventListener('keydown', onKeyDown);
         window.removeEventListener('keyup', onKeyUp);
+        window.removeEventListener("wheel", onWheel);
+
     });
 
     return {
         controlAxis,
         controlActions,
+        controlWheel,
     };
 };

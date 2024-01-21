@@ -5,6 +5,7 @@
 <script lang="ts">
   import { useTask, useParent, useThrelte } from "@threlte/core";
   import type { CameraControlsEvents, CameraControlsProps, CameraControlsSlots } from "./CameraControls.svelte";
+  import { Ray } from "@dimforge/rapier3d-compat";
 
   type $$Props = CameraControlsProps;
   type $$Events = CameraControlsEvents;
@@ -13,6 +14,10 @@
   import CameraControls from "camera-controls";
   import { Box3, Matrix4, Quaternion, Raycaster, Sphere, Spherical, Vector2, Vector3, Vector4, type PerspectiveCamera } from "three";
   import { cameraControlPressedStore, cursorShowStore, playerPositionStore, playerVelocityStore } from "./stores";
+  import { useRapier } from "@threlte/rapier";
+  import { useControls } from "$lib/hooks/useControls";
+  import { clamp } from "three/src/math/MathUtils.js";
+  import { lerp } from "postprocessing";
 
   const subsetOfTHREE = {
     Vector2,
@@ -33,12 +38,16 @@
 
   const parent = useParent();
   const { camera } = useThrelte();
+  const { world } = useRapier();
+  const { controlWheel } = useControls();
+  let cameraForward = new Vector3(0, 0, 0);
 
   if (!$parent) {
     throw new Error("CameraControls must be a child of a ThreeJS camera");
   }
 
   const { renderer, invalidate } = useThrelte();
+  let playerPosition: Vector3 = new Vector3(0, 0, 0);
 
   export const ref = new CameraControls($parent as PerspectiveCamera, renderer?.domElement);
 
@@ -46,22 +55,51 @@
   getControls().mouseButtons.right = CameraControls.ACTION.ROTATE;
   getControls().mouseButtons.left = CameraControls.ACTION.NONE;
   getControls().mouseButtons.middle = CameraControls.ACTION.NONE;
+  getControls().mouseButtons.wheel = CameraControls.ACTION.NONE;
   getControls().smoothTime = 0;
   getControls().draggingSmoothTime = 0;
   getControls().maxPolarAngle = 3;
   getControls().minPolarAngle = 0.05;
   getControls().minDistance = 50;
-  getControls().maxDistance = 100;
+  getControls().maxDistance = 150;
   getControls().setFocalOffset(0, -1, 0, false);
 
   useTask((delta) => {
+    zoomControl(delta);
+    cameraCollisionCalculate(delta);
     const updated = getControls().update(delta);
     if (updated) invalidate();
   });
 
+  let distance = getControls().maxDistance - getControls().minDistance;
+  let collidedDistance = distance;
+  const zoomControl = (delta: number) => {
+    if (!controlWheel) return;
+    if ($controlWheel.delta == 0) return;
+
+    distance -= $controlWheel.delta * delta * 2;
+    distance = clamp(distance, getControls().minDistance, getControls().maxDistance);
+  };
+
+  const cameraCollisionCalculate = (delta: number) => {
+    camera.current.getWorldDirection(cameraForward);
+    let dir = cameraForward.clone().multiplyScalar(-getControls().maxDistance);
+    const ray: Ray = new Ray(playerPosition, dir);
+    const raycastResult = world.castRay(ray, 1, false);
+    if (raycastResult && !raycastResult.collider.parent()) {
+      //rigidbodies are excluded
+      collidedDistance = getControls().maxDistance * raycastResult.toi;
+      getControls().distance = collidedDistance;
+    } else {
+      collidedDistance = lerp(collidedDistance, distance, delta * 10);
+      getControls().distance = collidedDistance;
+    }
+  };
+
   $: if ($playerPositionStore) {
+    playerPosition = $playerPositionStore;
     let currentDistance = getControls().distance;
-    updateCameraRotation($playerPositionStore);
+    updateCameraRotation(playerPosition);
     getControls().distance = currentDistance;
   }
 
@@ -70,11 +108,8 @@
   }
 
   const updateCameraPosition = (playerVelocity: Vector3) => {
-    let currentDistance = getControls().distance;
-    let cameraForward = new Vector3();
     camera.current.getWorldDirection(cameraForward);
-
-    playerVelocity.clone().addScaledVector(cameraForward, currentDistance);
+    playerVelocity.clone().addScaledVector(cameraForward, getControls().distance);
 
     //Pass de camera direction
     let up = new Vector3(0, 1, 0);
