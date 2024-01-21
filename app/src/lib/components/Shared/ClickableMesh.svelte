@@ -17,6 +17,7 @@
     material.emissive.set("white");
 
     const distanceIsEnough = (): boolean => {
+        if (!mainPlayerPosition) return false;
         return filtersActive() && mainPlayerPosition.distanceTo(v3) < distance;
     };
 

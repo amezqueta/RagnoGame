@@ -13,7 +13,7 @@
 
   import CameraControls from "camera-controls";
   import { Box3, Matrix4, Quaternion, Raycaster, Sphere, Spherical, Vector2, Vector3, Vector4, type PerspectiveCamera } from "three";
-  import { cameraControlPressedStore, cursorShowStore, playerPositionStore, playerVelocityStore } from "./stores";
+  import { cameraControlPressedStore, cursorShowStore, playerVelocityStore } from "./stores";
   import { useRapier } from "@threlte/rapier";
   import { useControls } from "$lib/hooks/useControls";
   import { clamp } from "three/src/math/MathUtils.js";
@@ -41,6 +41,7 @@
   const { world } = useRapier();
   const { controlWheel } = useControls();
   let cameraForward = new Vector3(0, 0, 0);
+  export let position: Vector3 = new Vector3(0, 0, 0);
 
   if (!$parent) {
     throw new Error("CameraControls must be a child of a ThreeJS camera");
@@ -96,11 +97,9 @@
     }
   };
 
-  $: if ($playerPositionStore) {
-    playerPosition = $playerPositionStore;
-    let currentDistance = getControls().distance;
+  $: if (position) {
+    playerPosition = position;
     updateCameraRotation(playerPosition);
-    getControls().distance = currentDistance;
   }
 
   $: if ($playerVelocityStore) {
@@ -121,7 +120,9 @@
   };
 
   const updateCameraRotation = (playerPosition: Vector3) => {
+    let currentDistance = getControls().distance;
     getControls().setTarget(playerPosition.x, playerPosition.y, playerPosition.z, false);
+    getControls().distance = currentDistance;
   };
 
   const onMouseDown = (key: MouseEvent) => {

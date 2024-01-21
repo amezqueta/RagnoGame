@@ -27,6 +27,7 @@
             const params = new URLSearchParams(window.location.search);
             let browserData = {
                 nick: params.get("nick") || null,
+                spectator: params.get("spectator") || null,
             };
 
             socket.emit("onboarding", browserData);
@@ -59,7 +60,7 @@
         socketStore.set(socket);
     });
 
-    let debugFakeMouse = false;
+    let debugFakeMouse = true;
     const onKeyDown = (e: KeyboardEvent) => {
         if (e.ctrlKey && e.key === "1") {
             e.preventDefault();

@@ -7,6 +7,7 @@ export const serverTimestampStore = writable<number>(undefined);
 export const serverDebugMsgAmountStore = writable<number>(undefined);
 export const serverPlayersStore = writable<any[]>(undefined);
 
+export const isSpectatorStore = writable<boolean>(true);
 export const cameraControls = writable(undefined);
 export const cameraControlPressedStore = writable<boolean>(false);
 

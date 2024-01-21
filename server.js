@@ -53,7 +53,8 @@ io.on('connection', (socket) => {
             position: [0, 10, 0],
             color: '#' + Math.floor(Math.random() * 16777215).toString(16),
             nick: nick,
-            privileges: privileges
+            privileges: privileges,
+            spectator: data.spectator
         };
 
         serverPlayers.push(player);

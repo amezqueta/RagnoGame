@@ -2,16 +2,21 @@
     import { T } from "@threlte/core";
     import Player from "$lib/components/Players/Player.svelte";
     import OnlinePlayer from "$lib/components/Players/OnlinePlayer.svelte";
-    import { playerDataStore, serverPlayersStore, socketStore } from "../stores";
+    import { isSpectatorStore, playerDataStore, playerPositionStore, serverPlayersStore, socketStore } from "../stores";
     import CameraControlsComponent from "../CameraControls.svelte";
+    import { Vector3 } from "three";
 
     let playerRef: any;
     let currentPlayerData: any = null;
     let scenePlayers: any[] = [];
+    let viewingPlayerIndex: number = 0;
 
     let socket: any;
 
-    $: if (playerDataStore) currentPlayerData = $playerDataStore;
+    $: if (playerDataStore && $playerDataStore) {
+        currentPlayerData = $playerDataStore;
+        isSpectatorStore.set($playerDataStore.spectator);
+    }
 
     $: if ($serverPlayersStore && currentPlayerData?.userId) {
         UpdatePlayers($serverPlayersStore);
@@ -22,6 +27,10 @@
         //If the serverplayers and sceneplayers are the same it doesn't do anything
         if (serverPlayers.length == scenePlayers.length + 1) return;
         if (scenePlayers.length == 0) return;
+
+        console.log("update " + serverPlayers.length + " " + scenePlayers.length);
+        if (serverPlayers.length == scenePlayers.length) viewingPlayerIndexChange();
+
         //Add new Player
         serverPlayers
             .filter((x) => x.userId !== currentPlayerData.userId)
@@ -102,10 +111,17 @@
         return scenePlayers.find((user) => user.userId === userId);
     };
 
+    const findIndexPlayerById = (userId: string): any => {
+        return scenePlayers.findIndex((user) => user.userId === userId);
+    };
+
     $: if (socket) {
         socket.on("player-move", (userId: string, newPos: any) => {
-            const user = findPlayerById(userId);
-            user?.playerInstance?.SetPosition(newPos);
+            const index = findIndexPlayerById(userId);
+            if (index != -1) {
+                scenePlayers[index]?.playerInstance?.SetPosition(newPos);
+                scenePlayers[index].position = newPos;
+            }
         });
 
         socket.on("player-rotate", (userId: string, newRot: number) => {
@@ -132,12 +148,31 @@
         });
     }
 
+    const onMouseDown = (e: MouseEvent) => {
+        if (!currentPlayerData.spectator) return;
+        if (e.button === 0) {
+            viewingPlayerIndexChange();
+        }
+    };
+
+    const viewingPlayerIndexChange = () => {
+        if (viewingPlayerIndex >= scenePlayers.length - 1) viewingPlayerIndex = 0;
+        else viewingPlayerIndex++;
+    };
     //@todo handle the created players with svelte/threlte philosophy
 </script>
 
+<svelte:window on:mousedown={onMouseDown} />
+
 {#if currentPlayerData}
-    <T.PerspectiveCamera makeDefault fov={15}>
-        <CameraControlsComponent />
-    </T.PerspectiveCamera>
-    <Player bind:this={playerRef} {socket} userId={currentPlayerData.userId} color={currentPlayerData.color} nick={currentPlayerData.nick} />
+    {#if playerPositionStore && !currentPlayerData.spectator}
+        <T.PerspectiveCamera makeDefault fov={15}>
+            <CameraControlsComponent position={$playerPositionStore} />
+        </T.PerspectiveCamera>
+        <Player bind:this={playerRef} {socket} userId={currentPlayerData.userId} color={currentPlayerData.color} nick={currentPlayerData.nick} />
+    {:else if scenePlayers.length > viewingPlayerIndex}
+        <T.PerspectiveCamera makeDefault fov={15}>
+            <CameraControlsComponent position={new Vector3(scenePlayers[viewingPlayerIndex].position.x, scenePlayers[viewingPlayerIndex].position.y, scenePlayers[viewingPlayerIndex].position.z)} />
+        </T.PerspectiveCamera>
+    {/if}
 {/if}

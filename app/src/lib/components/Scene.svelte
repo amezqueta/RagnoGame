@@ -59,9 +59,6 @@
 <MovingPlatform position1={[10, 0, 10]} position2={[10, 25, 6]} />
 <MovingPlatform position1={[6, 1, 3]} position2={[10, 1, 3]} />
 
-<MovingPlatform position1={[2, 3, -15]} position2={[2, 3, -15]} underPlatformClimb={true} />
-<MovingPlatform position1={[2, 6, -15]} position2={[2, 6, -15]} underPlatformClimb={true} />
-
 <SpawnPlayer position={[25, 1, 10]} />
 
 <Item position={[13, 1, 22]} />

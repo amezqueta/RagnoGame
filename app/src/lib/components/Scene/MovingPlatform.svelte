@@ -3,17 +3,14 @@
     import { T, useTask } from "@threlte/core";
     import { Collider, RigidBody } from "@threlte/rapier";
     import { BoxGeometry, MeshStandardMaterial, Vector3, type Vector, MathUtils } from "three";
-    import { serverTimestampStore } from "../stores";
-    import { playerPositionStore } from "../stores";
+    import { isSpectatorStore, serverTimestampStore } from "../stores";
 
-    export let underPlatformClimb = false;
     let serverTimestamp: number;
     export let position1: number[];
     let p1: Vector3 = new Vector3(position1[0], position1[1], position1[2]);
     export let position2: number[];
     let p2: Vector3 = new Vector3(position2[0], position2[1], position2[2]);
     let position: Vector3 = new Vector3(0, 0, 0);
-    let playerPosition: Vector3 = new Vector3(0, 0, 0);
 
     useTask(() => {
         if (!serverTimestamp) return;
@@ -34,18 +31,13 @@
         return normalizedSin;
     }
 
-    $: {
-        if (playerPositionStore) playerPosition = $playerPositionStore;
-    }
     //@TODO Si das a control, se baja de la plataforma
     let rigidBody: RRigidBody;
 </script>
 
-{#if position && playerPosition}
+{#if position && isSpectatorStore}
     <RigidBody type="kinematicPosition" bind:rigidBody>
-        {#if !underPlatformClimb || playerPosition.y > position.y + 2.2}
-            <Collider shape={"cuboid"} args={[3, 0.2, 3]} />
-        {/if}
+        <Collider shape={"cuboid"} args={[3, 0.2, 3]} />
 
         <T.Mesh
             receiveShadow
