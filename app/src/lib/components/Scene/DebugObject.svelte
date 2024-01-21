@@ -1,6 +1,5 @@
 <script lang="ts">
     import { T } from "@threlte/core";
-    import { Text } from "@threlte/extras";
     import { Vector3 } from "three";
     import { playerDataStore } from "../stores";
     import TextBillboard from "../TextBillboard.svelte";
@@ -10,7 +9,7 @@
     let active: boolean;
 
     $: if (playerDataStore) {
-        active = $playerDataStore.nick === "Amezcuetara";
+        active = $playerDataStore.privileges > 5;
     }
 </script>
 

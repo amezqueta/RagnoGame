@@ -1,6 +1,5 @@
 <script lang="ts">
     import { T, useThrelte } from "@threlte/core";
-    import CameraControlsComponent from "./CameraControls.svelte";
     import Scene from "./Scene.svelte";
     import PlayersWrapper from "./Players/PlayersWrapper.svelte";
     import { interactivity } from "@threlte/extras";
@@ -31,9 +30,6 @@
     }
 </script>
 
-<T.PerspectiveCamera makeDefault position={[-30, 30, 30]} fov={15}>
-    <CameraControlsComponent />
-</T.PerspectiveCamera>
 <T.DirectionalLight intensity={1} position.x={5} position.y={10} />
 <Scene />
 {#if socket}

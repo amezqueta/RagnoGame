@@ -103,8 +103,8 @@
   };
 
   function returnPlayerOnFall() {
-    if (rigidBody.translation().y < -2) {
-      rigidBody.setTranslation(new Vector3(0, 10, 0), true);
+    if (rigidBody.translation().y < -5) {
+      spawnPlayer(rigidBody);
     }
   }
 
@@ -216,13 +216,25 @@
 
   onMount(() => {
     console.log("Player mounted " + color);
-    start();
   });
 
   //Emotes
   let emoteRef: Emote;
   export const playEmote = (emoteId: number) => {
     emoteRef.playEmote(emoteId);
+  };
+
+  const spawnPlayer = () => {
+    try {
+      let r = Math.floor(Math.random() * $playerSpawnsStore.length);
+      const randomVector = new Vector3(Math.random() * 2, 0, Math.random() * 2);
+      const randomSpawn = new Vector3($playerSpawnsStore[r][0], $playerSpawnsStore[r][1], $playerSpawnsStore[r][2]).add(randomVector);
+
+      rigidBody.setTranslation(randomSpawn, true);
+      start();
+    } catch (error) {
+      console.error("The are any Spawns on the scene");
+    }
   };
 </script>
 
@@ -231,13 +243,7 @@
     bind:rigidBody
     enabledRotations={[false, false, false]}
     on:create={(ref) => {
-      try {
-        let r = Math.floor(Math.random() * $playerSpawnsStore.length);
-        const randomSpawn = new Vector3($playerSpawnsStore[r][0], $playerSpawnsStore[r][1], $playerSpawnsStore[r][2]);
-        ref.ref.setTranslation(randomSpawn);
-      } catch (error) {
-        console.error("The are any Spawns on the scene");
-      }
+      spawnPlayer();
     }}
   >
     <T.Mesh castShadow {geometry} {material} rotation.y={meshRotation} />

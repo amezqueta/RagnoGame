@@ -1,8 +1,9 @@
 <script lang="ts">
+    import { T } from "@threlte/core";
     import Player from "$lib/components/Players/Player.svelte";
     import OnlinePlayer from "$lib/components/Players/OnlinePlayer.svelte";
     import { playerDataStore, serverPlayersStore, socketStore } from "../stores";
-    import { useTask } from "@threlte/core";
+    import CameraControlsComponent from "../CameraControls.svelte";
 
     let playerRef: any;
     let currentPlayerData: any = null;
@@ -103,37 +104,30 @@
 
     $: if (socket) {
         socket.on("player-move", (userId: string, newPos: any) => {
-            const user = scenePlayers.find((user) => user.userId === userId);
-            if (user) {
-                user.playerInstance?.SetPosition(newPos);
-            }
+            const user = findPlayerById(userId);
+            user?.playerInstance?.SetPosition(newPos);
         });
 
         socket.on("player-rotate", (userId: string, newRot: number) => {
-            const user = scenePlayers.find((user) => user.userId === userId);
-            if (user) {
-                user.playerInstance?.SetRotation(newRot);
-            }
+            const user = findPlayerById(userId);
+            user?.playerInstance?.SetRotation(newRot);
         });
 
         socket.on("user-color", (userId: string, newColor: string) => {
-            const user = scenePlayers.find((user) => user.userId === userId);
-            if (user) {
-                user.playerInstance?.SetColor(newColor);
-            }
+            const user = findPlayerById(userId);
+            user?.playerInstance?.SetColor(newColor);
         });
 
         socket.on("user-set-nick", (userId: string, newNick: string) => {
-            const user = scenePlayers.find((user) => user.userId === userId);
-            if (user) {
-                user?.playerInstance?.SetNick(newNick);
-            }
+            const user = findPlayerById(userId);
+
+            user?.playerInstance?.SetNick(newNick);
         });
 
         socket.on("player-emote", (userId: string, emoteId: number) => {
             if (userId === currentPlayerData.userId) playerRef?.playEmote(emoteId);
             else {
-                const user = scenePlayers.find((user) => user.userId === userId);
+                const user = findPlayerById(userId);
                 user?.playerInstance?.playEmote(emoteId);
             }
         });
@@ -141,6 +135,10 @@
 
     //@todo handle the created players with svelte/threlte philosophy
 </script>
+
+<T.PerspectiveCamera makeDefault fov={15}>
+    <CameraControlsComponent />
+</T.PerspectiveCamera>
 
 {#if currentPlayerData}
     <Player bind:this={playerRef} {socket} userId={currentPlayerData.userId} color={currentPlayerData.color} nick={currentPlayerData.nick} />

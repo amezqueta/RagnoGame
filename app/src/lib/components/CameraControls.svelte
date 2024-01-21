@@ -86,8 +86,8 @@
     let dir = cameraForward.clone().multiplyScalar(-getControls().maxDistance);
     const ray: Ray = new Ray(playerPosition, dir);
     const raycastResult = world.castRay(ray, 1, false);
-    if (raycastResult && !raycastResult.collider.parent()) {
-      //rigidbodies are excluded
+    if (raycastResult && !raycastResult.collider.parent() && raycastResult.collider.shape.type != 2) {
+      //rigidbodies and capsules are excluded
       collidedDistance = getControls().maxDistance * raycastResult.toi;
       getControls().distance = collidedDistance;
     } else {

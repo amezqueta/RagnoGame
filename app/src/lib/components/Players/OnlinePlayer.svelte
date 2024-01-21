@@ -71,7 +71,7 @@
     };
 </script>
 
-<ClickableMesh position={[position.x, position.y, position.z]} {geometry} {material} {onClickMesh} rotation={meshRotation} />
+<ClickableMesh position={[position.x, position.y, position.z]} {geometry} {material} {onClickMesh} rotation={meshRotation} distance={8} />
 <T.Group {position}>
     <TextBillboard text={nick} position={[0, 4, 0]} {color} />
     <Collider bind:collider shape="capsule" args={[0.3, 1]} />
