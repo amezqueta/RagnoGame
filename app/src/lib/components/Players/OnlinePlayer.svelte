@@ -8,7 +8,6 @@
     import { Collider } from "@threlte/rapier";
     import { socketStore } from "../stores";
     import Emote from "../UI/Emote.svelte";
-    import { useControls } from "$lib/hooks/useControls";
     import ClickableMesh from "../Shared/ClickableMesh.svelte";
 
     const material = new MeshStandardMaterial();

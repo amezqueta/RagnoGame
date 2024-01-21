@@ -18,7 +18,7 @@
 
     const { renderer } = useThrelte();
     const domElement = renderer.domElement;
-    addEventListener("pointerlockchange", onPointerlockChange);
+    document.addEventListener("pointerlockchange", onPointerlockChange);
 
     function onPointerlockChange() {
         pointerLockerStore.set(document.pointerLockElement != null);
@@ -76,7 +76,7 @@
     }
 
     onDestroy(() => {
-        removeEventListener("pointerlockchange", onPointerlockChange);
+        document.removeEventListener("pointerlockchange", onPointerlockChange);
     });
 
     $: if (hoverElementUI != prev_hoverElementUI) {

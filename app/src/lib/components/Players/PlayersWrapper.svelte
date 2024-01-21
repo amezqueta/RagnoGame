@@ -120,7 +120,6 @@
 
         socket.on("user-set-nick", (userId: string, newNick: string) => {
             const user = findPlayerById(userId);
-
             user?.playerInstance?.SetNick(newNick);
         });
 
@@ -136,10 +135,9 @@
     //@todo handle the created players with svelte/threlte philosophy
 </script>
 
-<T.PerspectiveCamera makeDefault fov={15}>
-    <CameraControlsComponent />
-</T.PerspectiveCamera>
-
 {#if currentPlayerData}
+    <T.PerspectiveCamera makeDefault fov={15}>
+        <CameraControlsComponent />
+    </T.PerspectiveCamera>
     <Player bind:this={playerRef} {socket} userId={currentPlayerData.userId} color={currentPlayerData.color} nick={currentPlayerData.nick} />
 {/if}

@@ -1,7 +1,8 @@
 ﻿<script lang="ts">
     import { Color, Folder, FpsGraph, Monitor, Pane, Text, ThemeUtils } from "svelte-tweakpane-ui";
     import { playerColorStore, privilegesStore, serverDebugMsgAmountStore, serverPlayersStore } from "../stores";
-    addEventListener("pointerlockchange", onPointerlockchange);
+    import { onDestroy } from "svelte";
+    document.addEventListener("pointerlockchange", onPointerlockchange);
 
     function onPointerlockchange(e: Event) {
         theme = document.pointerLockElement ? ThemeUtils.presets.translucent : ThemeUtils.presets.light;
@@ -19,6 +20,10 @@
     $: if (color) playerColorStore.set(color);
     $: if (serverDebugMsgAmountStore) serverDebugMsgAmount = $serverDebugMsgAmountStore;
     $: if (privilegesStore) privileges = $privilegesStore;
+
+    onDestroy(() => {
+        document.removeEventListener("pointerlockchange", onPointerlockchange);
+    });
 </script>
 
 {#if serverPlayers}
