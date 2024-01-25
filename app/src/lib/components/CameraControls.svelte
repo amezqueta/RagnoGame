@@ -16,8 +16,7 @@
   import { cameraControlPressedStore, cursorShowStore, playerVelocityStore } from "./stores";
   import { useRapier } from "@threlte/rapier";
   import { useControls } from "$lib/hooks/useControls";
-  import { clamp } from "three/src/math/MathUtils.js";
-  import { lerp } from "postprocessing";
+  import { clamp, lerp } from "three/src/math/MathUtils.js";
 
   const subsetOfTHREE = {
     Vector2,

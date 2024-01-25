@@ -31,7 +31,8 @@
 </script>
 
 <T.DirectionalLight intensity={1} position.x={5} position.y={10} />
-<Scene />
-{#if socket}
-    <PlayersWrapper />
-{/if}
+<Scene>
+    {#if socket}
+        <PlayersWrapper />
+    {/if}
+</Scene>
