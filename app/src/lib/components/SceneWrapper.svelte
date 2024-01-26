@@ -2,8 +2,9 @@
     import { T, useThrelte } from "@threlte/core";
     import Scene from "./Scene.svelte";
     import PlayersWrapper from "./Players/PlayersWrapper.svelte";
-    import { interactivity } from "@threlte/extras";
+    import { ContactShadows, Sky, interactivity } from "@threlte/extras";
     import { mouseXStore, mouseYStore } from "./stores";
+    import SpawnPlayer from "./Scene/SpawnPlayer.svelte";
 
     export let socket: any = null;
     let mouseX: number = 0;
@@ -31,7 +32,12 @@
 </script>
 
 <T.DirectionalLight intensity={1} position.x={5} position.y={10} />
+<Sky elevation={0.5} />
+<T.AmbientLight intensity={0.5} />
+<ContactShadows scale={10} blur={2} far={2.5} opacity={0.5} />
 <Scene>
+    <SpawnPlayer position={[25, 1, 10]} />
+
     {#if socket}
         <PlayersWrapper />
     {/if}

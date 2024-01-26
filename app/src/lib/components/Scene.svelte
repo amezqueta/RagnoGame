@@ -4,30 +4,27 @@
     import { ContactShadows, Grid, OrbitControls, useTexture } from "@threlte/extras";
     import { BoxGeometry, MeshStandardMaterial, MeshToonMaterial, RepeatWrapping } from "three";
     import MovingPlatform from "./Scene/MovingPlatform.svelte";
-    import SpawnPlayer from "./Scene/SpawnPlayer.svelte";
     import Item from "./Scene/Item.svelte";
+    import Bush from "../components/Scene/Props/Bush.svelte";
+    import FloorBrick from "./Scene/Structure/Floor_brick.svelte";
 
-    const map = useTexture("tex/brick_00.png", {
-        transform: (texture) => {
-            texture.wrapS = RepeatWrapping;
-            texture.wrapT = RepeatWrapping;
-            texture.repeat.set(4, 4);
-            return texture;
-        },
-    });
-    let material = new MeshStandardMaterial();
+    // const map = useTexture("tex/brick_00.png", {
+    //     transform: (texture) => {
+    //         texture.wrapS = RepeatWrapping;
+    //         texture.wrapT = RepeatWrapping;
+    //         texture.repeat.set(4, 4);
+    //         return texture;
+    //     },
+    // });
+    // let material = new MeshStandardMaterial();
 
-    $: if ($map) {
-        material = new MeshStandardMaterial();
-        material.map = $map;
-    }
+    // $: if ($map) {
+    //     material = new MeshStandardMaterial();
+    //     material.map = $map;
+    // }
 </script>
 
-<T.AmbientLight intensity={0.5} />
-<ContactShadows scale={10} blur={2} far={2.5} opacity={0.5} />
-<AutoColliders shape={"cuboid"}>
-    <T.Mesh receiveShadow geometry={new BoxGeometry(60, 1, 60)} {material} />
-</AutoColliders>
+<FloorBrick position={[0, 0, 0]} scale={[60, 1, 60]} />
 <AutoColliders shape={"cuboid"}>
     <T.Mesh
         receiveShadow
@@ -74,8 +71,10 @@
 <MovingPlatform position1={[10, 0, 10]} position2={[10, 25, 6]} />
 <MovingPlatform position1={[6, 1, 3]} position2={[10, 1, 3]} />
 
-<SpawnPlayer position={[25, 1, 10]} />
+<Bush position={[20, 0.5, 26]} />
+<Bush position={[25, 10, 16]} />
+<Bush position={[15, 10, 16]} />
 
-<Item position={[13, 1, 22]} />
+<Item position={[18, 1, 22]} />
 
 <slot />
