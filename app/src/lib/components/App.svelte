@@ -71,7 +71,9 @@
 
 <svelte:window on:keydown={onKeyDown} />
 {#if serverConnected}
-    <Canvas>
+    <Canvas
+        ><!-- rendererParameters={{ antialias: false }} size={{ width: 960, height: 540 }}> -->
+
         <AudioListener />
         <Ui />
         <World>
@@ -89,5 +91,10 @@
     #loading-wrapper {
         color: white;
         text-align: center;
+    }
+
+    :global(canvas) {
+        width: 100% !important;
+        height: 100vh !important;
     }
 </style>

@@ -1,12 +1,12 @@
 <script lang="ts">
     import { AutoColliders } from "@threlte/rapier";
     import { T } from "@threlte/core";
-    import { ContactShadows, Grid, OrbitControls, useTexture } from "@threlte/extras";
-    import { BoxGeometry, MeshStandardMaterial, MeshToonMaterial, RepeatWrapping } from "three";
+    import { ContactShadows, Grid, OrbitControls, useGltf, useTexture } from "@threlte/extras";
+    import { BoxGeometry, MeshBasicMaterial, MeshStandardMaterial, MeshToonMaterial, RepeatWrapping } from "three";
     import MovingPlatform from "./Scene/MovingPlatform.svelte";
     import Item from "./Scene/Item.svelte";
-    import Bush from "../components/Scene/Props/Bush.svelte";
-    import FloorBrick from "./Scene/Structure/Floor_brick.svelte";
+    import Prop from "./Scene/Prop.svelte";
+    import Structure from "./Scene/Structure.svelte";
 
     // const map = useTexture("tex/brick_00.png", {
     //     transform: (texture) => {
@@ -24,7 +24,9 @@
     // }
 </script>
 
-<FloorBrick position={[0, 0, 0]} scale={[60, 1, 60]} />
+<Structure nodeName={"Structure"} position={[0, 0, 0]} scale={[50, 1, 50]} />
+<Structure nodeName={"Structure"} position={[0, 2, 0]} scale={[2, 1, 2]} />
+<Structure nodeName={"Structure"} position={[12, 2, 0]} scale={[10, 1, 10]} />
 <AutoColliders shape={"cuboid"}>
     <T.Mesh
         receiveShadow
@@ -71,10 +73,11 @@
 <MovingPlatform position1={[10, 0, 10]} position2={[10, 25, 6]} />
 <MovingPlatform position1={[6, 1, 3]} position2={[10, 1, 3]} />
 
-<Bush position={[20, 0.5, 26]} />
-<Bush position={[25, 10, 16]} />
-<Bush position={[15, 10, 16]} />
-
+<T.Group position={[22, 1, 40]}>
+    <Prop nodeName={"Bush_00"} position={[0, 0, 0]} scale={4} />
+    <Prop nodeName={"Bush_00"} position={[10, 0, 0]} scale={4} />
+    <Prop nodeName={"Bush_00"} position={[20, 0, 0]} scale={4} />
+</T.Group>
 <Item position={[18, 1, 22]} />
 
 <slot />

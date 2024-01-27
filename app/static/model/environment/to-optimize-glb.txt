@@ -1,0 +1,1 @@
+npx @threlte/gltf@latest /path/to/Model.glb [options]

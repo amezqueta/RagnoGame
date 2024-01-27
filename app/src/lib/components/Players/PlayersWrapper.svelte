@@ -28,7 +28,6 @@
         if (serverPlayers.length == scenePlayers.length + 1) return;
         if (scenePlayers.length == 0) return;
 
-        console.log("update " + serverPlayers.length + " " + scenePlayers.length);
         if (serverPlayers.length == scenePlayers.length) viewingPlayerIndexChange();
 
         //Add new Player
