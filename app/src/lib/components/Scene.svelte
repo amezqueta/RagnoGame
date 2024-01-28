@@ -2,7 +2,7 @@
     import { AutoColliders } from "@threlte/rapier";
     import { T } from "@threlte/core";
     import { ContactShadows, Grid, OrbitControls, useGltf, useTexture } from "@threlte/extras";
-    import { BoxGeometry, MeshBasicMaterial, MeshStandardMaterial, MeshToonMaterial, RepeatWrapping } from "three";
+    import { BoxGeometry, Group, MeshBasicMaterial, MeshStandardMaterial, MeshToonMaterial, RepeatWrapping } from "three";
     import MovingPlatform from "./Scene/MovingPlatform.svelte";
     import Item from "./Scene/Item.svelte";
     import Prop from "./Scene/Prop.svelte";
@@ -24,9 +24,11 @@
     // }
 </script>
 
-<Structure nodeName={"Structure"} position={[0, 0, 0]} scale={[50, 1, 50]} />
-<Structure nodeName={"Structure"} position={[0, 2, 0]} scale={[2, 1, 2]} />
-<Structure nodeName={"Structure"} position={[10, 2, 0]} scale={[10, 1, 10]} />
+<Structure position={[0, 0, 0]} scale={[100, 1, 100]} />
+<T.Group position={[20, 0, 50]}>
+    <Structure position={[0, 0, 0]} scale={[49, 10, 9]} />
+    <Structure textureY={"wood_00"} textureXZ={"wood_00"} tone={[0, 0, 0]} position={[0, 9.85, 0]} scale={[50, 5.1, 10]} />
+</T.Group>
 <AutoColliders shape={"cuboid"}>
     <T.Mesh
         receiveShadow
@@ -70,10 +72,10 @@
     />
 </AutoColliders>
 
-<MovingPlatform position1={[10, 0, 10]} position2={[10, 25, 6]} />
+<MovingPlatform position1={[11, 2, 42]} position2={[11, 15, 42]} />
 <MovingPlatform position1={[6, 1, 3]} position2={[10, 1, 3]} />
 
-<T.Group position={[22, 1, 40]}>
+<T.Group position={[20, 0, 42]}>
     <Prop nodeName={"Bush_00"} position={[0, 1, 0]} scale={4} />
     <Prop nodeName={"Bush_00"} position={[10, 1, 0]} scale={4} />
     <Prop nodeName={"Bush_00"} position={[20, 1, 0]} scale={4} />
