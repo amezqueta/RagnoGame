@@ -30,14 +30,11 @@
             textureZ: { value: null },
             scaleFactor: { value: scaleFactor },
             lightDirection: { value: new Vector3(0.25, 0.5, -1) },
-            tint: { value: new Vector3(1, 1, 1) },
+            lightColor: { value: new Vector3(1, 1, 1) },
         },
         vertexShader: `
             varying vec3 vWorldPosition;
-            varying vec2 vUv;
-
             void main() {
-                vUv = uv;
                 vec4 worldPosition = modelMatrix * vec4(position, 1.0);
                 vWorldPosition = worldPosition.xyz;
                 gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
@@ -52,7 +49,7 @@
             uniform sampler2D textureZ;
             uniform float scaleFactor;
             uniform vec3 lightDirection;
-            uniform vec3 tint;
+            uniform vec3 lightColor;
 
             void main() {
                 vec3 worldNormal = normalize(cross(dFdx(vWorldPosition), dFdy(vWorldPosition)));
@@ -68,11 +65,9 @@
                 vec3 negShadows = saturate(-shadows) * 0.1;
                 shadows = saturate(shadows);
                 shadows -= negShadows;
-                shadows += vec3(0.25, 0.25, 0.25);
+                shadows += lightColor * 0.25;
 
                 color *= shadows;
-
-                color *= tint;
                 color = saturate(color);
 
                 gl_FragColor = vec4(color, 1);
