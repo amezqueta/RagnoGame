@@ -31,14 +31,12 @@
     }
 </script>
 
-<T.DirectionalLight intensity={1} position.x={5} position.y={10} />
-<Sky elevation={0.5} />
+<Sky elevation={1} />
 <T.AmbientLight intensity={0.5} />
 <ContactShadows scale={10} blur={2} far={2.5} opacity={0.5} />
-<Scene>
-    <SpawnPlayer position={[25, 1, 10]} />
+<Scene />
+<SpawnPlayer position={[25, 1, 10]} />
 
-    {#if socket}
-        <PlayersWrapper />
-    {/if}
-</Scene>
+{#if socket}
+    <PlayersWrapper />
+{/if}

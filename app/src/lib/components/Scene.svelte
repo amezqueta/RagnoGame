@@ -26,7 +26,7 @@
 
 <Structure nodeName={"Structure"} position={[0, 0, 0]} scale={[50, 1, 50]} />
 <Structure nodeName={"Structure"} position={[0, 2, 0]} scale={[2, 1, 2]} />
-<Structure nodeName={"Structure"} position={[12, 2, 0]} scale={[10, 1, 10]} />
+<Structure nodeName={"Structure"} position={[10, 2, 0]} scale={[10, 1, 10]} />
 <AutoColliders shape={"cuboid"}>
     <T.Mesh
         receiveShadow
@@ -74,10 +74,8 @@
 <MovingPlatform position1={[6, 1, 3]} position2={[10, 1, 3]} />
 
 <T.Group position={[22, 1, 40]}>
-    <Prop nodeName={"Bush_00"} position={[0, 0, 0]} scale={4} />
-    <Prop nodeName={"Bush_00"} position={[10, 0, 0]} scale={4} />
-    <Prop nodeName={"Bush_00"} position={[20, 0, 0]} scale={4} />
+    <Prop nodeName={"Bush_00"} position={[0, 1, 0]} scale={4} />
+    <Prop nodeName={"Bush_00"} position={[10, 1, 0]} scale={4} />
+    <Prop nodeName={"Bush_00"} position={[20, 1, 0]} scale={4} />
 </T.Group>
 <Item position={[18, 1, 22]} />
-
-<slot />

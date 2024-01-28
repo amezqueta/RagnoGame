@@ -7,6 +7,7 @@
 
     export const ref = new Group();
     export let nodeName: any;
+    export let tone: string = "";
     let url: string = `model/environment/structure/${nodeName}.glb`;
 
     const gltf = useGltf(url, { useDraco: true });
@@ -28,7 +29,8 @@
             textureY: { value: null },
             textureZ: { value: null },
             scaleFactor: { value: scaleFactor },
-            directionalLightDirection: { value: new Vector3(0, 1, 0) },
+            lightDirection: { value: new Vector3(0.25, 0.5, -1) },
+            tint: { value: new Vector3(1, 1, 1) },
         },
         vertexShader: `
             varying vec3 vWorldPosition;
@@ -49,17 +51,31 @@
             uniform sampler2D textureY;
             uniform sampler2D textureZ;
             uniform float scaleFactor;
-            uniform vec3 directionalLightDirection;
+            uniform vec3 lightDirection;
+            uniform vec3 tint;
 
             void main() {
-                vec3 worldNormal = abs(normalize(cross(dFdx(vWorldPosition), dFdy(vWorldPosition))));
+                vec3 worldNormal = normalize(cross(dFdx(vWorldPosition), dFdy(vWorldPosition)));
+
                 vec3 triplanarX = texture2D(textureX, vWorldPosition.yz * scaleFactor).xyz;
                 vec3 triplanarY = texture2D(textureY, vWorldPosition.xz * scaleFactor).xyz;
                 vec3 triplanarZ = texture2D(textureZ, vWorldPosition.xy * scaleFactor).xyz;
 
-                float intensity = max(dot(worldNormal, directionalLightDirection), 0.0);
-                vec3 color = triplanarX * worldNormal.x * 0.5 + triplanarY * worldNormal.y + triplanarZ * 2.0 * worldNormal.z;
-                gl_FragColor = vec4(color, 1.0);
+                vec3 color = triplanarX * abs(worldNormal.x) + triplanarY * abs(worldNormal.y) + triplanarZ * abs(worldNormal.z);
+
+                float dot = dot(worldNormal, lightDirection);
+                vec3 shadows = vec3(dot,dot,dot);
+                vec3 negShadows = saturate(-shadows) * 0.1;
+                shadows = saturate(shadows);
+                shadows -= negShadows;
+                shadows += vec3(0.25, 0.25, 0.25);
+
+                color *= shadows;
+
+                color *= tint;
+                color = saturate(color);
+
+                gl_FragColor = vec4(color, 1);
             }
         `,
     });
