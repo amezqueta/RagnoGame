@@ -2,7 +2,7 @@
     import { AutoColliders } from "@threlte/rapier";
     import { T } from "@threlte/core";
     import { ContactShadows, Grid, OrbitControls, useGltf, useTexture } from "@threlte/extras";
-    import { BoxGeometry, Group, MeshBasicMaterial, MeshStandardMaterial, MeshToonMaterial, RepeatWrapping } from "three";
+    import { BoxGeometry, DirectionalLight, Group, MeshBasicMaterial, MeshStandardMaterial, MeshToonMaterial, RepeatWrapping } from "three";
     import MovingPlatform from "./Scene/MovingPlatform.svelte";
     import Item from "./Scene/Item.svelte";
     import Prop from "./Scene/Prop.svelte";

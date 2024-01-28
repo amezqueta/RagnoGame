@@ -1,7 +1,19 @@
 <script lang="ts">
-    import { Group, RepeatWrapping, ShaderMaterial, NearestFilter } from "three";
+    import {
+        Group,
+        RepeatWrapping,
+        ShaderMaterial,
+        NearestFilter,
+        MeshBasicMaterial,
+        MeshPhysicalMaterial,
+        MeshPhongMaterial,
+        MeshStandardMaterial,
+        ShadowMaterial,
+        MultiplyBlending,
+        AdditiveBlending,
+    } from "three";
     import { T, forwardEventHandlers } from "@threlte/core";
-    import { useGltf, useTexture } from "@threlte/extras";
+    import { ContactShadows, useGltf, useTexture } from "@threlte/extras";
     import { Collider } from "@threlte/rapier";
     import { Vector3 } from "@dimforge/rapier3d-compat";
 
@@ -101,7 +113,8 @@
     {:then gltf}
         <T.Group position={[0, 0.5, 0]}>
             <Collider shape="cuboid" args={[0.5, 0.5, 0.5]} />
-            <T.Mesh geometry={gltf.nodes[nodeName].geometry} material={triplanarShaderMaterial} receiveShadow />
+            <T.Mesh geometry={gltf.nodes[nodeName].geometry} material={triplanarShaderMaterial} />
+            <T.Mesh geometry={gltf.nodes[nodeName].geometry} scale={[1.0, 1.02, 1.0]} material={new ShadowMaterial({ opacity: 0.75 })} receiveShadow />
         </T.Group>
     {:catch error}
         <slot name="error" {error} />

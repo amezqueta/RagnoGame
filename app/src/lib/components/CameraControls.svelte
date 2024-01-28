@@ -17,6 +17,7 @@
   import { useRapier } from "@threlte/rapier";
   import { useControls } from "$lib/hooks/useControls";
   import { clamp, lerp } from "three/src/math/MathUtils.js";
+  import { onMount } from "svelte";
 
   const subsetOfTHREE = {
     Vector2,
@@ -136,6 +137,11 @@
       cursorShowStore.set(true);
     }
   };
+
+  onMount(() => {
+    position = new Vector3(0, 100, 0);
+    distance = 100;
+  });
 </script>
 
 <svelte:window on:mousedown={onMouseDown} on:mouseup={onMouseUp} />

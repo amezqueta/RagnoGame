@@ -3,8 +3,9 @@
     import Scene from "./Scene.svelte";
     import PlayersWrapper from "./Players/PlayersWrapper.svelte";
     import { ContactShadows, Sky, interactivity } from "@threlte/extras";
-    import { mouseXStore, mouseYStore } from "./stores";
+    import { mouseXStore, mouseYStore, playerPositionStore } from "./stores";
     import SpawnPlayer from "./Scene/SpawnPlayer.svelte";
+    import { DirectionalLight, Vector3 } from "three";
 
     export let socket: any = null;
     let mouseX: number = 0;
@@ -29,13 +30,27 @@
         mouseX = $mouseXStore;
         mouseY = $mouseYStore;
     }
+
+    let playerPosition: Vector3;
+    $: if ($playerPositionStore) {
+        playerPosition = $playerPositionStore;
+    }
 </script>
 
 <Sky elevation={1} />
 <T.AmbientLight intensity={0.5} />
-<ContactShadows scale={10} blur={2} far={2.5} opacity={0.5} />
+{#if playerPosition}
+    <T.DirectionalLight
+        castShadow
+        position={[0, 100, 0]}
+        shadow.camera.left={playerPosition.x + 1.1}
+        shadow.camera.right={playerPosition.x - 1.1}
+        shadow.camera.top={-playerPosition.z - 1.1}
+        shadow.camera.bottom={-playerPosition.z + 1.1}
+    />
+{/if}
 <Scene />
-<SpawnPlayer position={[25, 1, 10]} />
+<SpawnPlayer position={[0, 1, 0]} />
 
 {#if socket}
     <PlayersWrapper />

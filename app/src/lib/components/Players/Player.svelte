@@ -103,7 +103,7 @@
   };
 
   function returnPlayerOnFall() {
-    if (rigidBody.translation().y < -5) {
+    if (rigidBody.translation().y < -30) {
       spawnPlayer(rigidBody);
     }
   }
