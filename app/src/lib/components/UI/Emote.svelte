@@ -22,7 +22,7 @@
 </script>
 
 {#if emoteId != -1}
-    <HTML position={[0, 7, 0]} sprite={true} occlude={true} distanceFactor={5}>
+    <HTML position={[0, 3, 0]} sprite={true} occlude={true} distanceFactor={1}>
         <img src="/img/icon/emote/emote_{emoteId}.png" class="emote" alt="emote" class:fadeIn={time > 0.3 && time < 2.9} />
     </HTML>
 {/if}

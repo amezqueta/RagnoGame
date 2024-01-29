@@ -11,12 +11,13 @@
   import { lerpAngle } from "../Utilities/Utils";
   import { useControls } from "../../hooks/useControls";
   import Emote from "../UI/Emote.svelte";
+  import Character from "./Character.svelte";
 
   let rigidBody: RRigidBody;
   const material = new MeshStandardMaterial();
-  const capsuleHeight = 1.6;
-  const capsuleRadius = 1;
-  const minGroundDistance = capsuleHeight + 0.1;
+  const capsuleHeight = 0.8;
+  const capsuleRadius = 0.2;
+  const minGroundDistance = capsuleHeight - 0.4;
   const geometry = new BoxGeometry(2, capsuleHeight * 3, 2);
   const raycastFloorDirection = new Vector3(0, -2.9, 0);
   export let ref = 2;
@@ -25,7 +26,7 @@
   const { world } = useRapier();
   const { controlAxis, controlActions } = useControls();
   const jumpForce = 10;
-  const speed = 10;
+  const speed = 5;
 
   let meshRotation: number = 0;
 
@@ -246,8 +247,9 @@
       spawnPlayer();
     }}
   >
-    <T.Mesh castShadow {geometry} {material} rotation.y={meshRotation} />
-    <TextBillboard text={nick} position={[0, 4, 0]} {color} {outlineColor} />
+    <Character rotation={meshRotation} />
+    <!-- <T.Mesh castShadow {geometry} {material} rotation.y={meshRotation} /> -->
+    <TextBillboard text={nick} position={[0, 3, 0]} {color} {outlineColor} />
     <Collider shape="capsule" args={[capsuleHeight, capsuleRadius]} bind:collider={playerCollider} />
     <Emote bind:this={emoteRef} />
   </RigidBody>

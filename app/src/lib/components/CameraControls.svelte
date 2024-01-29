@@ -61,24 +61,24 @@
   getControls().draggingSmoothTime = 0;
   getControls().maxPolarAngle = 3;
   getControls().minPolarAngle = 0.05;
-  getControls().minDistance = 50;
-  getControls().maxDistance = 150;
+  getControls().minDistance = 10;
+  getControls().maxDistance = 30;
   getControls().setFocalOffset(0, -1, 0, false);
 
   useTask((delta) => {
     zoomControl(delta);
-    cameraCollisionCalculate(delta);
+    //cameraCollisionCalculate(delta);
     const updated = getControls().update(delta);
     if (updated) invalidate();
   });
 
-  let distance = getControls().maxDistance - getControls().minDistance;
+  let distance = 25;
   let collidedDistance = distance;
   const zoomControl = (delta: number) => {
     if (!controlWheel) return;
     if ($controlWheel.delta == 0) return;
 
-    distance -= $controlWheel.delta * delta * 2;
+    distance -= $controlWheel.delta * delta * 0.5;
     distance = clamp(distance, getControls().minDistance, getControls().maxDistance);
   };
 
@@ -139,8 +139,8 @@
   };
 
   onMount(() => {
-    position = new Vector3(0, 100, 0);
-    distance = 100;
+    position = new Vector3(0, 20, 0);
+    distance = 25;
   });
 </script>
 

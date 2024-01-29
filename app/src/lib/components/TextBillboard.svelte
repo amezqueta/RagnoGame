@@ -6,8 +6,8 @@
     export let position = [0, 0, 0];
     export let color = "#FFFFFF";
     export let outlineColor = "#000000";
-    export let fontSize = 1;
-    export let outlineWidth = 0.03;
+    export let fontSize = 0.4;
+    export let outlineWidth = 0.015;
 
     let textMesh: any;
     let rotation = [0, 0, 0];

@@ -21,7 +21,7 @@
     export let nodeName: string = "Structure";
     export let textureY: string = "brick_00";
     export let textureXZ: string = "brick_00";
-    export let textureScale: number = 0.1;
+    export let textureScale: number = 0.5;
     export let tone: number[] = [0.25, 0.25, 0.25];
     let url: string = `model/environment/structure/${nodeName}.glb`;
 

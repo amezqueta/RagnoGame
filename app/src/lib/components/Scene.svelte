@@ -24,59 +24,23 @@
     // }
 </script>
 
-<Structure position={[0, 0, 0]} scale={[100, 1, 100]} />
-<T.Group position={[20, 0, 50]}>
+<Structure position={[5, 3, 0]} scale={[1, 1, 1]} />
+
+<Structure position={[20, -10, 0]} scale={[20, 10, 50]} />
+<Structure position={[-20, -10, 0]} scale={[20, 10, 50]} />
+<Structure position={[0, -10, 20]} scale={[20, 10, 50]} />
+<Structure textureY={"grass_00"} position={[0, -11, -15]} scale={[20, 10, 20]} />
+
+<T.Group position={[20, 0, 20]}>
     <Structure position={[0, 0, 0]} scale={[49, 10, 9]} />
     <Structure textureY={"wood_00"} textureXZ={"wood_00"} tone={[0, 0, 0]} position={[0, 9.85, 0]} scale={[50, 5.1, 10]} />
 </T.Group>
-<AutoColliders shape={"cuboid"}>
-    <T.Mesh
-        receiveShadow
-        castShadow
-        position.x={5}
-        position.y={1.275}
-        geometry={new BoxGeometry(2, 50, 2)}
-        material={new MeshStandardMaterial({
-            transparent: true,
-            opacity: 0.5,
-            color: 0x333333,
-        })}
-    />
-</AutoColliders>
-<AutoColliders shape={"cuboid"}>
-    <T.Mesh
-        receiveShadow
-        castShadow
-        position.x={-4}
-        position.y={1.275}
-        rotation.x={90}
-        geometry={new BoxGeometry(2, 50, 2)}
-        material={new MeshStandardMaterial({
-            transparent: true,
-            opacity: 0.5,
-            color: 0x333333,
-        })}
-    />
-</AutoColliders>
-<AutoColliders shape={"cuboid"}>
-    <T.Mesh
-        receiveShadow
-        castShadow
-        position.x={-6}
-        position.y={1.275}
-        rotation.x={Math.PI * 0.75}
-        geometry={new BoxGeometry(2, 50, 2)}
-        material={new MeshStandardMaterial({
-            color: 0x333333,
-        })}
-    />
-</AutoColliders>
 
 <MovingPlatform position1={[11, 2, 42]} position2={[11, 15, 42]} />
 
-<T.Group position={[20, 0, 42]}>
-    <Prop nodeName={"Bush_00"} position={[0, 1, 0]} scale={4} />
-    <Prop nodeName={"Bush_00"} position={[10, 1, 0]} scale={4} />
-    <Prop nodeName={"Bush_00"} position={[20, 1, 0]} scale={4} />
+<T.Group position={[20, 0, 14]}>
+    <Prop nodeName={"Bush_00"} position={[0, 0.2, 0]} scale={1} />
+    <Prop nodeName={"Bush_00"} position={[3, 0.2, 0]} scale={1} />
+    <Prop nodeName={"Bush_00"} position={[6, 0.2, 0]} scale={1} />
 </T.Group>
-<Item position={[18, 1, 22]} />
+<Item position={[10, 1, 5]} />
