@@ -10,7 +10,7 @@
     const distance = 4;
     let active = true;
 
-    const geometry = new BoxGeometry(1, 1, 1);
+    const geometry = new BoxGeometry(0.3, 0.3, 0.3);
 
     const onClickMesh = () => {
         active = false;

@@ -25,7 +25,7 @@
   const { camera } = useThrelte();
   const { world } = useRapier();
   const { controlAxis, controlActions } = useControls();
-  const jumpForce = 10;
+  const jumpForce = 7;
   const speed = 5;
 
   let meshRotation: number = 0;
@@ -247,7 +247,7 @@
       spawnPlayer();
     }}
   >
-    <Character rotation={meshRotation} />
+    <Character rotation={meshRotation} velocity={playerVelocity.lengthSq()} />
     <!-- <T.Mesh castShadow {geometry} {material} rotation.y={meshRotation} /> -->
     <TextBillboard text={nick} position={[0, 3, 0]} {color} {outlineColor} />
     <Collider shape="capsule" args={[capsuleHeight, capsuleRadius]} bind:collider={playerCollider} />
