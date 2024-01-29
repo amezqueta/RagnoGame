@@ -41,11 +41,11 @@
 
         <T.Mesh
             receiveShadow
-            castShadow
             geometry={new BoxGeometry(6, 1, 6)}
             material={new MeshStandardMaterial({
                 color: "#00ff00",
             })}
         />
+        <slot />
     </RigidBody>
 {/if}

@@ -73,7 +73,6 @@
 </AutoColliders>
 
 <MovingPlatform position1={[11, 2, 42]} position2={[11, 15, 42]} />
-<MovingPlatform position1={[6, 1, 3]} position2={[10, 1, 3]} />
 
 <T.Group position={[20, 0, 42]}>
     <Prop nodeName={"Bush_00"} position={[0, 1, 0]} scale={4} />

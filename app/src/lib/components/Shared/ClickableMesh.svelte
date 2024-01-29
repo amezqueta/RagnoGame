@@ -43,7 +43,6 @@
     }}
     on:pointermove={(e) => (hover = distanceIsEnough())}
     on:pointerout={(e) => (hover = false)}
-    castShadow
     {position}
     rotation.y={rotation}
     {geometry}

@@ -43,10 +43,10 @@
     <T.DirectionalLight
         castShadow
         position={[0, 100, 0]}
-        shadow.camera.left={playerPosition.x + 1.1}
-        shadow.camera.right={playerPosition.x - 1.1}
-        shadow.camera.top={-playerPosition.z - 1.1}
-        shadow.camera.bottom={-playerPosition.z + 1.1}
+        shadow.camera.left={playerPosition.x + 2}
+        shadow.camera.right={playerPosition.x - 2}
+        shadow.camera.top={-playerPosition.z - 2}
+        shadow.camera.bottom={-playerPosition.z + 2}
     />
 {/if}
 <Scene />
