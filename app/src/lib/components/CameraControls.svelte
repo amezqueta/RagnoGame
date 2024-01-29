@@ -67,7 +67,7 @@
 
   useTask((delta) => {
     zoomControl(delta);
-    //cameraCollisionCalculate(delta);
+    cameraCollisionCalculate(delta);
     const updated = getControls().update(delta);
     if (updated) invalidate();
   });
