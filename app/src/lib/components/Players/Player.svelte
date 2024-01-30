@@ -109,11 +109,12 @@
     }
   }
 
+  let forwardCamera: Vector3 = new Vector3();
   const updateMeshRotation = () => {
     const playerVelocityXZ = new Vector3(playerVelocity.x, 0, playerVelocity.z);
     if (playerVelocityXZ.lengthSq() < 1) return;
     if (cameraControlPressed) {
-      let forwardCamera: Vector3 = getForwardCamera();
+      forwardCamera = getForwardCamera();
       meshRotation = lerpAngle(meshRotation, Math.atan2(forwardCamera.x, forwardCamera.z), 0.5);
     } else {
       meshRotation = lerpAngle(meshRotation, Math.atan2(playerVelocityXZ.x, playerVelocityXZ.z), 0.2);
@@ -247,7 +248,7 @@
       spawnPlayer();
     }}
   >
-    <Character rotation={meshRotation} velocity={playerVelocity.lengthSq()} />
+    <Character rotation={meshRotation} velocity={playerVelocity.lengthSq()} sideWalk={cameraControlPressed} rightControl={$controlAxis.x} />
     <!-- <T.Mesh castShadow {geometry} {material} rotation.y={meshRotation} /> -->
     <TextBillboard text={nick} position={[0, 3, 0]} {color} {outlineColor} />
     <Collider shape="capsule" args={[capsuleHeight, capsuleRadius]} bind:collider={playerCollider} />
