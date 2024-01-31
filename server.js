@@ -41,6 +41,11 @@ let showAmountOfMsg = false;
 
 io.on('connection', (socket) => {
 
+    socket.on('joinRoom', (room) => {
+        console.log("Joined room " + room);
+        socket.join(room);
+    });
+
     socket.on("initiate-ping", () => {
         socket.emit("initiate-pong", performance.now());
     });
@@ -137,6 +142,8 @@ const resetMessageCounter = () => {
     });
     if (showAmountOfMsg)
         console.log(`Amount of messages in the last second: ${msgAmount}`);
+    io.to('echarts').emit('msgAmount', msgAmount);
+    io.to('echarts').emit('positions', serverPlayers.map(x=>x.position));
     msgAmount = 0;
 };
 
