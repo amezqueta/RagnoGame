@@ -1,43 +1,42 @@
 <script lang="ts">
-    import { GLTF, useGltfAnimations } from "@threlte/extras";
-    import { useControls } from "../../hooks/useControls";
-    import { VectorKeyframeTrack, Vector3 } from "three";
+    import { Group } from "three";
+    import { T, forwardEventHandlers } from "@threlte/core";
+    import { useGltf, useGltfAnimations, useSuspense } from "@threlte/extras";
+    import * as SkeletonUtils from "three/examples/jsm/utils/SkeletonUtils.js";
 
-    export let rotation: number = 0;
-    export let velocity: number = 0;
-    export let sideWalk = false;
-    export let rightControl: number = 0;
+    export let ref = new Group();
+    export let currentActionKey: ActionName = "Run";
 
-    const { gltf, actions } = useGltfAnimations();
+    const suspend = useSuspense();
+    let action: ActionName = "Run";
+    type ActionName = "Run" | "Idle" | "Jump";
+    const gltf = suspend(useGltf("/models/char.glb", { useDraco: "/" }));
 
-    $: if ($gltf) {
-        $actions["Idle"]?.play();
-        $actions["Run"]?.play();
-        $actions["Run"]?.setEffectiveWeight(0);
-        $actions["StrifeRight"]?.play();
-        $actions["StrifeRight"]?.setEffectiveWeight(0);
-        $actions["StrifeLeft"]?.play();
-        $actions["StrifeLeft"]?.setEffectiveWeight(0);
-    }
+    export const { actions, mixer } = useGltfAnimations<ActionName>(gltf, ref);
+    const component = forwardEventHandlers();
 
-    $: if (velocity) {
-        if (!sideWalk) {
-            $actions["Run"]?.setEffectiveWeight(velocity / 25);
-            $actions["Idle"]?.setEffectiveWeight(0);
-            $actions["StrifeRight"]?.setEffectiveWeight(0);
-            $actions["StrifeLeft"]?.setEffectiveWeight(0);
-        } else {
-            $actions["Run"]?.setEffectiveWeight(0);
-            $actions["Idle"]?.setEffectiveWeight(0);
-            if (rightControl == 1) {
-                $actions["StrifeRight"]?.setEffectiveWeight(velocity / 25);
-                $actions["StrifeLeft"]?.setEffectiveWeight(0);
-            } else if (rightControl == -1) {
-                $actions["StrifeLeft"]?.setEffectiveWeight(velocity / 25);
-                $actions["StrifeRight"]?.setEffectiveWeight(0);
-            }
+    $: $actions[action]?.play();
+    $: $actions[currentActionKey] && transitionTo(currentActionKey, 0.2);
+    function transitionTo(nextActionKey: ActionName, duration = 1) {
+        const currentAction = $actions[action];
+        const nextAction = $actions[nextActionKey];
+        if (!nextAction || currentAction === nextAction) return;
+        nextAction.enabled = true;
+        if (currentAction) {
+            currentAction.crossFadeTo(nextAction, duration, true);
         }
+        nextAction.play();
+        action = nextActionKey;
     }
 </script>
 
-<GLTF castShadow position.y={-1} rotation.y={rotation} bind:gltf={$gltf} url="model/character/char.glb" />
+<T is={ref} dispose={false} {...$$restProps} bind:this={$component}>
+    {#await gltf}
+        <slot name="fallback" />
+    {:then gltf}
+        <T is={SkeletonUtils.clone(gltf.scene)} name="Scene" />
+    {:catch error}
+        <slot name="error" {error} />
+    {/await}
+    <slot {ref} />
+</T>

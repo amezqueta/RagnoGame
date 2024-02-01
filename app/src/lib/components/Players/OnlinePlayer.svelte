@@ -9,6 +9,7 @@
     import { socketStore } from "../stores";
     import Emote from "../UI/Emote.svelte";
     import ClickableMesh from "../Shared/ClickableMesh.svelte";
+    import Character from "$lib/components/Players/Character.svelte";
 
     const material = new MeshStandardMaterial();
     material.emissive.set("white");
@@ -70,8 +71,9 @@
     };
 </script>
 
-<ClickableMesh position={[position.x, position.y, position.z]} {geometry} {material} {onClickMesh} rotation={meshRotation} distance={8} />
+<!-- <ClickableMesh position={[position.x, position.y, position.z]} {geometry} {material} {onClickMesh} rotation={meshRotation} distance={8} /> -->
 <T.Group {position}>
+    <Character />
     <TextBillboard text={nick} position={[0, 4, 0]} {color} />
     <Collider bind:collider shape="capsule" args={[0.3, 1]} />
     <Emote bind:this={emoteRef} />

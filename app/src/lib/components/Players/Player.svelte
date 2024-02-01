@@ -82,10 +82,14 @@
     return moveDirection;
   }
 
+  let jumpStarted = (): boolean => {
+    return $controlActions.jump && isGrounded;
+  };
+
   const applyVerticalVelocity = (deltaTime: number) => {
     if (isGrounded) playerVerticalVelocity = 0;
     else playerVerticalVelocity -= 20 * deltaTime;
-    if ($controlActions.jump && isGrounded) {
+    if (jumpStarted()) {
       playerVerticalVelocity += jumpForce;
     }
     playerVerticalVelocity = clamp(playerVerticalVelocity, -jumpForce, jumpForce);
@@ -248,7 +252,7 @@
       spawnPlayer();
     }}
   >
-    <Character rotation={meshRotation} velocity={playerVelocity.lengthSq()} sideWalk={cameraControlPressed} rightControl={$controlAxis.x} />
+    <Character />
     <!-- <T.Mesh castShadow {geometry} {material} rotation.y={meshRotation} /> -->
     <TextBillboard text={nick} position={[0, 3, 0]} {color} {outlineColor} />
     <Collider shape="capsule" args={[capsuleHeight, capsuleRadius]} bind:collider={playerCollider} />
