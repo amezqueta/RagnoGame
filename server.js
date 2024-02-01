@@ -51,15 +51,17 @@ io.on('connection', (socket) => {
     });
 
     socket.on('onboarding', (data) => {
+        console.log(data.spectator);
         let nick = data.nick || socket.id;
         let privileges = nick.toLowerCase() === "amezcuetara" ? 10 : 0;
         const player = {
             userId: socket.id,
             position: [0, 10, 0],
+            rotation: 0,
             color: '#' + Math.floor(Math.random() * 16777215).toString(16),
             nick: nick,
             privileges: privileges,
-            spectator: data.spectator
+            spectator: data.spectator ? true : false
         };
 
         serverPlayers.push(player);
@@ -143,7 +145,7 @@ const resetMessageCounter = () => {
     if (showAmountOfMsg)
         console.log(`Amount of messages in the last second: ${msgAmount}`);
     io.to('echarts').emit('msgAmount', msgAmount);
-    io.to('echarts').emit('positions', serverPlayers.map(x=>x.position));
+    io.to('echarts').emit('positions', serverPlayers.map(x => x.position));
     msgAmount = 0;
 };
 

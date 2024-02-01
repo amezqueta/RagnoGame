@@ -12,6 +12,7 @@
   import { useControls } from "../../hooks/useControls";
   import Emote from "../UI/Emote.svelte";
   import Character from "./Character.svelte";
+  import { writable } from "svelte/store";
 
   let rigidBody: RRigidBody;
   const material = new MeshStandardMaterial();
@@ -28,7 +29,7 @@
   const jumpForce = 7;
   const speed = 5;
 
-  let meshRotation: number = 0;
+  let rotation: number = 0;
 
   let playerCollider: RCollider;
 
@@ -47,7 +48,7 @@
   let positionCheck: Vector3 = new Vector3();
   let deltaPosition: Vector3 = new Vector3();
   let cameraControlPressed = false;
-  let isGrounded: boolean = false;
+  let isGrounded = writable(false);
 
   onDestroy(() => {
     console.log("Player destroyed (" + userId + ")");
@@ -82,14 +83,13 @@
     return moveDirection;
   }
 
-  let jumpStarted = (): boolean => {
-    return $controlActions.jump && isGrounded;
-  };
+  let jumpStarted = false;
+  $: jumpStarted = $controlActions.jump && $isGrounded;
 
   const applyVerticalVelocity = (deltaTime: number) => {
-    if (isGrounded) playerVerticalVelocity = 0;
+    if ($isGrounded) playerVerticalVelocity = 0;
     else playerVerticalVelocity -= 20 * deltaTime;
-    if (jumpStarted()) {
+    if (jumpStarted) {
       playerVerticalVelocity += jumpForce;
     }
     playerVerticalVelocity = clamp(playerVerticalVelocity, -jumpForce, jumpForce);
@@ -119,11 +119,11 @@
     if (playerVelocityXZ.lengthSq() < 1) return;
     if (cameraControlPressed) {
       forwardCamera = getForwardCamera();
-      meshRotation = lerpAngle(meshRotation, Math.atan2(forwardCamera.x, forwardCamera.z), 0.5);
+      rotation = lerpAngle(rotation, Math.atan2(forwardCamera.x, forwardCamera.z), 0.5);
     } else {
-      meshRotation = lerpAngle(meshRotation, Math.atan2(playerVelocityXZ.x, playerVelocityXZ.z), 0.2);
+      rotation = lerpAngle(rotation, Math.atan2(playerVelocityXZ.x, playerVelocityXZ.z), 0.2);
     }
-    socket.emit("player-rotate", meshRotation);
+    socket.emit("player-rotate", rotation);
   };
 
   /* createCharacterController is not working properly
@@ -143,7 +143,7 @@
     //Raycast to the floor. @todo If the player is standing on an edge, isGrounded can be negative
     const ray: Ray = new Ray(rigidBody.translation(), raycastFloorDirection);
     const raycastResult = world.castRay(ray, 1, false);
-    isGrounded = raycastResult ? raycastResult.toi < minGroundDistance : false;
+    isGrounded.set(raycastResult ? raycastResult.toi < minGroundDistance : false);
     updateMeshRotation();
 
     checkSurfaceVelocity(raycastResult, deltaTime);
@@ -173,7 +173,7 @@
   let surfaceRigidbodyInfo: any;
   let prevSurfacePosition: Vector3 | null;
   const checkSurfaceVelocity = (raycastResult: RayColliderToi | null, deltaTime: number) => {
-    if (!isGrounded || raycastResult == null) {
+    if (!$isGrounded || raycastResult == null) {
       //No surface detected
       surfaceRigidbodyInfo = null;
       prevSurfacePosition = null;
@@ -252,8 +252,7 @@
       spawnPlayer();
     }}
   >
-    <!-- <Character rotation={meshRotation} velocity={playerVelocity} {isGrounded} {jumpStarted} /> -->
-    <T.Mesh castShadow {geometry} {material} rotation.y={meshRotation} />
+    <Character position.y={-1} rotation.y={rotation} velocity={playerVelocity} {isGrounded} {jumpStarted} />
     <TextBillboard text={nick} position={[0, 3, 0]} {color} {outlineColor} />
     <Collider shape="capsule" args={[capsuleHeight, capsuleRadius]} bind:collider={playerCollider} />
     <Emote bind:this={emoteRef} />

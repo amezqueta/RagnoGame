@@ -25,7 +25,6 @@
     }
 
     const updatePlayersList = (serverPlayers: any[]) => {
-        console.log(serverPlayers);
         scenePlayers = serverPlayers;
     };
 
