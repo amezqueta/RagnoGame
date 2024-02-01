@@ -252,8 +252,8 @@
       spawnPlayer();
     }}
   >
-    <Character />
-    <!-- <T.Mesh castShadow {geometry} {material} rotation.y={meshRotation} /> -->
+    <!-- <Character rotation={meshRotation} velocity={playerVelocity} {isGrounded} {jumpStarted} /> -->
+    <T.Mesh castShadow {geometry} {material} rotation.y={meshRotation} />
     <TextBillboard text={nick} position={[0, 3, 0]} {color} {outlineColor} />
     <Collider shape="capsule" args={[capsuleHeight, capsuleRadius]} bind:collider={playerCollider} />
     <Emote bind:this={emoteRef} />

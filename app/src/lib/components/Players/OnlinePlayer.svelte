@@ -15,37 +15,22 @@
     material.emissive.set("white");
     const capsuleHeight = 1.6;
     const geometry = new BoxGeometry(2, capsuleHeight * 3, 2);
-    let meshRotation: number = 0;
 
     export let userId: string = "";
     export let position: Vector3 = new Vector3();
     export let color: string = "#FF0000";
     export let nick: string = userId;
+    export let rotation: number = 0;
 
-    export function SetPosition(newPos: any) {
-        position = new Vector3(newPos.x, newPos.y, newPos.z);
-        collider.setTranslation(newPos);
-    }
-
-    export function SetRotation(newRot: number) {
-        meshRotation = newRot;
-    }
-
-    export function SetColor(newColor: string) {
-        color = newColor;
-    }
     $: {
         material.color.set(color);
     }
 
-    export function SetNick(newNick: string) {
-        nick = newNick;
-    }
-
+    export let playerEmote: number | null = -1;
     let emoteRef: Emote;
-    export const playEmote = (emoteId: number) => {
-        emoteRef.playEmote(emoteId);
-    };
+    $: if (emoteRef && playerEmote) {
+        emoteRef.playEmote(playerEmote);
+    }
 
     onMount(() => {
         console.log("Online Player mounted");
@@ -71,9 +56,9 @@
     };
 </script>
 
-<!-- <ClickableMesh position={[position.x, position.y, position.z]} {geometry} {material} {onClickMesh} rotation={meshRotation} distance={8} /> -->
-<T.Group {position}>
-    <Character />
+<ClickableMesh position={[position.x, position.y, position.z]} {geometry} {material} {onClickMesh} {rotation} distance={8} />
+<T.Group position={[position.x, position.y, position.z]} rotation.y={rotation}>
+    <!-- <Character /> -->
     <TextBillboard text={nick} position={[0, 4, 0]} {color} />
     <Collider bind:collider shape="capsule" args={[0.3, 1]} />
     <Emote bind:this={emoteRef} />
