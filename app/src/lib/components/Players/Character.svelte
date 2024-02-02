@@ -6,7 +6,10 @@
     import type { Writable } from "svelte/store";
     import type { Action } from "svelte/action";
     import {clamp} from "svelte-tweakpane-ui/Utils.js";
+    import {onMount} from "svelte";
+    import { playerDataStore } from "../stores";
 
+    export let socket: any;
     export let velocity: Vector3 = new Vector3(0, 0, 0);
     export let isGrounded: Writable<boolean>;
     export let jumpStarted = false;
@@ -39,6 +42,7 @@
     $: if ($gltf) {
         configureAnimationOnce($actions["JumpStart"]);
         configureAnimationOnce($actions["JumpEnd"]);
+        idleTask.start();
     }
 
     const configureAnimationOnce = (anim: AnimationAction | undefined) => {
@@ -92,7 +96,7 @@
             $actions["JumpLoop"]?.setDuration(loopDuration);
             return;
         }
-    });
+    }, { autoStart: false });
 
     //RUN
     const { task: runTask } = useTask(() => {}, { autoStart: false });
@@ -121,7 +125,16 @@
         currentActionKey = anim;
         savedFadeOutTime = fadeOutTime;
         savedDelay = _savedDelay;
+        socket?.emit("playAnimation", currentActionKey, fadeInTime, savedFadeOutTime, savedDelay);
     };
+
+    if(socket) {
+        socket.on("playAnimation", (_userId: string, actionKey: string, fadeInTime: number, fadeOutTime: number, delay: number) => {
+            if(!$playerDataStore) return;
+            if(_userId != $playerDataStore.userId) return;
+            playAnimation($actions[actionKey], fadeInTime, fadeOutTime, delay);
+        });
+    }
 
     const stopAnimation = (anim: ActionName, fadeOutTime: number = 0.2) => {
         $actions[anim]?.fadeOut(fadeOutTime);

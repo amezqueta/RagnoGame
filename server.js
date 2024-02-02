@@ -2,7 +2,6 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const cors = require('cors');
-const path = require('path');
 const readline = require('readline');
 
 const app = express();
@@ -51,7 +50,6 @@ io.on('connection', (socket) => {
     });
 
     socket.on('onboarding', (data) => {
-        console.log(data.spectator);
         let nick = data.nick || socket.id;
         let privileges = nick.toLowerCase() === "amezcuetara" ? 10 : 0;
         const player = {
@@ -111,6 +109,11 @@ io.on('connection', (socket) => {
             getPlayer(socket.id).color = color;
             socket.broadcast.emit('user-color', socket.id, color);
             msgAmount++;
+        });
+
+        socket.on('playAnimation', (actionKey, fadeInTime, fadeOutTime, delay) => {
+            socket.broadcast.emit('playAnimation', socket.id, actionKey, fadeInTime, fadeOutTime, delay);
+            console.log(actionKey+" "+ fadeInTime+" "+ fadeOutTime+" "+ delay);
         });
 
         socket.on('disconnect', (reason) => {

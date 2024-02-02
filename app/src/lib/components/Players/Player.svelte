@@ -252,7 +252,7 @@
       spawnPlayer();
     }}
   >
-    <Character position.y={-1} rotation.y={rotation} velocity={playerVelocity} {isGrounded} {jumpStarted} />
+    <Character position.y={-1} rotation.y={rotation} velocity={playerVelocity} {isGrounded} {jumpStarted} {socket} />
     <TextBillboard text={nick} position={[0, 3, 0]} {color} {outlineColor} />
     <Collider shape="capsule" args={[capsuleHeight, capsuleRadius]} bind:collider={playerCollider} />
     <Emote bind:this={emoteRef} />

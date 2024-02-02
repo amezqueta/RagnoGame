@@ -10,6 +10,8 @@
     import Emote from "../UI/Emote.svelte";
     import ClickableMesh from "../Shared/ClickableMesh.svelte";
     import Character from "$lib/components/Players/Character.svelte";
+    import {writable} from "svelte/store";
+    import OnlineCharacter from "$lib/components/Players/OnlineCharacter.svelte";
 
     const material = new MeshStandardMaterial();
     material.emissive.set("white");
@@ -66,6 +68,7 @@
 </script>
 <ClickableMesh position={[position.x, position.y, position.z]} {geometry} {material} {onClickMesh} {onMouseOver} {onMouseOut} {rotation} distance={8} visible={false} />
 <T.Group position={[position.x, position.y, position.z]} rotation.y={rotation}>
+    <OnlineCharacter position={[0,-1,0]} isGrounded={writable(true)} {socket} {userId} />
     <TextBillboard text={nick} position={[0, 4, 0]} {color} />
     <Collider bind:collider shape="capsule" args={[0.3, 1]} />
     <Emote bind:this={emoteRef} />
