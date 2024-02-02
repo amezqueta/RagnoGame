@@ -1,10 +1,11 @@
 <script lang="ts">
-    import { Group, Vector3, LoopOnce } from "three";
+    import {Group, Vector3, LoopOnce, AnimationAction} from "three";
     import { T, forwardEventHandlers, useTask } from "@threlte/core";
     import { useGltf, useGltfAnimations, useSuspense } from "@threlte/extras";
     import * as SkeletonUtils from "three/examples/jsm/utils/SkeletonUtils.js";
     import type { Writable } from "svelte/store";
     import type { Action } from "svelte/action";
+    import {clamp} from "svelte-tweakpane-ui/Utils.js";
 
     export let velocity: Vector3 = new Vector3(0, 0, 0);
     export let isGrounded: Writable<boolean>;
@@ -15,7 +16,7 @@
 
     const suspend = useSuspense();
     let action: ActionName = "Run";
-    type ActionName = "Run" | "Idle" | "JumpStart" | "JumpLoop" | "JumpEnd";
+    type ActionName = "Run" | "Idle" | "JumpStart" | "JumpLoop" | "JumpEnd" | "StrifeRight" | "StrifeLeft";
     const gltf = suspend(useGltf("/model/character/char.glb", { useDraco: "/" }));
 
     export const { actions, mixer } = useGltfAnimations<ActionName>(gltf, ref);
@@ -36,11 +37,14 @@
     // }
 
     $: if ($gltf) {
-        const ac = $actions["JumpStart"]
-        if (ac) {
-            ac.setLoop(LoopOnce, 1);
-            ac.clampWhenFinished = true;
-        }
+        configureAnimationOnce($actions["JumpStart"]);
+        configureAnimationOnce($actions["JumpEnd"]);
+    }
+
+    const configureAnimationOnce = (anim: AnimationAction | undefined) => {
+        if(!anim) return;
+        anim.clampWhenFinished = true;
+        anim.setLoop(LoopOnce, 1);
     }
 
     let yVel: number = 0;
@@ -73,27 +77,50 @@
             jumpTask.stop();
             idleTask.start();
             jumpTaskTime = 0;
+            playAnimation("JumpEnd", 0.0, 0.2, 0.1);
         }
 
-        jumpTaskTime += deltaTime;
-
         if (jumpStarted) {
-            playAnimation("JumpStart", 0.0);
+            playAnimation("JumpStart", 0.2);
+            return;
+        }
+
+        jumpTaskTime+=deltaTime;
+        if(jumpTaskTime>0.4){
+            playAnimation("JumpLoop");
+            let loopDuration = clamp(1/jumpTaskTime,0.5,1)
+            $actions["JumpLoop"]?.setDuration(loopDuration);
+            return;
         }
     });
 
     //RUN
     const { task: runTask } = useTask(() => {}, { autoStart: false });
 
-    useTask(() => {
+    let deltaTime: number = 0;
+    useTask((delta) => {
         stopFadeOutAnimations();
+        deltaTime = delta;
     });
 
-    const playAnimation = (anim: ActionName, fadeInTime: number = 0.2) => {
-        $actions[currentActionKey]?.fadeOut(0.2);
-        currentActionKey = anim;
+    let savedFadeOutTime: number = 0;
+    let savedDelay: number = 0;
+    const playAnimation = (anim: ActionName, fadeInTime: number = 0.2, fadeOutTime: number = 0.2, _savedDelay: number = 0.0) => {
+        if(savedDelay>0){
+            savedDelay-= deltaTime;
+            return;
+        }
+
+        if(currentActionKey === anim)
+            return;
+
+        $actions[currentActionKey]?.fadeOut(savedFadeOutTime);
         $actions[anim]?.play();
-        $actions[anim]?.fadeIn(0.2);
+        $actions[anim]?.fadeIn(fadeInTime);
+
+        currentActionKey = anim;
+        savedFadeOutTime = fadeOutTime;
+        savedDelay = _savedDelay;
     };
 
     const stopAnimation = (anim: ActionName, fadeOutTime: number = 0.2) => {
@@ -102,8 +129,9 @@
 
     const stopFadeOutAnimations = () => {
         (Object.keys($actions) as ActionName[]).forEach((anim) => {
-            if ($actions[anim].getEffectiveWeight() <= 0 || !$actions[anim]?.isRunning()) {
+            if ($actions[anim].getEffectiveWeight() <= 0) {
                 $actions[anim]?.stop();
+                $actions[anim]?.setEffectiveWeight(1);
             }
         });
     };

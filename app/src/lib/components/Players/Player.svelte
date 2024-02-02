@@ -26,7 +26,7 @@
   const { camera } = useThrelte();
   const { world } = useRapier();
   const { controlAxis, controlActions } = useControls();
-  const jumpForce = 7;
+  const jumpForce = 10;
   const speed = 5;
 
   let rotation: number = 0;
