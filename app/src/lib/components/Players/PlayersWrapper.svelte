@@ -5,13 +5,26 @@
     import { isSpectatorStore, playerDataStore, playerPositionStore, serverPlayersStore, socketStore } from "../stores";
     import CameraControlsComponent from "../CameraControls.svelte";
     import { Vector3 } from "three";
+    import OnlineCharacter from "./OnlineCharacter.svelte";
+    import { writable, type Writable } from "svelte/store";
 
     let socket: any;
 
     let playerRef: any;
     let currentPlayerData: any = null;
 
-    let scenePlayers: any[] = [];
+    type ScenePlayer = {
+        userId: string;
+        position: Vector3;
+        rotation: number;
+        color: string;
+        nick: string;
+        spectator: boolean;
+        playerEmote: number;
+        playAnimation: any;
+    };
+
+    let scenePlayers: ScenePlayer[] = [];
 
     let viewingPlayerIndex: number = 0;
 
@@ -70,6 +83,13 @@
                 if (user) user.playerEmote = emoteId;
             }
         });
+
+        socket.on("playAnimation", (userId: string, actionKey: string, fadeInTime: number, fadeOutTime: number, delay: number) => {
+            const user = findPlayerById(userId);
+            if (user) {
+                user.playAnimation = { actionKey: actionKey, fadeInTime: fadeInTime, fadeOutTime: fadeOutTime, delay: delay };
+            }
+        });
     }
 
     const onMouseDown = (e: MouseEvent) => {
@@ -103,7 +123,7 @@
 {#if scenePlayers}
     {#each scenePlayers as p}
         {#if p.userId !== currentPlayerData.userId && p.spectator === false}
-            <OnlinePlayer position={p.position} rotation={p.rotation} userId={p.userId} color={p.color} nick={p.nick} playerEmote={p.playerEmote} />
+            <OnlinePlayer position={p.position} rotation={p.rotation} userId={p.userId} color={p.color} nick={p.nick} playerEmote={p.playerEmote} animation={p.playAnimation} />
         {/if}
     {/each}
 {/if}
