@@ -113,7 +113,6 @@ io.on('connection', (socket) => {
 
         socket.on('playAnimation', (actionKey, fadeInTime, fadeOutTime, delay) => {
             socket.broadcast.emit('playAnimation', socket.id, actionKey, fadeInTime, fadeOutTime, delay);
-            console.log(actionKey+" "+ fadeInTime+" "+ fadeOutTime+" "+ delay);
         });
 
         socket.on('disconnect', (reason) => {

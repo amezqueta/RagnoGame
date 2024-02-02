@@ -2,7 +2,7 @@
   import { type Collider as RCollider, type RigidBody as RRigidBody, Ray, RayColliderToi } from "@dimforge/rapier3d-compat";
   import { onMount } from "svelte";
   import { T, useTask, useThrelte } from "@threlte/core";
-  import { BoxGeometry, MeshStandardMaterial, Vector3, ArrowHelper, VectorKeyframeTrack } from "three";
+  import { BoxGeometry, MeshStandardMaterial, Vector3 } from "three";
   import { onDestroy } from "svelte";
   import { RigidBody, Collider, useRapier, type ContactEvent } from "@threlte/rapier";
   import { cameraControlPressedStore, playerColorStore, playerRigidbodyStore, privilegesStore, playerPositionStore, playerVelocityStore, playerSpawnsStore } from "../stores";

@@ -40,14 +40,7 @@
 <Sky elevation={1} />
 <T.AmbientLight intensity={0.5} />
 {#if playerPosition}
-    <T.DirectionalLight
-        castShadow
-        position={[0, 100, 0]}
-        shadow.camera.left={playerPosition.x + 2}
-        shadow.camera.right={playerPosition.x - 2}
-        shadow.camera.top={-playerPosition.z - 2}
-        shadow.camera.bottom={-playerPosition.z + 2}
-    />
+    <T.DirectionalLight castShadow position={[0, 100, 0]} shadow.camera.left={playerPosition.x + 2} shadow.camera.right={playerPosition.x - 2} shadow.camera.top={-playerPosition.z - 2} shadow.camera.bottom={-playerPosition.z + 2} />
 {/if}
 <Scene />
 <SpawnPlayer position={[0, 1, 0]} />

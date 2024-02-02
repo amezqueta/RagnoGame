@@ -4,9 +4,7 @@
     import { useGltf, useGltfAnimations, useSuspense } from "@threlte/extras";
     import * as SkeletonUtils from "three/examples/jsm/utils/SkeletonUtils.js";
     import type { Writable } from "svelte/store";
-    import type { Action } from "svelte/action";
     import { clamp } from "svelte-tweakpane-ui/Utils.js";
-    import { onMount } from "svelte";
     import { playerDataStore } from "../stores";
 
     export let socket: any;

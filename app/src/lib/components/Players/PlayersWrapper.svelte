@@ -1,12 +1,10 @@
 <script lang="ts">
     import { T } from "@threlte/core";
     import Player from "$lib/components/Players/Player.svelte";
-    import OnlinePlayer from "$lib/components/Players/OnlinePlayer.svelte";
+    import PlayerOnline from "$lib/components/Players/PlayerOnline.svelte";
     import { isSpectatorStore, playerDataStore, playerPositionStore, serverPlayersStore, socketStore } from "../stores";
     import CameraControlsComponent from "../CameraControls.svelte";
     import { Vector3 } from "three";
-    import OnlineCharacter from "./OnlineCharacter.svelte";
-    import { writable, type Writable } from "svelte/store";
 
     let socket: any;
 
@@ -123,7 +121,7 @@
 {#if scenePlayers}
     {#each scenePlayers as p}
         {#if p.userId !== currentPlayerData.userId && p.spectator === false}
-            <OnlinePlayer position={p.position} rotation={p.rotation} userId={p.userId} color={p.color} nick={p.nick} playerEmote={p.playerEmote} animation={p.playAnimation} />
+            <PlayerOnline position={p.position} rotation={p.rotation} userId={p.userId} color={p.color} nick={p.nick} playerEmote={p.playerEmote} animation={p.playAnimation} />
         {/if}
     {/each}
 {/if}
