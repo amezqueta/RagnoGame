@@ -46,6 +46,7 @@
     $: if (socketStore) socket = $socketStore;
 
     const onClickMesh = (mainPlayerPosition: Vector3) => {
+        console.log("clickmesh")
         let direction = mainPlayerPosition.clone().sub(position);
         direction.negate();
         direction.y = 0;
@@ -54,8 +55,16 @@
         direction.y = 20;
         socket.emit("player-pushed", userId, direction);
     };
-</script>
 
+    const onMouseOver = () => {
+        console.log("mouseOver");
+    };
+
+    const onMouseOut = () => {
+        console.log("mouseOut");
+    };
+</script>
+<ClickableMesh position={[position.x, position.y, position.z]} {geometry} {material} {onClickMesh} {onMouseOver} {onMouseOut} {rotation} distance={8} visible={false} />
 <T.Group position={[position.x, position.y, position.z]} rotation.y={rotation}>
     <TextBillboard text={nick} position={[0, 4, 0]} {color} />
     <Collider bind:collider shape="capsule" args={[0.3, 1]} />

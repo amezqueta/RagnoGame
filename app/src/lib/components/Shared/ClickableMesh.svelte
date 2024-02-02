@@ -9,10 +9,13 @@
     export let position: number[] = [0, 0, 0];
     let v3 = new Vector3(position[0], position[1], position[2]);
 
+    export let visible = true;
     export let rotation: number = 0;
     export let material: any;
     export let geometry: any;
     export let onClickMesh: (mainPlayerPosition: Vector3) => void;
+    export let onMouseOver: (mainPlayerPosition: Vector3) => void;
+    export let onMouseOut: () => void;
     export let distance: number = 5;
     material.emissive.set("white");
 
@@ -41,10 +44,17 @@
     on:click={() => {
         if (distanceIsEnough()) onClickMesh(mainPlayerPosition);
     }}
-    on:pointermove={(e) => (hover = distanceIsEnough())}
-    on:pointerout={(e) => (hover = false)}
+    on:pointermove={(e) => {
+        (hover = distanceIsEnough());
+        onMouseOver(mainPlayerPosition);
+    }}
+    on:pointerout={(e) =>{
+        (hover = false)
+        onMouseOut();
+    }}
     {position}
     rotation.y={rotation}
     {geometry}
     {material}
+    {visible}
 />

@@ -102,7 +102,7 @@
 
 {#if scenePlayers}
     {#each scenePlayers as p}
-        {#if p.userId !== currentPlayerData.userId && p.spectator == false}
+        {#if p.userId !== currentPlayerData.userId && p.spectator === false}
             <OnlinePlayer position={p.position} rotation={p.rotation} userId={p.userId} color={p.color} nick={p.nick} playerEmote={p.playerEmote} />
         {/if}
     {/each}
