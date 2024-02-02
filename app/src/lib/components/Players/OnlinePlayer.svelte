@@ -56,8 +56,8 @@
         socket.emit("player-pushed", userId, direction);
     };
 
-    const onMouseOver = () => {
-        console.log("mouseOver");
+    const onMouseOver = (hover: boolean) => {
+        console.log(hover);
     };
 
     const onMouseOut = () => {

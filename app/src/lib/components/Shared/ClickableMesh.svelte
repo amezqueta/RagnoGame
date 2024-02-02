@@ -14,7 +14,7 @@
     export let material: any;
     export let geometry: any;
     export let onClickMesh: (mainPlayerPosition: Vector3) => void;
-    export let onMouseOver: (mainPlayerPosition: Vector3) => void;
+    export let onMouseOver: (hover: boolean) => void;
     export let onMouseOut: () => void;
     export let distance: number = 5;
     material.emissive.set("white");
@@ -46,7 +46,7 @@
     }}
     on:pointermove={(e) => {
         (hover = distanceIsEnough());
-        onMouseOver(mainPlayerPosition);
+        onMouseOver(hover);
     }}
     on:pointerout={(e) =>{
         (hover = false)
