@@ -1,6 +1,6 @@
 <script lang="ts">
     import { Group, Vector3, LoopOnce, AnimationAction } from "three";
-    import { T, forwardEventHandlers, useTask } from "@threlte/core";
+    import { T, useTask } from "@threlte/core";
     import { useGltf, useGltfAnimations, useSuspense } from "@threlte/extras";
     import * as SkeletonUtils from "three/examples/jsm/utils/SkeletonUtils.js";
     import type { Writable } from "svelte/store";
@@ -19,21 +19,6 @@
     const gltf = suspend(useGltf("/model/character/char.glb", { useDraco: "/" }));
 
     export const { actions, mixer } = useGltfAnimations(gltf, ref);
-    const component = forwardEventHandlers();
-
-    // $: $actions[action]?.play();
-    // $: $actions[currentActionKey] && transitionTo(currentActionKey, 0.2);
-    // function transitionTo(nextActionKey: ActionName, duration = 0.2) {
-    //     const currentAction = $actions[action];
-    //     const nextAction = $actions[nextActionKey];
-    //     if (!nextAction || currentAction === nextAction) return;
-    //     nextAction.enabled = true;
-    //     if (currentAction) {
-    //         currentAction.crossFadeTo(nextAction, duration, true);
-    //     }
-    //     nextAction.play();
-    //     action = nextActionKey;
-    // }
 
     $: if ($gltf) {
         configureAnimationOnce($actions["JumpStart"]);
@@ -145,7 +130,7 @@
     };
 </script>
 
-<T is={ref} dispose={false} {...$$restProps} bind:this={$component}>
+<T is={ref} dispose={false} {...$$restProps}>
     {#await gltf}
         <slot name="fallback" />
     {:then gltf}
