@@ -11,7 +11,7 @@
     export let jumpStarted = false;
 
     export let ref = new Group();
-    export let currentActionKey: ActionName = "Idle";
+    let currentActionKey: ActionName = "Idle";
 
     const suspend = useSuspense();
     let action: ActionName = "Run";
@@ -21,22 +21,26 @@
     export const { actions, mixer } = useGltfAnimations<ActionName>(gltf, ref);
     const component = forwardEventHandlers();
 
-    $: $actions[action]?.play();
-    $: $actions[currentActionKey] && transitionTo(currentActionKey, 0.2);
-    function transitionTo(nextActionKey: ActionName, duration = 0.2) {
-        const currentAction = $actions[action];
-        const nextAction = $actions[nextActionKey];
-        if (!nextAction || currentAction === nextAction) return;
-        nextAction.enabled = true;
-        if (currentAction) {
-            currentAction.crossFadeTo(nextAction, duration, true);
-        }
-        nextAction.play();
-        action = nextActionKey;
-    }
+    // $: $actions[action]?.play();
+    // $: $actions[currentActionKey] && transitionTo(currentActionKey, 0.2);
+    // function transitionTo(nextActionKey: ActionName, duration = 0.2) {
+    //     const currentAction = $actions[action];
+    //     const nextAction = $actions[nextActionKey];
+    //     if (!nextAction || currentAction === nextAction) return;
+    //     nextAction.enabled = true;
+    //     if (currentAction) {
+    //         currentAction.crossFadeTo(nextAction, duration, true);
+    //     }
+    //     nextAction.play();
+    //     action = nextActionKey;
+    // }
 
     $: if ($gltf) {
-        console.log($actions);
+        const ac = $actions["JumpStart"]
+        if (ac) {
+            ac.setLoop(LoopOnce, 1);
+            ac.clampWhenFinished = true;
+        }
     }
 
     let yVel: number = 0;
@@ -57,7 +61,7 @@
                 idleTask.stop();
                 jumpTask.start();
             }
-            transitionTo("Idle");
+            playAnimation("Idle");
         },
         { autoStart: false },
     );
@@ -73,12 +77,9 @@
 
         jumpTaskTime += deltaTime;
 
-        if (jumpTaskTime < 0.5) {
-            transitionTo("JumpStart", 0.0);
-            transitionTo("JumpLoop", 0.1);
+        if (jumpStarted) {
+            playAnimation("JumpStart", 0.0);
         }
-
-        console.log("jump");
     });
 
     //RUN
@@ -89,18 +90,19 @@
     });
 
     const playAnimation = (anim: ActionName, fadeInTime: number = 0.2) => {
+        $actions[currentActionKey]?.fadeOut(0.2);
+        currentActionKey = anim;
         $actions[anim]?.play();
         $actions[anim]?.fadeIn(0.2);
     };
 
     const stopAnimation = (anim: ActionName, fadeOutTime: number = 0.2) => {
         $actions[anim]?.fadeOut(fadeOutTime);
-        console.log($actions[anim]?.isRunning());
     };
 
     const stopFadeOutAnimations = () => {
-        Object.keys($actions).forEach((anim: ActionName) => {
-            if ($actions[anim] && $actions[anim]?.getEffectiveWeight() <= 0) {
+        (Object.keys($actions) as ActionName[]).forEach((anim) => {
+            if ($actions[anim].getEffectiveWeight() <= 0 || !$actions[anim]?.isRunning()) {
                 $actions[anim]?.stop();
             }
         });
