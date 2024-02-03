@@ -5,7 +5,6 @@
     import * as SkeletonUtils from "three/examples/jsm/utils/SkeletonUtils.js";
     import type { Writable } from "svelte/store";
     import { clamp } from "svelte-tweakpane-ui/Utils.js";
-    import { playerDataStore } from "../stores";
 
     export let socket: any;
     export let velocity: Vector3 = new Vector3(0, 0, 0);
@@ -13,12 +12,10 @@
     export let jumpStarted = false;
 
     export let ref = new Group();
-    let currentActionKey: string = "Idle";
 
     const suspend = useSuspense();
     const gltf = suspend(useGltf("/model/character/char.glb", { useDraco: "/" }));
-
-    export const { actions, mixer } = useGltfAnimations(gltf, ref);
+    export const { actions } = useGltfAnimations(gltf, ref);
 
     $: if ($gltf) {
         configureAnimationOnce($actions["JumpStart"]);
@@ -43,6 +40,7 @@
         xzVel = new Vector3(xVel, 0, zVel).length();
     }
 
+    const runTriggerThreshold: number = 0.1;
     //IDLE
     const { task: idleTask } = useTask(
         () => {
@@ -50,6 +48,12 @@
                 idleTask.stop();
                 jumpTask.start();
             }
+
+            if (xzVel > runTriggerThreshold) {
+                idleTask.stop();
+                runTask.start();
+            }
+
             playAnimation("Idle");
         },
         { autoStart: false },
@@ -83,7 +87,21 @@
     );
 
     //RUN
-    const { task: runTask } = useTask(() => {}, { autoStart: false });
+    const { task: runTask } = useTask(
+        () => {
+            if (jumpStarted) {
+                runTask.stop();
+                jumpTask.start();
+            }
+            if (xzVel <= runTriggerThreshold) {
+                runTask.stop();
+                idleTask.start();
+            }
+
+            playAnimation("Run");
+        },
+        { autoStart: false },
+    );
 
     let deltaTime: number = 0;
     useTask((delta) => {
@@ -91,11 +109,12 @@
         deltaTime = delta;
     });
 
+    let currentActionKey: string = "Idle";
     let savedFadeOutTime: number = 0;
-    let savedEndDelay: number = 0;
-    const playAnimation = (anim: string, fadeInTime: number = 0.2, fadeOutTime: number = 0.2, _savedDelay: number = 0.0) => {
-        if (savedEndDelay > 0) {
-            savedEndDelay -= deltaTime;
+    let waitEndDelay: number = 0;
+    const playAnimation = (anim: string, fadeInTime: number = 0.2, fadeOutTime: number = 0.2, endDelay: number = 0.0) => {
+        if (waitEndDelay > 0) {
+            waitEndDelay -= deltaTime;
             return;
         }
 
@@ -107,18 +126,10 @@
 
         currentActionKey = anim;
         savedFadeOutTime = fadeOutTime;
-        savedEndDelay = _savedDelay;
+        waitEndDelay = endDelay;
 
-        socket?.emit("playAnimation", currentActionKey, fadeInTime, savedFadeOutTime, savedEndDelay);
+        socket?.emit("playAnimation", currentActionKey, fadeInTime, savedFadeOutTime, waitEndDelay);
     };
-
-    if (socket) {
-        socket.on("playAnimation", (_userId: string, actionKey: string, fadeInTime: number, fadeOutTime: number, delay: number) => {
-            if (!$playerDataStore) return;
-            if (_userId != $playerDataStore.userId) return;
-            playAnimation($actions[actionKey], fadeInTime, fadeOutTime, delay);
-        });
-    }
 
     const stopFadeOutAnimations = () => {
         (Object.keys($actions) as string[]).forEach((anim) => {

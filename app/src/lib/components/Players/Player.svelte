@@ -121,7 +121,7 @@
       forwardCamera = getForwardCamera();
       rotation = lerpAngle(rotation, Math.atan2(forwardCamera.x, forwardCamera.z), 0.5);
     } else {
-      rotation = lerpAngle(rotation, Math.atan2(playerVelocityXZ.x, playerVelocityXZ.z), 0.2);
+      rotation = lerpAngle(rotation, Math.atan2(playerVelocityXZ.x, playerVelocityXZ.z), 0.5);
     }
     socket.emit("player-rotate", rotation);
   };
