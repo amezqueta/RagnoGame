@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { Group, Vector3, LoopOnce, AnimationAction } from "three";
+    import { Group, Vector3, LoopOnce, AnimationAction, AdditiveAnimationBlendMode, AnimationUtils, type AnimationBlendMode } from "three";
     import { T, useTask } from "@threlte/core";
     import { useGltf, useGltfAnimations, useSuspense } from "@threlte/extras";
     import * as SkeletonUtils from "three/examples/jsm/utils/SkeletonUtils.js";
@@ -14,14 +14,43 @@
     export let ref = new Group();
 
     const suspend = useSuspense();
-    const gltf = suspend(useGltf("/model/character/char.glb", { useDraco: "/" }));
-    export const { actions } = useGltfAnimations(gltf, ref);
+    const gltf = suspend(useGltf("/model/character/character.glb", { useDraco: "/" }));
+    export const { actions, mixer } = useGltfAnimations(gltf, ref);
 
-    $: if ($gltf) {
-        configureAnimationOnce($actions["JumpStart"]);
-        configureAnimationOnce($actions["JumpEnd"]);
+    // let runAction: any;
+    // let hitAction: any;
+    // let idleAction: any;
+    $: if (mixer) {
+        //     mixer.timeScale = 0.5;
+        //     console.log($gltf);
+        //     configureAnimationOnce($actions["JumpStart"]);
+        //     configureAnimationOnce($actions["JumpEnd"]);
+        //     const runAnimation = $actions["Run"];
+        //     if (runAnimation) {
+        //         runAction = mixer.clipAction(runAnimation.getClip(), ref);
+        //     }
+
+        //     const baseballHitAnimation = $actions["Strike"];
+        //     const idleAnimation = $actions["Idle"];
+        //     if (baseballHitAnimation && idleAnimation) {
+        //         idleAction = mixer.clipAction(idleAnimation.getClip(), ref);
+        //         hitAction = mixer.clipAction(baseballHitAnimation.getClip(), ref);
+        //         hitAction.setEffectiveWeight(0.9);
+        //     }
         idleTask.start();
     }
+
+    // $: {
+    //     if (hitAction && idleAction) AnimationUtils.makeClipAdditive(hitAction.getClip(), 1);
+    // }
+
+    // $: if (hitAction) {
+    //     hitAction?.play();
+    // }
+
+    // $: if (runAction) {
+    //     runAction?.play();
+    // }
 
     const configureAnimationOnce = (anim: AnimationAction | undefined) => {
         if (!anim) return;
@@ -98,6 +127,7 @@
                 idleTask.start();
             }
 
+            $actions["Run"]?.setEffectiveTimeScale(xzVel / 10);
             playAnimation("Run");
         },
         { autoStart: false },
@@ -105,6 +135,7 @@
 
     let deltaTime: number = 0;
     useTask((delta) => {
+        mixer.update(delta);
         stopFadeOutAnimations();
         deltaTime = delta;
     });

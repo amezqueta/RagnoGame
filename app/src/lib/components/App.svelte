@@ -60,7 +60,7 @@
         socketStore.set(socket);
     });
 
-    let debugFakeMouse = false;
+    let debugFakeMouse = true;
     const onKeyDown = (e: KeyboardEvent) => {
         if (e.ctrlKey && e.key === "1") {
             e.preventDefault();
