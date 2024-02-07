@@ -5,6 +5,7 @@
     import * as SkeletonUtils from "three/examples/jsm/utils/SkeletonUtils.js";
     import type { Writable } from "svelte/store";
     import { clamp } from "svelte-tweakpane-ui/Utils.js";
+    import { playAnimationStore } from "../stores";
 
     export let socket: any;
     export let velocity: Vector3 = new Vector3(0, 0, 0);
@@ -161,6 +162,10 @@
 
         socket?.emit("playAnimation", currentActionKey, fadeInTime, savedFadeOutTime, waitEndDelay);
     };
+
+    $: if (socket && playAnimation && $actions) {
+        playAnimationStore.set(playAnimation);
+    }
 
     const stopFadeOutAnimations = () => {
         (Object.keys($actions) as string[]).forEach((anim) => {

@@ -1,6 +1,9 @@
 import type { type RigidBody as RRigidBody } from '@dimforge/rapier3d-compat';
 import { writable } from 'svelte/store';
 import { Vector3 } from 'three';
+
+export type PlayAnimationFunction = (anim: string, fadeInTime?: number, fadeOutTime?: number, endDelay?: number) => void;
+
 export const socketStore = writable(undefined);
 export const serverTimestampStore = writable<number>(undefined);
 
@@ -17,6 +20,7 @@ export const playerVelocityStore = writable<Vector3>(undefined);
 export const playerColorStore = writable<string>(undefined);
 export const playerDataStore = writable(undefined);
 export const privilegesStore = writable<number>(undefined);
+export const playAnimationStore = writable<PlayAnimationFunction>(undefined);
 
 export const cursorShowStore = writable<boolean>(true);
 

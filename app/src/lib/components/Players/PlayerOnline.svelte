@@ -5,10 +5,11 @@
     import { BoxGeometry, MeshStandardMaterial, Vector3 } from "three";
     import { onDestroy } from "svelte";
     import TextBillboard from "../TextBillboard.svelte";
-    import { socketStore } from "../stores";
+    import { playAnimationStore, socketStore } from "../stores";
     import Emote from "../UI/Emote.svelte";
     import ClickableMesh from "../Shared/ClickableMesh.svelte";
     import CharacterOnline from "$lib/components/Players/CharacterOnline.svelte";
+    import Character from "./Character.svelte";
 
     const material = new MeshStandardMaterial();
     material.emissive.set("white");
@@ -53,7 +54,8 @@
         direction.normalize();
         direction.multiplyScalar(150);
         direction.y = 20;
-        socket.emit("player-pushed", userId, direction);
+        $playAnimationStore("Strike", 0.1, 0.2, 0);
+        //socket.emit("player-pushed", userId, direction);
     };
 
     const onMouseOver = (hover: boolean) => {
