@@ -1,22 +1,27 @@
 <script lang="ts">
     import { T, useTask } from "@threlte/core";
     import { useGltf, useGltfAnimations, useSuspense } from "@threlte/extras";
-    import { AnimationAction, Group, LoopOnce } from "three";
+    import { AnimationAction, Color, Group, LoopOnce, MeshBasicMaterial, MeshToonMaterial } from "three";
     import * as SkeletonUtils from "three/examples/jsm/utils/SkeletonUtils.js";
 
     export let animation: any;
+    export let hoverCharacter = false;
 
     export let ref = new Group();
     let currentActionKey: string = "Idle";
 
     const suspend = useSuspense();
-    const gltf = suspend(useGltf("/model/character/char.glb", { useDraco: "/" }));
+    const gltf = suspend(useGltf("/model/character/character.glb", { useDraco: "/" }));
 
     export const { actions, mixer } = useGltfAnimations(gltf, ref);
 
     $: if ($gltf) {
         configureAnimationOnce($actions["JumpStart"]);
         configureAnimationOnce($actions["JumpEnd"]);
+    }
+
+    $: if ($gltf && (hoverCharacter || !hoverCharacter)) {
+        $gltf.materials["Ch36_Body"].emissive = hoverCharacter ? new Color(1, 1, 1) : new Color(0, 0, 0);
     }
 
     const configureAnimationOnce = (anim: AnimationAction | undefined) => {

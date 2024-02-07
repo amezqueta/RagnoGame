@@ -46,6 +46,7 @@
 
     $: if (socketStore) socket = $socketStore;
 
+    let hoverCharacter = false;
     const onClickMesh = (mainPlayerPosition: Vector3) => {
         console.log("clickmesh");
         let direction = mainPlayerPosition.clone().sub(position);
@@ -59,17 +60,17 @@
     };
 
     const onMouseOver = (hover: boolean) => {
-        console.log(hover);
+        hoverCharacter = true;
     };
 
     const onMouseOut = () => {
-        console.log("mouseOut");
+        hoverCharacter = false;
     };
 </script>
 
 <ClickableMesh position={[position.x, position.y, position.z]} {geometry} {material} {onClickMesh} {onMouseOver} {onMouseOut} {rotation} distance={8} visible={false} />
 <T.Group position={[position.x, position.y, position.z]} rotation.y={rotation}>
-    <CharacterOnline position={[0, -1, 0]} {animation} />
+    <CharacterOnline position={[0, -1, 0]} {animation} {hoverCharacter} />
     <TextBillboard text={nick} position={[0, 4, 0]} {color} />
     <Emote bind:this={emoteRef} />
 </T.Group>
