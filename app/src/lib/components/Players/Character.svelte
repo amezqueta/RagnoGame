@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { Group, Vector3, LoopOnce, AnimationAction, AdditiveAnimationBlendMode, AnimationUtils, type AnimationBlendMode } from "three";
+    import { Group, Vector3, LoopOnce, AnimationAction } from "three";
     import { T, useTask } from "@threlte/core";
     import { useGltf, useGltfAnimations, useSuspense } from "@threlte/extras";
     import * as SkeletonUtils from "three/examples/jsm/utils/SkeletonUtils.js";

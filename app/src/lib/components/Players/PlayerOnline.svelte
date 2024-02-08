@@ -41,7 +41,7 @@
 
     let hoverCharacter = false;
     const onClickMesh = (mainPlayerPosition: Vector3) => {
-        mainPlayerRef.onClickCharacter(position, playerId);
+        mainPlayerRef.onClickOtherPlayer(position, playerId);
     };
 
     const onMouseOver = (hover: boolean) => {

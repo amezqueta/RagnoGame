@@ -2,5 +2,6 @@
     "editor.formatOnSave": true,
     "svelte.plugin.svelte.format.config.printWidth": 200,
     "javascript.format.semicolons": "insert",
-    "typescript.format.semicolons": "insert"
+    "typescript.format.semicolons": "insert",
+    "editor.defaultFormatter": "svelte.svelte-vscode"
 }

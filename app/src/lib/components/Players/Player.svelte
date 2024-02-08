@@ -4,7 +4,7 @@
   import { T, useTask, useThrelte } from "@threlte/core";
   import { BoxGeometry, MeshStandardMaterial, Vector3 } from "three";
   import { onDestroy } from "svelte";
-  import { RigidBody, Collider, useRapier, type ContactEvent } from "@threlte/rapier";
+  import { RigidBody, Collider, useRapier } from "@threlte/rapier";
   import { cameraControlPressedStore, playerColorStore, playerRigidbodyStore, privilegesStore, playerPositionStore, playerVelocityStore, playerSpawnsStore } from "../stores";
   import { clamp } from "svelte-tweakpane-ui/Utils.js";
   import TextBillboard from "../TextBillboard.svelte";
@@ -126,13 +126,6 @@
     socket.emit("player-rotate", rotation);
   };
 
-  /* createCharacterController is not working properly
-  let controller = world.createCharacterController(0.01);
-  controller.setMaxSlopeClimbAngle((45 * Math.PI) / 180);
-  controller.setMinSlopeSlideAngle((30 * Math.PI) / 180);
-  controller.enableAutostep(0.5, 0.2, true);
-  controller.enableSnapToGround(0.5);
-  */
   const { stop, start } = useTask((deltaTime) => {
     specialAction.set(SpecialActionType.None);
     returnPlayerOnFall();
@@ -236,7 +229,7 @@
     Strike = "Strike",
   }
   let specialAction = writable<SpecialActionType>(SpecialActionType.None);
-  export const onClickCharacter = async (otherPlayerPosition: Vector3, otherPlayerId: string) => {
+  export const onClickOtherPlayer = async (otherPlayerPosition: Vector3, otherPlayerId: string) => {
     let direction = playerPosition.clone().sub(otherPlayerPosition);
     direction.negate();
     direction.y = 0;
@@ -245,7 +238,7 @@
     direction.y = 20;
     specialAction.set(SpecialActionType.Strike);
     rotation = Math.atan2(direction.x, direction.z);
-    //socket.emit("player-pushed", otherPlayerId, direction);
+    socket.emit("player-pushed", otherPlayerId, direction);
   };
 
   const spawnPlayer = () => {
