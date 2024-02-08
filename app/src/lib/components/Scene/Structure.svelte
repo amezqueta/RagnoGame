@@ -1,17 +1,5 @@
 <script lang="ts">
-    import {
-        Group,
-        RepeatWrapping,
-        ShaderMaterial,
-        NearestFilter,
-        MeshBasicMaterial,
-        MeshPhysicalMaterial,
-        MeshPhongMaterial,
-        MeshStandardMaterial,
-        ShadowMaterial,
-        MultiplyBlending,
-        AdditiveBlending,
-    } from "three";
+    import { Group, RepeatWrapping, ShaderMaterial, NearestFilter, MeshBasicMaterial, MeshPhysicalMaterial, MeshPhongMaterial, MeshStandardMaterial, ShadowMaterial, MultiplyBlending, AdditiveBlending } from "three";
     import { T, forwardEventHandlers } from "@threlte/core";
     import { ContactShadows, useGltf, useTexture } from "@threlte/extras";
     import { Collider } from "@threlte/rapier";

@@ -45,11 +45,11 @@
         if (distanceIsEnough()) onClickMesh(mainPlayerPosition);
     }}
     on:pointermove={(e) => {
-        (hover = distanceIsEnough());
+        hover = distanceIsEnough();
         onMouseOver(hover);
     }}
-    on:pointerout={(e) =>{
-        (hover = false)
+    on:pointerout={(e) => {
+        hover = false;
         onMouseOut();
     }}
     {position}
