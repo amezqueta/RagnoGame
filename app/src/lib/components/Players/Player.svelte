@@ -96,6 +96,7 @@
         playerVelocity.y = playerVerticalVelocity;
     };
 
+    let waitTimeMovement: number = 0;
     const playerMovement = (deltaTime: number) => {
         playerVelocity.z *= deltaTime;
         playerVelocity.x *= deltaTime;
@@ -103,8 +104,13 @@
         playerVelocity.x -= $controlAxis.x * speed;
         playerVelocity.z -= $controlAxis.y * speed;
 
-        playerVelocity.clampLength(0, speed);
+        waitTimeMovement -= deltaTime;
+        playerVelocity.clampLength(0, waitTimeMovement < 0 ? speed : 0);
         playerVelocity = passDirectionCameraForward(playerVelocity);
+    };
+
+    const haltMovement = (time: number) => {
+        waitTimeMovement = time;
     };
 
     function returnPlayerOnFall() {
@@ -230,8 +236,9 @@
         direction.normalize();
         direction.multiplyScalar(150);
         direction.y = 20;
-        character.playSpecialAction("Strike");
         rotation = Math.atan2(direction.x, direction.z);
+        character.playAnimation("Strike", 0.1, 0.1, 0.5);
+        haltMovement(0.5);
         //socket.emit("player-pushed", otherPlayerId, direction);
     };
 

@@ -144,10 +144,10 @@
 
     let currentActionKey: string = "Idle";
     let savedFadeOutTime: number = 0;
-    let waitEndDelay: number = 0;
-    const playAnimation = (anim: string, fadeInTime: number = 0.2, fadeOutTime: number = 0.2, endDelay: number = 0.0) => {
-        if (waitEndDelay > 0) {
-            waitEndDelay -= deltaTime;
+    let waitDuration: number = 0;
+    export const playAnimation = (anim: string, fadeInTime: number = 0.2, fadeOutTime: number = 0.2, duration: number = 0.0) => {
+        if (waitDuration > 0) {
+            waitDuration -= deltaTime;
             return;
         }
 
@@ -159,9 +159,9 @@
 
         currentActionKey = anim;
         savedFadeOutTime = fadeOutTime;
-        waitEndDelay = endDelay;
+        waitDuration = duration;
 
-        socket?.emit("playAnimation", currentActionKey, fadeInTime, savedFadeOutTime, waitEndDelay);
+        socket?.emit("playAnimation", currentActionKey, fadeInTime, savedFadeOutTime, waitDuration);
     };
 
     $: if (socket && playAnimation && $actions) {
@@ -175,10 +175,6 @@
                 $actions[anim]?.setEffectiveWeight(1);
             }
         });
-    };
-
-    export const playSpecialAction = (action: string) => {
-        playAnimation(action, 0.1, 0.1, 0);
     };
 </script>
 
