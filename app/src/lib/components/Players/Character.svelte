@@ -31,7 +31,6 @@
         //     if (runAnimation) {
         //         runAction = mixer.clipAction(runAnimation.getClip(), ref);
         //     }
-
         //     const baseballHitAnimation = $actions["Strike"];
         //     const idleAnimation = $actions["Idle"];
         //     if (baseballHitAnimation && idleAnimation) {
@@ -87,7 +86,7 @@
 
             playAnimation("Idle");
         },
-        { autoStart: false }
+        { autoStart: false },
     );
 
     //JUMP
@@ -114,7 +113,7 @@
                 return;
             }
         },
-        { autoStart: false }
+        { autoStart: false },
     );
 
     //RUN
@@ -132,7 +131,7 @@
             $actions["Run"]?.setEffectiveTimeScale(xzVel / 10);
             playAnimation("Run");
         },
-        { autoStart: false }
+        { autoStart: false },
     );
 
     let deltaTime: number = 0;

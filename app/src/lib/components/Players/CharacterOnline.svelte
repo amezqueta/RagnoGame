@@ -1,7 +1,7 @@
 <script lang="ts">
     import { T, useTask } from "@threlte/core";
     import { useGltf, useGltfAnimations, useSuspense, useTexture } from "@threlte/extras";
-    import { AnimationAction, Color, Group, LoopOnce, MeshToonMaterial } from "three";
+    import { AnimationAction, Color, Group, LoopOnce, MeshToonMaterial, NearestFilter } from "three";
     import * as SkeletonUtils from "three/examples/jsm/utils/SkeletonUtils.js";
 
     export let animation: any;
@@ -21,7 +21,12 @@
         instancedMesh = SkeletonUtils.clone($gltf.scene);
     }
 
-    const map = useTexture("tex/char/character.png");
+    const map = useTexture("tex/char/character.png", {
+        transform: (texture) => {
+            texture.magFilter = NearestFilter;
+            return texture;
+        },
+    });
     let characterMaterial: MeshToonMaterial | null;
     $: if ($map) {
         characterMaterial = new MeshToonMaterial();
@@ -53,28 +58,21 @@
         deltaTime = delta;
     });
 
-    let actionKey: string;
-    let fadeInTime: number;
-    let fadeOutTime: number;
-    let delay: number;
-
     $: if (animation) {
-        actionKey = animation.actionKey;
-        fadeInTime = animation.fadeInTime;
-        fadeOutTime = animation.fadeOutTime;
-        delay = animation.delay;
-    }
-
-    let animations: any[] = [];
-
-    $: {
+        let actionKey = animation.actionKey;
+        let fadeInTime = animation.fadeInTime;
+        let fadeOutTime = animation.fadeOutTime;
+        let delay = animation.delay;
         animations.push({ actionKey, fadeInTime, fadeOutTime, delay });
         playAnimation(actionKey, fadeInTime, fadeOutTime, delay);
     }
 
+    let animations: any[] = [];
+
     let savedFadeOutTime: number = 0;
     let savedDelay: number = 0;
     const playAnimation = (anim: string, fadeInTime: number = 0.2, fadeOutTime: number = 0.2, _savedDelay: number = 0.0) => {
+        console.log(animations);
         if (savedDelay > 0) {
             savedDelay -= deltaTime;
             return;

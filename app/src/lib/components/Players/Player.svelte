@@ -29,7 +29,7 @@
     const jumpForce = 10;
     const speed = 5;
 
-    let rotation: number = 0;
+    let rotation = writable(0);
 
     let playerCollider: RCollider;
 
@@ -125,44 +125,47 @@
         if (playerVelocityXZ.lengthSq() < 1) return;
         if (cameraControlPressed) {
             forwardCamera = getForwardCamera();
-            rotation = lerpAngle(rotation, Math.atan2(forwardCamera.x, forwardCamera.z), 0.5);
+            rotation.set(lerpAngle($rotation, Math.atan2(forwardCamera.x, forwardCamera.z), 0.5));
         } else {
-            rotation = lerpAngle(rotation, Math.atan2(playerVelocityXZ.x, playerVelocityXZ.z), 0.5);
+            rotation.set(lerpAngle($rotation, Math.atan2(playerVelocityXZ.x, playerVelocityXZ.z), 0.5));
         }
-        socket.emit("player-rotate", rotation);
     };
 
-    const { stop, start } = useTask((deltaTime) => {
-        returnPlayerOnFall();
+    $: socket.emit("player-rotate", $rotation);
 
-        //Basic movements
-        playerMovement(deltaTime);
-        applyVerticalVelocity(deltaTime);
+    const { start } = useTask(
+        (deltaTime) => {
+            returnPlayerOnFall();
 
-        //Raycast to the floor. @todo If the player is standing on an edge, isGrounded can be negative
-        const ray: Ray = new Ray(rigidBody.translation(), raycastFloorDirection);
-        const raycastResult = world.castRay(ray, 1, false);
-        isGrounded.set(raycastResult ? raycastResult.toi < minGroundDistance : false);
-        updateMeshRotation();
+            //Basic movements
+            playerMovement(deltaTime);
+            applyVerticalVelocity(deltaTime);
 
-        checkSurfaceVelocity(raycastResult, deltaTime);
-        checkPushVelocity(deltaTime);
-        rigidBody.setLinvel(playerVelocity, true);
+            //Raycast to the floor. @todo If the player is standing on an edge, isGrounded can be negative
+            const ray: Ray = new Ray(rigidBody.translation(), raycastFloorDirection);
+            const raycastResult = world.castRay(ray, 1, false);
+            isGrounded.set(raycastResult ? raycastResult.toi < minGroundDistance : false);
+            updateMeshRotation();
 
-        deltaPosition = new Vector3(positionCheck.x - rigidBody.translation().x, positionCheck.y - rigidBody.translation().y, positionCheck.z - rigidBody.translation().z);
-        playerPosition.set(rigidBody.translation().x, rigidBody.translation().y, rigidBody.translation().z);
+            checkSurfaceVelocity(raycastResult, deltaTime);
+            checkPushVelocity(deltaTime);
+            rigidBody.setLinvel(playerVelocity, true);
 
-        //Updates the store variables @todo update the store only if the variable changed enough respecting the one from the store
-        playerPositionStore.set(playerPosition);
-        playerVelocityStore.set(deltaPosition);
+            deltaPosition = new Vector3(positionCheck.x - rigidBody.translation().x, positionCheck.y - rigidBody.translation().y, positionCheck.z - rigidBody.translation().z);
+            playerPosition.set(rigidBody.translation().x, rigidBody.translation().y, rigidBody.translation().z);
 
-        //Checks that the player has moved enough
-        //if (deltaPosition.lengthSq() < deltaTime / 10) return;
-        positionCheck = playerPosition;
+            //Updates the store variables @todo update the store only if the variable changed enough respecting the one from the store
+            playerPositionStore.set(playerPosition);
+            playerVelocityStore.set(deltaPosition);
 
-        if (!rigidBody.isSleeping()) socket.emit("player-move", new Vector3(rigidBody.translation().x, rigidBody.translation().y, rigidBody.translation().z));
-    });
-    stop();
+            //Checks that the player has moved enough
+            //if (deltaPosition.lengthSq() < deltaTime / 10) return;
+            positionCheck = playerPosition;
+
+            if (!rigidBody.isSleeping()) socket.emit("player-move", new Vector3(rigidBody.translation().x, rigidBody.translation().y, rigidBody.translation().z));
+        },
+        { autoStart: false }
+    );
 
     const checkPushVelocity = (deltaTime: number) => {
         pushVelocity.lerp(new Vector3(0, 0, 0), deltaTime * 7);
@@ -236,7 +239,7 @@
         direction.normalize();
         direction.multiplyScalar(150);
         direction.y = 20;
-        rotation = Math.atan2(direction.x, direction.z);
+        rotation.set(Math.atan2(direction.x, direction.z));
         character.playAnimation("Strike", 0.1, 0.1, 0.5);
         haltMovement(0.5);
         //socket.emit("player-pushed", otherPlayerId, direction);
@@ -266,7 +269,7 @@
             spawnPlayer();
         }}
     >
-        <Character bind:this={character} position.y={-1} rotation.y={rotation} velocity={playerVelocity} {isGrounded} {jumpStarted} {socket} />
+        <Character bind:this={character} position.y={-1} rotation.y={$rotation} velocity={playerVelocity} {isGrounded} {jumpStarted} {socket} />
         <TextBillboard text={nick} position={[0, 3, 0]} {color} {outlineColor} />
         <Collider shape="capsule" args={[capsuleHeight, capsuleRadius]} bind:collider={playerCollider} />
         <Emote bind:this={emoteRef} />
