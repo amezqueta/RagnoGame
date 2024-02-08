@@ -13,13 +13,18 @@
     const suspend = useSuspense();
     const gltf = suspend(useGltf("/model/character/character.glb", { useDraco: "/" }));
 
-    export const { actions, mixer } = useGltfAnimations(gltf, ref);
     let instancedMesh: any;
-    $: if ($gltf) {
-        configureAnimationOnce($actions["JumpStart"]);
-        configureAnimationOnce($actions["JumpEnd"]);
+    export const { actions, mixer } = useGltfAnimations(gltf, ref);
+    $: if ($gltf && $actions && !instancedMesh) {
+        configureAnimationOnce(getAction("JumpStart"));
+        configureAnimationOnce(getAction("JumpEnd"));
         instancedMesh = SkeletonUtils.clone($gltf.scene);
     }
+
+    const getAction = (name: string): AnimationAction | undefined => {
+        const anim = $actions[name];
+        return anim;
+    };
 
     const map = useTexture("tex/char/character.png", {
         transform: (texture) => {
@@ -58,11 +63,18 @@
         deltaTime = delta;
     });
 
+    let actionKey: string;
+    let fadeInTime: number;
+    let fadeOutTime: number;
+    let delay: number;
     $: if (animation) {
-        let actionKey = animation.actionKey;
-        let fadeInTime = animation.fadeInTime;
-        let fadeOutTime = animation.fadeOutTime;
-        let delay = animation.delay;
+        actionKey = animation.actionKey;
+        fadeInTime = animation.fadeInTime;
+        fadeOutTime = animation.fadeOutTime;
+        delay = animation.delay;
+    }
+
+    $: {
         animations.push({ actionKey, fadeInTime, fadeOutTime, delay });
         playAnimation(actionKey, fadeInTime, fadeOutTime, delay);
     }
@@ -72,16 +84,15 @@
     let savedFadeOutTime: number = 0;
     let savedDelay: number = 0;
     const playAnimation = (anim: string, fadeInTime: number = 0.2, fadeOutTime: number = 0.2, _savedDelay: number = 0.0) => {
-        console.log(animations);
         if (savedDelay > 0) {
             savedDelay -= deltaTime;
             return;
         }
 
-        $actions[currentActionKey]?.fadeOut(savedFadeOutTime);
+        getAction(currentActionKey)?.fadeOut(savedFadeOutTime);
 
-        $actions[anim]?.play();
-        $actions[anim]?.fadeIn(fadeInTime);
+        getAction(anim)?.play();
+        getAction(anim)?.fadeIn(fadeInTime);
 
         currentActionKey = anim;
         savedFadeOutTime = fadeOutTime;
@@ -91,9 +102,9 @@
 
     const stopFadeOutAnimations = () => {
         (Object.keys($actions) as string[]).forEach((anim) => {
-            if ($actions[anim].getEffectiveWeight() <= 0) {
-                $actions[anim]?.stop();
-                $actions[anim]?.setEffectiveWeight(1);
+            if (getAction(anim).getEffectiveWeight() <= 0) {
+                getAction(anim)?.stop();
+                getAction(anim)?.setEffectiveWeight(1);
             }
         });
     };
