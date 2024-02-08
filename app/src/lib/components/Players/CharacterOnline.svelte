@@ -1,7 +1,7 @@
 <script lang="ts">
     import { T, useTask } from "@threlte/core";
-    import { useGltf, useGltfAnimations, useSuspense } from "@threlte/extras";
-    import { AnimationAction, Color, Group, LoopOnce, MeshBasicMaterial, MeshToonMaterial } from "three";
+    import { useGltf, useGltfAnimations, useSuspense, useTexture } from "@threlte/extras";
+    import { AnimationAction, Color, Group, LoopOnce, MeshToonMaterial } from "three";
     import * as SkeletonUtils from "three/examples/jsm/utils/SkeletonUtils.js";
 
     export let animation: any;
@@ -14,14 +14,31 @@
     const gltf = suspend(useGltf("/model/character/character.glb", { useDraco: "/" }));
 
     export const { actions, mixer } = useGltfAnimations(gltf, ref);
-
+    let instancedMesh: any;
     $: if ($gltf) {
         configureAnimationOnce($actions["JumpStart"]);
         configureAnimationOnce($actions["JumpEnd"]);
+        instancedMesh = SkeletonUtils.clone($gltf.scene);
     }
 
-    $: if ($gltf && (hoverCharacter || !hoverCharacter)) {
-        $gltf.materials["Ch36_Body"].emissive = hoverCharacter ? new Color(1, 1, 1) : new Color(0, 0, 0);
+    const map = useTexture("tex/char/character.png");
+    let characterMaterial: MeshToonMaterial | null;
+    $: if ($map) {
+        characterMaterial = new MeshToonMaterial();
+        characterMaterial.map = $map;
+    }
+
+    $: if (instancedMesh && characterMaterial) {
+        instancedMesh.traverse((child: any) => {
+            if (child.material) {
+                child.material = characterMaterial;
+                return;
+            }
+        });
+    }
+
+    $: if (characterMaterial && (hoverCharacter || !hoverCharacter)) {
+        characterMaterial.emissive = hoverCharacter ? new Color(0.3, 0.3, 0.3) : new Color(0, 0, 0);
     }
 
     const configureAnimationOnce = (anim: AnimationAction | undefined) => {
@@ -99,7 +116,9 @@
     {#await gltf}
         <slot name="fallback" />
     {:then gltf}
-        <T is={SkeletonUtils.clone(gltf.scene)} name="Scene" />
+        {#if instancedMesh}
+            <T is={instancedMesh} name="Scene" />
+        {/if}
     {:catch error}
         <slot name="error" {error} />
     {/await}

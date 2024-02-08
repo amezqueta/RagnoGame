@@ -1,20 +1,17 @@
 <script lang="ts">
-    import { type Collider as RCollider } from "@dimforge/rapier3d-compat";
     import { onMount } from "svelte";
     import { T } from "@threlte/core";
-    import { BoxGeometry, MeshStandardMaterial, Vector3 } from "three";
+    import { CapsuleGeometry, MeshStandardMaterial, Vector3 } from "three";
     import { onDestroy } from "svelte";
     import TextBillboard from "../TextBillboard.svelte";
     import { playAnimationStore, socketStore } from "../stores";
     import Emote from "../UI/Emote.svelte";
     import ClickableMesh from "../Shared/ClickableMesh.svelte";
     import CharacterOnline from "$lib/components/Players/CharacterOnline.svelte";
-    import Character from "./Character.svelte";
 
     const material = new MeshStandardMaterial();
     material.emissive.set("white");
-    const capsuleHeight = 1.6;
-    const geometry = new BoxGeometry(2, capsuleHeight * 3, 2);
+    const geometry = new CapsuleGeometry(0.3, 2);
 
     export let userId: string = "";
     export let position: Vector3 = new Vector3();
@@ -41,7 +38,6 @@
         console.log("Player destroyed (" + userId + ")");
     });
 
-    let collider: RCollider;
     let socket: any;
 
     $: if (socketStore) socket = $socketStore;
