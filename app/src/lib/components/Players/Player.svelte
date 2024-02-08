@@ -134,6 +134,7 @@
   controller.enableSnapToGround(0.5);
   */
   const { stop, start } = useTask((deltaTime) => {
+    specialAction.set(SpecialActionType.None);
     returnPlayerOnFall();
 
     //Basic movements
@@ -230,6 +231,23 @@
     emoteRef.playEmote(emoteId);
   };
 
+  enum SpecialActionType {
+    None = "None",
+    Strike = "Strike",
+  }
+  let specialAction = writable<SpecialActionType>(SpecialActionType.None);
+  export const onClickCharacter = async (otherPlayerPosition: Vector3, otherPlayerId: string) => {
+    let direction = playerPosition.clone().sub(otherPlayerPosition);
+    direction.negate();
+    direction.y = 0;
+    direction.normalize();
+    direction.multiplyScalar(150);
+    direction.y = 20;
+    specialAction.set(SpecialActionType.Strike);
+    rotation = Math.atan2(direction.x, direction.z);
+    //socket.emit("player-pushed", otherPlayerId, direction);
+  };
+
   const spawnPlayer = () => {
     try {
       let r = Math.floor(Math.random() * $playerSpawnsStore.length);
@@ -252,7 +270,7 @@
       spawnPlayer();
     }}
   >
-    <Character position.y={-1} rotation.y={rotation} velocity={playerVelocity} {isGrounded} {jumpStarted} {socket} />
+    <Character position.y={-1} rotation.y={rotation} velocity={playerVelocity} {isGrounded} {jumpStarted} {socket} {specialAction} />
     <TextBillboard text={nick} position={[0, 3, 0]} {color} {outlineColor} />
     <Collider shape="capsule" args={[capsuleHeight, capsuleRadius]} bind:collider={playerCollider} />
     <Emote bind:this={emoteRef} />

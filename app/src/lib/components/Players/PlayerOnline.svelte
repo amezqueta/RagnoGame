@@ -4,21 +4,22 @@
     import { CapsuleGeometry, MeshStandardMaterial, Vector3 } from "three";
     import { onDestroy } from "svelte";
     import TextBillboard from "../TextBillboard.svelte";
-    import { playAnimationStore, socketStore } from "../stores";
     import Emote from "../UI/Emote.svelte";
     import ClickableMesh from "../Shared/ClickableMesh.svelte";
     import CharacterOnline from "$lib/components/Players/CharacterOnline.svelte";
+    import Player from "./Player.svelte";
 
     const material = new MeshStandardMaterial();
     material.emissive.set("white");
     const geometry = new CapsuleGeometry(0.3, 2);
 
-    export let userId: string = "";
+    export let playerId: string = "";
     export let position: Vector3 = new Vector3();
     export let color: string = "#FF0000";
-    export let nick: string = userId;
+    export let nick: string = playerId;
     export let rotation: number = 0;
     export let animation: any;
+    export let mainPlayerRef: Player;
 
     $: {
         material.color.set(color);
@@ -35,24 +36,12 @@
     });
 
     onDestroy(() => {
-        console.log("Player destroyed (" + userId + ")");
+        console.log("Player destroyed (" + playerId + ")");
     });
-
-    let socket: any;
-
-    $: if (socketStore) socket = $socketStore;
 
     let hoverCharacter = false;
     const onClickMesh = (mainPlayerPosition: Vector3) => {
-        console.log("clickmesh");
-        let direction = mainPlayerPosition.clone().sub(position);
-        direction.negate();
-        direction.y = 0;
-        direction.normalize();
-        direction.multiplyScalar(150);
-        direction.y = 20;
-        $playAnimationStore("Strike", 0.1, 0.2, 0);
-        //socket.emit("player-pushed", userId, direction);
+        mainPlayerRef.onClickCharacter(position, playerId);
     };
 
     const onMouseOver = (hover: boolean) => {
