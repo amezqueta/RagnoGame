@@ -241,7 +241,7 @@
         direction.y = 20;
         rotation.set(Math.atan2(direction.x, direction.z));
         character.playAnimation("Strike", 0.1, 0.1, 0.5);
-        haltMovement(0.5);
+        haltMovement(0.3);
         //socket.emit("player-pushed", otherPlayerId, direction);
     };
 

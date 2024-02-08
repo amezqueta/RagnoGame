@@ -23,10 +23,11 @@
     // let hitAction: any;
     // let idleAction: any;
     $: if (mixer) {
-        //     mixer.timeScale = 0.5;
+        mixer.timeScale = 0.5;
         //     console.log($gltf);
-        //     configureAnimationOnce($actions["JumpStart"]);
-        //     configureAnimationOnce($actions["JumpEnd"]);
+        configureAnimationOnce($actions["JumpStart"]);
+        configureAnimationOnce($actions["JumpEnd"]);
+        configureAnimationOnce($actions["Strike"]);
         //     const runAnimation = $actions["Run"];
         //     if (runAnimation) {
         //         runAction = mixer.clipAction(runAnimation.getClip(), ref);
@@ -86,7 +87,7 @@
 
             playAnimation("Idle");
         },
-        { autoStart: false },
+        { autoStart: false }
     );
 
     //JUMP
@@ -97,23 +98,23 @@
                 jumpTask.stop();
                 idleTask.start();
                 jumpTaskTime = 0;
-                playAnimation("JumpEnd", 0.0, 0.2, 0.1);
+                playAnimation("JumpEnd", 0.1, 0.2, 0.2);
             }
 
             if (jumpStarted) {
-                playAnimation("JumpStart", 0.2);
+                playAnimation("JumpStart", 0.05, 0.2);
                 return;
             }
 
             jumpTaskTime += deltaTime;
-            if (jumpTaskTime > 0.4) {
-                playAnimation("JumpLoop");
+            if (jumpTaskTime > 0.2) {
+                playAnimation("JumpLoop", 0.2, 0.1);
                 let loopDuration = clamp(1 / jumpTaskTime, 0.5, 1);
                 $actions["JumpLoop"]?.setDuration(loopDuration);
                 return;
             }
         },
-        { autoStart: false },
+        { autoStart: false }
     );
 
     //RUN
@@ -128,10 +129,10 @@
                 idleTask.start();
             }
 
-            $actions["Run"]?.setEffectiveTimeScale(xzVel / 10);
+            //$actions["Run"]?.setEffectiveTimeScale(xzVel / 10);
             playAnimation("Run");
         },
-        { autoStart: false },
+        { autoStart: false }
     );
 
     let deltaTime: number = 0;
@@ -158,7 +159,7 @@
 
         currentActionKey = anim;
         savedFadeOutTime = fadeOutTime;
-        waitDuration = duration;
+        waitDuration = duration - 0.1;
 
         socket?.emit("playAnimation", currentActionKey, fadeInTime, savedFadeOutTime, waitDuration);
     };
