@@ -12,7 +12,6 @@
     export let velocity: Vector3 = new Vector3(0, 0, 0);
     export let isGrounded: Writable<boolean>;
     export let jumpStarted = false;
-    export let specialAction: Writable<SpecialActionType>;
 
     export let ref = new Group();
 
@@ -178,7 +177,9 @@
         });
     };
 
-    $: if ($specialAction !== 0) playAnimation($specialAction, 0.1, 0.1, 0);
+    export const playSpecialAction = (action: string) => {
+        playAnimation(action, 0.1, 0.1, 0);
+    };
 </script>
 
 <T is={ref} dispose={false} {...$$restProps}>

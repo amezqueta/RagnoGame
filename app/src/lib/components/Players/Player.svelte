@@ -127,7 +127,6 @@
     };
 
     const { stop, start } = useTask((deltaTime) => {
-        specialAction.set(SpecialActionType.None);
         returnPlayerOnFall();
 
         //Basic movements
@@ -224,11 +223,6 @@
         emoteRef.playEmote(emoteId);
     };
 
-    enum SpecialActionType {
-        None = "None",
-        Strike = "Strike",
-    }
-    let specialAction = writable<SpecialActionType>(SpecialActionType.None);
     export const onClickOtherPlayer = async (otherPlayerPosition: Vector3, otherPlayerId: string) => {
         let direction = playerPosition.clone().sub(otherPlayerPosition);
         direction.negate();
@@ -236,9 +230,9 @@
         direction.normalize();
         direction.multiplyScalar(150);
         direction.y = 20;
-        specialAction.set(SpecialActionType.Strike);
+        character.playSpecialAction("Strike");
         rotation = Math.atan2(direction.x, direction.z);
-        socket.emit("player-pushed", otherPlayerId, direction);
+        //socket.emit("player-pushed", otherPlayerId, direction);
     };
 
     const spawnPlayer = () => {
@@ -253,6 +247,8 @@
             console.error("The are any Spawns on the scene");
         }
     };
+
+    let character: Character;
 </script>
 
 {#if playerSpawnsStore}
@@ -263,7 +259,7 @@
             spawnPlayer();
         }}
     >
-        <Character position.y={-1} rotation.y={rotation} velocity={playerVelocity} {isGrounded} {jumpStarted} {socket} {specialAction} />
+        <Character bind:this={character} position.y={-1} rotation.y={rotation} velocity={playerVelocity} {isGrounded} {jumpStarted} {socket} />
         <TextBillboard text={nick} position={[0, 3, 0]} {color} {outlineColor} />
         <Collider shape="capsule" args={[capsuleHeight, capsuleRadius]} bind:collider={playerCollider} />
         <Emote bind:this={emoteRef} />
