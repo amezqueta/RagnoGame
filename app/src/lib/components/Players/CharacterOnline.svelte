@@ -45,7 +45,7 @@
 
         currentActionKey = anim;
         savedFadeOutTime = fadeOutTime;
-        waitDuration = duration;
+        waitDuration = duration - 0.05;
 
         animations.splice(0, 1);
     };

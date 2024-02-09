@@ -52,7 +52,7 @@
                 jumpTask.stop();
                 idleTask.start();
                 jumpTaskTime = 0;
-                playAnimation("JumpEnd", 0.1, 0.2, 0.2);
+                playAnimation("JumpEnd", 0, 0.2, 0.4);
             }
 
             if (jumpStarted) {
@@ -106,8 +106,7 @@
         if (currentActionKey === anim) return;
 
         base.getAction(currentActionKey)?.fadeOut(savedFadeOutTime);
-        base.getAction(anim)?.play();
-        base.getAction(anim)?.fadeIn(fadeInTime);
+        base.getAction(anim)?.fadeIn(fadeInTime).play();
 
         currentActionKey = anim;
         savedFadeOutTime = fadeOutTime;

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { T, useTask } from "@threlte/core";
+    import { T, useStage, useTask, useThrelte } from "@threlte/core";
     import { useGltf, useGltfAnimations, useSuspense, useTexture } from "@threlte/extras";
     import { AnimationAction, Color, Group, LoopOnce, MeshToonMaterial, NearestFilter } from "three";
     import * as SkeletonUtils from "three/examples/jsm/utils/SkeletonUtils.js";
@@ -9,6 +9,11 @@
     export let ref = new Group();
     export let onLoaded: () => void;
 
+    const { renderStage } = useThrelte();
+    const afterRenderStage = useStage("after-render", {
+        after: renderStage,
+    });
+
     const suspend = useSuspense();
     const gltf = suspend(useGltf("/model/character/character.glb", { useDraco: "/" }));
 
@@ -17,6 +22,7 @@
     $: if ($gltf && $actions && !instancedMesh) {
         configureAnimationOnce(getAction("JumpStart"));
         configureAnimationOnce(getAction("JumpEnd"));
+        configureAnimationOnce(getAction("Strike"));
         instancedMesh = SkeletonUtils.clone($gltf.scene);
         onLoaded();
     }
@@ -65,16 +71,20 @@
 
     const stopFadeOutAnimations = () => {
         (Object.keys($actions) as string[]).forEach((anim) => {
-            if ($actions[anim].getEffectiveWeight() <= 0) {
+            if ($actions[anim].getEffectiveWeight() <= 0 && !$actions[anim]?.isRunning()) {
+                console.log("removed " + anim + " " + $actions[anim]?.isRunning() + " " + $actions[anim]?.isScheduled());
                 $actions[anim]?.stop();
                 $actions[anim]?.setEffectiveWeight(1);
             }
         });
     };
 
-    useTask(() => {
-        stopFadeOutAnimations();
-    });
+    useTask(
+        () => {
+            stopFadeOutAnimations();
+        },
+        { stage: afterRenderStage }
+    );
 </script>
 
 <T is={ref} dispose={false} {...$$restProps}>
