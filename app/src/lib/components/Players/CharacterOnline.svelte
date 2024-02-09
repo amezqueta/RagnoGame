@@ -6,7 +6,6 @@
     export let animation: any;
     export let hoverCharacter = false;
 
-    export let ref = new Group();
     let currentActionKey: string = "Idle";
     let base: CharacterBase;
 
@@ -26,8 +25,11 @@
         playAnimation(actionKey, fadeInTime, fadeOutTime, delay);
     }
 
-    let animations: any[] = [];
+    const onLoaded = () => {
+        animations.push({ actionKey: "Idle", fadeInTime: 0, fadeOutTime: 0, delay: 0 });
+    };
 
+    let animations: any[] = [];
     let savedFadeOutTime: number = 0;
     let waitDuration: number = 0;
     export const playAnimation = (anim: string, fadeInTime: number = 0.2, fadeOutTime: number = 0.2, duration: number = 0.0) => {
@@ -62,5 +64,5 @@
 </script>
 
 <T.Group position.y={-1}>
-    <CharacterBase bind:this={base} {hoverCharacter} />
+    <CharacterBase bind:this={base} {hoverCharacter} {onLoaded} />
 </T.Group>

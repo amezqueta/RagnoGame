@@ -23,6 +23,8 @@
         xzVel = new Vector3(xVel, 0, zVel).length();
     }
 
+    const onLoaded = () => {};
+
     const runTriggerThreshold: number = 0.1;
     //IDLE
     const { task: idleTask } = useTask(
@@ -92,7 +94,7 @@
         deltaTime = delta;
     });
 
-    let currentActionKey: string = "Idle";
+    let currentActionKey: string = "";
     let savedFadeOutTime: number = 0;
     let waitDuration: number = 0;
     export const playAnimation = (anim: string, fadeInTime: number = 0.2, fadeOutTime: number = 0.2, duration: number = 0.0) => {
@@ -115,4 +117,4 @@
     };
 </script>
 
-<CharacterBase bind:this={base} />
+<CharacterBase bind:this={base} {onLoaded} />

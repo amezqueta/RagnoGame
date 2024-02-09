@@ -7,6 +7,7 @@
     export let hoverCharacter = false;
 
     export let ref = new Group();
+    export let onLoaded: () => void;
 
     const suspend = useSuspense();
     const gltf = suspend(useGltf("/model/character/character.glb", { useDraco: "/" }));
@@ -16,9 +17,8 @@
     $: if ($gltf && $actions && !instancedMesh) {
         configureAnimationOnce(getAction("JumpStart"));
         configureAnimationOnce(getAction("JumpEnd"));
-        getAction("Idle")?.play();
-        getAction("Idle")?.setEffectiveWeight(1);
         instancedMesh = SkeletonUtils.clone($gltf.scene);
+        onLoaded();
     }
 
     export const getAction = (name: string): AnimationAction | undefined => {
@@ -65,9 +65,9 @@
 
     const stopFadeOutAnimations = () => {
         (Object.keys($actions) as string[]).forEach((anim) => {
-            if (getAction(anim).getEffectiveWeight() <= 0) {
-                getAction(anim)?.stop();
-                getAction(anim)?.setEffectiveWeight(1);
+            if ($actions[anim].getEffectiveWeight() <= 0) {
+                $actions[anim]?.stop();
+                $actions[anim]?.setEffectiveWeight(1);
             }
         });
     };
