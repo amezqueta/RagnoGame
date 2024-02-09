@@ -20,7 +20,6 @@ export const playerVelocityStore = writable<Vector3>(undefined);
 export const playerColorStore = writable<string>(undefined);
 export const playerDataStore = writable(undefined);
 export const privilegesStore = writable<number>(undefined);
-export const playAnimationStore = writable<PlayAnimationFunction>(undefined);
 
 export const cursorShowStore = writable<boolean>(true);
 

@@ -1,64 +1,16 @@
 <script lang="ts">
-    import { Group, Vector3, LoopOnce, AnimationAction } from "three";
-    import { T, useTask } from "@threlte/core";
-    import { useGltf, useGltfAnimations, useSuspense } from "@threlte/extras";
-    import * as SkeletonUtils from "three/examples/jsm/utils/SkeletonUtils.js";
+    import { Group, Vector3 } from "three";
+    import { useTask } from "@threlte/core";
     import type { Writable } from "svelte/store";
     import { clamp } from "svelte-tweakpane-ui/Utils.js";
-    import { playAnimationStore } from "../stores";
-    import SpecialActionType from "./Player.svelte";
+    import CharacterBase from "./CharacterBase.svelte";
 
     export let socket: any;
     export let velocity: Vector3 = new Vector3(0, 0, 0);
     export let isGrounded: Writable<boolean>;
     export let jumpStarted = false;
 
-    export let ref = new Group();
-
-    const suspend = useSuspense();
-    const gltf = suspend(useGltf("/model/character/character.glb", { useDraco: "/" }));
-    export const { actions, mixer } = useGltfAnimations(gltf, ref);
-
-    // let runAction: any;
-    // let hitAction: any;
-    // let idleAction: any;
-    $: if (mixer) {
-        mixer.timeScale = 0.5;
-        //     console.log($gltf);
-        configureAnimationOnce($actions["JumpStart"]);
-        configureAnimationOnce($actions["JumpEnd"]);
-        configureAnimationOnce($actions["Strike"]);
-        //     const runAnimation = $actions["Run"];
-        //     if (runAnimation) {
-        //         runAction = mixer.clipAction(runAnimation.getClip(), ref);
-        //     }
-        //     const baseballHitAnimation = $actions["Strike"];
-        //     const idleAnimation = $actions["Idle"];
-        //     if (baseballHitAnimation && idleAnimation) {
-        //         idleAction = mixer.clipAction(idleAnimation.getClip(), ref);
-        //         hitAction = mixer.clipAction(baseballHitAnimation.getClip(), ref);
-        //         hitAction.setEffectiveWeight(0.9);
-        //     }
-        idleTask.start();
-    }
-
-    // $: {
-    //     if (hitAction && idleAction) AnimationUtils.makeClipAdditive(hitAction.getClip(), 1);
-    // }
-
-    // $: if (hitAction) {
-    //     hitAction?.play();
-    // }
-
-    // $: if (runAction) {
-    //     runAction?.play();
-    // }
-
-    const configureAnimationOnce = (anim: AnimationAction | undefined) => {
-        if (!anim) return;
-        anim.clampWhenFinished = true;
-        anim.setLoop(LoopOnce, 1);
-    };
+    let base: CharacterBase;
 
     let yVel: number = 0;
     let xVel: number = 0;
@@ -110,11 +62,11 @@
             if (jumpTaskTime > 0.2) {
                 playAnimation("JumpLoop", 0.2, 0.1);
                 let loopDuration = clamp(1 / jumpTaskTime, 0.5, 1);
-                $actions["JumpLoop"]?.setDuration(loopDuration);
+                base.getAction("JumpLoop")?.setDuration(loopDuration);
                 return;
             }
         },
-        { autoStart: false }
+        { autoStart: true }
     );
 
     //RUN
@@ -137,8 +89,6 @@
 
     let deltaTime: number = 0;
     useTask((delta) => {
-        mixer.update(delta);
-        stopFadeOutAnimations();
         deltaTime = delta;
     });
 
@@ -153,9 +103,9 @@
 
         if (currentActionKey === anim) return;
 
-        $actions[currentActionKey]?.fadeOut(savedFadeOutTime);
-        $actions[anim]?.play();
-        $actions[anim]?.fadeIn(fadeInTime);
+        base.getAction(currentActionKey)?.fadeOut(savedFadeOutTime);
+        base.getAction(anim)?.play();
+        base.getAction(anim)?.fadeIn(fadeInTime);
 
         currentActionKey = anim;
         savedFadeOutTime = fadeOutTime;
@@ -163,28 +113,6 @@
 
         socket?.emit("playAnimation", currentActionKey, fadeInTime, savedFadeOutTime, waitDuration);
     };
-
-    $: if (socket && playAnimation && $actions) {
-        playAnimationStore.set(playAnimation);
-    }
-
-    const stopFadeOutAnimations = () => {
-        (Object.keys($actions) as string[]).forEach((anim) => {
-            if ($actions[anim].getEffectiveWeight() <= 0) {
-                $actions[anim]?.stop();
-                $actions[anim]?.setEffectiveWeight(1);
-            }
-        });
-    };
 </script>
 
-<T is={ref} dispose={false} {...$$restProps}>
-    {#await gltf}
-        <slot name="fallback" />
-    {:then gltf}
-        <T is={SkeletonUtils.clone(gltf.scene)} />
-    {:catch error}
-        <slot name="error" {error} />
-    {/await}
-    <slot {ref} />
-</T>
+<CharacterBase bind:this={base} />

@@ -2,7 +2,7 @@
     import { T } from "@threlte/core";
     import Player from "$lib/components/Players/Player.svelte";
     import PlayerOnline from "$lib/components/Players/PlayerOnline.svelte";
-    import { isSpectatorStore, playAnimationStore, playerDataStore, playerPositionStore, serverPlayersStore, socketStore } from "../stores";
+    import { isSpectatorStore, playerDataStore, playerPositionStore, serverPlayersStore, socketStore } from "../stores";
     import CameraControlsComponent from "../CameraControls.svelte";
     import { Vector3 } from "three";
 
