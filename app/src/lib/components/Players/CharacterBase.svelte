@@ -20,10 +20,13 @@
     let instancedMesh: any;
     export const { actions, mixer } = useGltfAnimations(gltf, ref);
     $: if ($gltf && $actions && !instancedMesh) {
+        instancedMesh = SkeletonUtils.clone($gltf.scene);
+    }
+
+    $: if ($actions && Object.keys($actions).length > 0) {
         configureAnimationOnce(getAction("JumpStart"));
         configureAnimationOnce(getAction("JumpEnd"));
         configureAnimationOnce(getAction("Strike"));
-        instancedMesh = SkeletonUtils.clone($gltf.scene);
         onLoaded();
     }
 
@@ -58,7 +61,10 @@
     }
 
     const configureAnimationOnce = (anim: AnimationAction | undefined) => {
-        if (!anim) return;
+        if (!anim) {
+            console.error("An animation doesn't exist on the mesh, and wants to be configured");
+            return;
+        }
         anim.clampWhenFinished = true;
         anim.setLoop(LoopOnce, 1);
     };
