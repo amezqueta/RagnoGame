@@ -109,7 +109,7 @@
 
         currentActionKey = anim;
         savedFadeOutTime = fadeOutTime;
-        waitDuration = duration - 0.1;
+        waitDuration = duration;
 
         socket?.emit("playAnimation", currentActionKey, fadeInTime, savedFadeOutTime, waitDuration);
     };

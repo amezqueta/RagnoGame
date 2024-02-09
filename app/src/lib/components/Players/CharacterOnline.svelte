@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { useTask } from "@threlte/core";
+    import { T, useTask } from "@threlte/core";
     import { Group } from "three";
     import CharacterBase from "./CharacterBase.svelte";
 
@@ -29,10 +29,10 @@
     let animations: any[] = [];
 
     let savedFadeOutTime: number = 0;
-    let savedDelay: number = 0;
-    export const playAnimation = (anim: string, fadeInTime: number = 0.2, fadeOutTime: number = 0.2, _savedDelay: number = 0.0) => {
-        if (savedDelay > 0) {
-            savedDelay -= deltaTime;
+    let waitDuration: number = 0;
+    export const playAnimation = (anim: string, fadeInTime: number = 0.2, fadeOutTime: number = 0.2, duration: number = 0.0) => {
+        if (waitDuration > 0) {
+            waitDuration -= deltaTime;
             return;
         }
 
@@ -43,7 +43,8 @@
 
         currentActionKey = anim;
         savedFadeOutTime = fadeOutTime;
-        savedDelay = _savedDelay;
+        waitDuration = duration;
+
         animations.splice(0, 1);
     };
 
@@ -60,4 +61,6 @@
     });
 </script>
 
-<CharacterBase bind:this={base} {hoverCharacter} {ref} />
+<T.Group position.y={-1}>
+    <CharacterBase bind:this={base} {hoverCharacter} />
+</T.Group>
