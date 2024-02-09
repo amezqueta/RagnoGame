@@ -114,6 +114,14 @@
 
         socket?.emit("playAnimation", currentActionKey, fadeInTime, savedFadeOutTime, waitDuration);
     };
+
+    //This action will have the duration of the animation, and optionally can stop the player from moving
+    export const playSpecialAnimation = (anim: string, fadeInTime: number = 0.2, fadeOutTime: number = 0.2, haltMovement: ((time: number) => void) | null = null) => {
+        const duration = base.getAction(anim)?.getClip()?.duration;
+        if (!duration) return;
+        playAnimation(anim, fadeInTime, fadeOutTime, duration);
+        if (haltMovement) haltMovement(duration - fadeOutTime - 0.1);
+    };
 </script>
 
 <CharacterBase bind:this={base} {onLoaded} />

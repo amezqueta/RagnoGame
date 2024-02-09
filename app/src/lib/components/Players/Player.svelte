@@ -240,9 +240,8 @@
         direction.multiplyScalar(150);
         direction.y = 20;
         rotation.set(Math.atan2(direction.x, direction.z));
-        character.playAnimation("Strike", 0.1, 0.1, 0.7);
-        haltMovement(0.3);
-        //socket.emit("player-pushed", otherPlayerId, direction);
+        character.playSpecialAnimation("Strike", 0.1, 0.1, haltMovement);
+        socket.emit("player-pushed", otherPlayerId, direction);
     };
 
     const spawnPlayer = () => {

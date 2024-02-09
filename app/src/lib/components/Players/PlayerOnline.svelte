@@ -45,7 +45,7 @@
     };
 
     const onMouseOver = (hover: boolean) => {
-        hoverCharacter = true;
+        if (hover) hoverCharacter = true;
     };
 
     const onMouseOut = () => {
@@ -53,7 +53,7 @@
     };
 </script>
 
-<ClickableMesh position={[position.x, position.y, position.z]} {geometry} {material} {onClickMesh} {onMouseOver} {onMouseOut} {rotation} distance={8} visible={false} />
+<ClickableMesh position={[position.x, position.y, position.z]} {geometry} {material} {onClickMesh} {onMouseOver} {onMouseOut} {rotation} distance={1.5} visible={false} />
 <T.Group position={[position.x, position.y, position.z]} rotation.y={rotation}>
     <CharacterOnline position={[0, -1, 0]} {animation} {hoverCharacter} />
     <TextBillboard text={nick} position={[0, 4, 0]} {color} />

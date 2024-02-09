@@ -72,7 +72,6 @@
     const stopFadeOutAnimations = () => {
         (Object.keys($actions) as string[]).forEach((anim) => {
             if ($actions[anim].getEffectiveWeight() <= 0 && !$actions[anim]?.isRunning()) {
-                console.log("removed " + anim + " " + $actions[anim]?.isRunning() + " " + $actions[anim]?.isScheduled());
                 $actions[anim]?.stop();
                 $actions[anim]?.setEffectiveWeight(1);
             }
