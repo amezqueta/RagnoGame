@@ -1,5 +1,6 @@
 body {
     cursor: url("/img/icon/cursor/cursor_open.gif"), auto;
+    font-family: Futura,Trebuchet MS,Arial,sans-serif; 
 }
 
 button {

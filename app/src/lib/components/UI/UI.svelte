@@ -3,7 +3,7 @@
     import { socketStore } from "../stores";
     import UiDebug from "./UIDebug.svelte";
     import EmotesUI from "./EmotesUI.svelte";
-    import UICardDeal from "./UICardDeal.svelte";
+    import UIPowerup from "./UIPowerup.svelte";
     import UIChat from "./UIChat.svelte";
 
     let socket: any;
@@ -15,7 +15,7 @@
 {#if socket}
     <DomPortal
         ><div id="UI__wrapper">
-            <UICardDeal {socket} />
+            <UIPowerup {socket} />
             <UIChat {socket} />
         </div></DomPortal
     >

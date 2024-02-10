@@ -104,7 +104,7 @@
         height: 100vh;
         overflow: hidden;
         pointer-events: none;
-        z-index: 99;
+        z-index: 999;
     }
     #fake-cursor {
         width: 32px;

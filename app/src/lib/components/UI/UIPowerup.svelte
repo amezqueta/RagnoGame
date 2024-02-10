@@ -1,5 +1,6 @@
 <script lang="ts">
     import { useControls } from "$lib/hooks/useControls";
+    import { getPowerup } from "$lib/components/Shared/powerupData";
     export let socket: any;
     const { controlActions } = useControls();
 
@@ -36,13 +37,15 @@
     $: if (visible) {
         randomCards = generateUniqueRandomNumbers(10, 3);
     }
+    let hovered = false;
+    let clicked = false;
 </script>
 
 <div id="cinemaStripes__wrapper">
     <div id="cinemaBG" class:visible></div>
     <div id="cards__wrapped" class:visible>
-        {#each randomCards as card}
-            <button on:click={(x) => clickCard(card)} class="card">{card}</button>
+        {#each randomCards as cardId}
+            <div class:hovered class:clicked style="background-image: url('img/card/{cardId}.png');" on:click={(x) => clickCard(cardId)} class="card">{getPowerup(cardId).name}</div>
         {/each}
     </div>
     <div id="cinemaStripe" class:visible></div>
@@ -71,16 +74,26 @@
         min-width: 250px;
         width: 250px;
         height: 400px;
-        background-color: aliceblue;
         border: 5px solid #000;
+        background-color: #000;
         border-radius: 15px;
         display: flex;
-        transition: transform 0.1s ease;
+        transition: all 0.1s ease;
         transform: scale(1, 1);
+        color: white;
+        font-weight: bold;
+        -webkit-text-stroke: 5px #020003;
+        paint-order: stroke fill;
+        background-repeat: no-repeat;
+        background-size: cover;
+        padding: 5px;
     }
-    .card:hover {
+    .card:hover,
+    .card.hovered {
         border: 5px solid #2b2b2b;
         transform: scale(1.1, 1.1);
+    }
+    .card.clicked {
     }
     #cinemaStripes__wrapper {
         pointer-events: none;
@@ -111,7 +124,7 @@
         background-position: -19px -19px;
         transition: opacity 1s ease;
         opacity: 0;
-        animation: bgAnimation 1s linear infinite; /* Animación en loop */
+        animation: bgAnimation 1s linear infinite;
     }
     @keyframes bgAnimation {
         0% {

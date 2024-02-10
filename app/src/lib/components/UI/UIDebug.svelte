@@ -2,6 +2,7 @@
     import { Color, Folder, FpsGraph, Monitor, Pane, Text, ThemeUtils } from "svelte-tweakpane-ui";
     import { playerColorStore, playerPositionStore, privilegesStore, serverDebugMsgAmountStore, serverPlayersStore, playerPowerupStore } from "../stores";
     import { onDestroy } from "svelte";
+    import { getPowerup } from "$lib/components/Shared/powerupData";
     document.addEventListener("pointerlockchange", onPointerlockchange);
 
     function onPointerlockchange(e: Event) {
@@ -24,6 +25,11 @@
     onDestroy(() => {
         document.removeEventListener("pointerlockchange", onPointerlockchange);
     });
+    let powerUpName = "";
+    $: if ($playerPowerupStore) {
+        const id = $playerPowerupStore;
+        powerUpName = `${getPowerup(id).name} (${id})`;
+    }
 </script>
 
 {#if serverPlayers}
@@ -50,7 +56,7 @@
         <Folder title="Info:">
             {#if $playerPositionStore}
                 <Text disabled bind:value={$playerPositionStore} label="Position" />
-                <Text disabled bind:value={$playerPowerupStore} label="PowerUp" />
+                <Text disabled bind:value={powerUpName} label="PowerUp" />
             {/if}
         </Folder>
     </Pane>
