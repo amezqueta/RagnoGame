@@ -1,31 +1,22 @@
 <script lang="ts">
     import DomPortal from "../Utilities/DomPortal.svelte";
-    import { playerDataStore, socketStore } from "../stores";
+    import { socketStore } from "../stores";
     import UiDebug from "./UIDebug.svelte";
     import EmotesUI from "./EmotesUI.svelte";
+    import UICardDeal from "./UICardDeal.svelte";
+    import UIChat from "./UIChat.svelte";
 
-    let value = "";
     let socket: any;
-    let playerData: any;
-
-    function clickButton() {
-        if (value == "") return;
-        socket?.emit("msg", playerData.nick + ": " + value);
-        value = "";
-    }
-
-    function onTextInput() {}
 
     $: if (socketStore) socket = $socketStore;
-    $: if (playerDataStore) playerData = $playerDataStore;
 </script>
 
 <UiDebug />
-{#if socket && playerData}
+{#if socket}
     <DomPortal
         ><div id="UI-wrapper">
-            <input bind:value on:input={onTextInput} />
-            <button type="button" on:click={clickButton}>Send</button>
+            <UICardDeal />
+            <UIChat {socket} />
         </div></DomPortal
     >
 {/if}
