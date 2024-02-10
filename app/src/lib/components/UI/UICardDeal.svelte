@@ -2,6 +2,24 @@
     import { useControls } from "$lib/hooks/useControls";
     export let socket: any;
     const { controlActions } = useControls();
+
+    const generateUniqueRandomNumbers = (max: number, count: number): number[] => {
+        if (max < count) {
+            throw new Error("The maximum range must be greater than or equal to the number of elements to generate.");
+        }
+
+        const numbers: number[] = [];
+        while (numbers.length < count) {
+            const randomNumber = Math.floor(Math.random() * max) + 1;
+            if (!numbers.includes(randomNumber)) {
+                numbers.push(randomNumber);
+            }
+        }
+
+        return numbers;
+    };
+    let randomCards: number[] = generateUniqueRandomNumbers(10, 3);
+
     let visible = true;
 
     $: if ($controlActions.map) {
@@ -14,14 +32,18 @@
             visible = false;
         }
     };
+
+    $: if (visible) {
+        randomCards = generateUniqueRandomNumbers(10, 3);
+    }
 </script>
 
 <div id="cinemaStripes__wrapper">
     <div id="cinemaBG" class:visible></div>
     <div id="cards__wrapped" class:visible>
-        <button on:click={(x) => clickCard(1)} class="card" />
-        <button on:click={(x) => clickCard(2)} class="card" />
-        <button on:click={(x) => clickCard(3)} class="card" />
+        {#each randomCards as card}
+            <button on:click={(x) => clickCard(card)} class="card">{card}</button>
+        {/each}
     </div>
     <div id="cinemaStripe" class:visible></div>
     <div id="cinemaStripe" class="bottom" class:visible></div>
