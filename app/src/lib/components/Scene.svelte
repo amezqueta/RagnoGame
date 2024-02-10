@@ -7,9 +7,7 @@
     import Item from "./Scene/Item.svelte";
     import Prop from "./Scene/Prop.svelte";
     import Structure from "./Scene/Structure.svelte";
-    import { useControls } from "$lib/hooks/useControls";
-
-    const { controlActions } = useControls();
+    import { playerPowerupStore } from "./stores";
 
     // const map = useTexture("tex/brick_00.png", {
     //     transform: (texture) => {
@@ -26,11 +24,11 @@
     //     material.map = $map;
     // }
 
-    $: if ($controlActions.map) {
-        mapVisible = !mapVisible;
-    }
-
     let mapVisible = false;
+
+    $: if ($playerPowerupStore) {
+        mapVisible = $playerPowerupStore === 3;
+    }
 </script>
 
 <Structure position={[5, 3, 0]} scale={[1, 1, 1]} />

@@ -1,6 +1,6 @@
 ﻿<script lang="ts">
     import { Color, Folder, FpsGraph, Monitor, Pane, Text, ThemeUtils } from "svelte-tweakpane-ui";
-    import { playerColorStore, playerPositionStore, privilegesStore, serverDebugMsgAmountStore, serverPlayersStore } from "../stores";
+    import { playerColorStore, playerPositionStore, privilegesStore, serverDebugMsgAmountStore, serverPlayersStore, playerPowerupStore } from "../stores";
     import { onDestroy } from "svelte";
     document.addEventListener("pointerlockchange", onPointerlockchange);
 
@@ -49,7 +49,8 @@
 
         <Folder title="Info:">
             {#if $playerPositionStore}
-                <Text bind:value={$playerPositionStore} label="Position" />
+                <Text disabled bind:value={$playerPositionStore} label="Position" />
+                <Text disabled bind:value={$playerPowerupStore} label="PowerUp" />
             {/if}
         </Folder>
     </Pane>

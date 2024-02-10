@@ -14,8 +14,8 @@
 <UiDebug />
 {#if socket}
     <DomPortal
-        ><div id="UI-wrapper">
-            <UICardDeal />
+        ><div id="UI__wrapper">
+            <UICardDeal {socket} />
             <UIChat {socket} />
         </div></DomPortal
     >
@@ -24,9 +24,11 @@
 <EmotesUI />
 
 <style>
-    #UI-wrapper {
+    #UI__wrapper {
+        pointer-events: none;
         position: absolute;
         width: 100%;
         bottom: 0;
+        top: 0;
     }
 </style>

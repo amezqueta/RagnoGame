@@ -5,7 +5,7 @@
     import { BoxGeometry, MeshStandardMaterial, Vector3 } from "three";
     import { onDestroy } from "svelte";
     import { RigidBody, Collider, useRapier } from "@threlte/rapier";
-    import { cameraControlPressedStore, playerColorStore, playerRigidbodyStore, privilegesStore, playerPositionStore, playerVelocityStore, playerSpawnsStore } from "../stores";
+    import { cameraControlPressedStore, playerColorStore, playerRigidbodyStore, privilegesStore, playerPositionStore, playerVelocityStore, playerSpawnsStore, playerPowerupStore } from "../stores";
     import { clamp } from "svelte-tweakpane-ui/Utils.js";
     import TextBillboard from "../TextBillboard.svelte";
     import { lerpAngle } from "../Utilities/Utils";
@@ -26,8 +26,12 @@
     const { camera } = useThrelte();
     const { world } = useRapier();
     const { controlAxis, controlActions } = useControls();
-    const jumpForce = 10;
-    const speed = 5;
+    let speed = 5;
+    let jumpForce = 10;
+    $: if ($playerPowerupStore) {
+        jumpForce = 10 + ($playerPowerupStore === 2 ? 2 : 0);
+        speed = 5 + ($playerPowerupStore === 1 ? 2 : 0);
+    }
 
     let rotation = writable(0);
 
@@ -63,6 +67,10 @@
     socket.on("player-pushed", (velocity: Vector3) => {
         const force = new Vector3(velocity.x, velocity.y, velocity.z);
         pushVelocity.add(force);
+    });
+
+    socket.on("player-powerup", (id: number) => {
+        playerPowerupStore.set(id);
     });
 
     const getForwardCamera = (): Vector3 => {

@@ -115,6 +115,14 @@ io.on('connection', (socket) => {
             socket.broadcast.emit('playAnimation', socket.id, actionKey, fadeInTime, fadeOutTime, delay);
         });
 
+        socket.on('powerup', (id) => {
+            io.sockets.sockets.forEach((sock) => {
+                if (sock.id == socket.id) {
+                    sock.emit('player-powerup', id);
+                }
+            });
+        });
+
         socket.on('disconnect', (reason) => {
             const index = serverPlayers.findIndex(player => player.userId === socket.id);
             if (index !== -1) {
