@@ -13,6 +13,7 @@ export const useControls = () => {
         ArrowRight: false,
         ' ': false,
         e: false,
+        k: false,
     });
 
     let wheel = writable(0);
@@ -57,6 +58,7 @@ export const useControls = () => {
         return {
             jump: !!keys[' '],
             emotes: !!keys['e'],
+            map: !!keys['k'],
         };
     });
 
