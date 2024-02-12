@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { Group, Vector3 } from "three";
+    import { Vector3 } from "three";
     import { useTask } from "@threlte/core";
     import type { Writable } from "svelte/store";
     import { clamp } from "svelte-tweakpane-ui/Utils.js";
@@ -9,6 +9,9 @@
     export let velocity: Vector3 = new Vector3(0, 0, 0);
     export let isGrounded: Writable<boolean>;
     export let jumpStarted = false;
+    export let cameraControlPressed = false;
+    export let rightControl: number = 0;
+    export let forwardControl: number = 0;
 
     let base: CharacterBase;
 
@@ -83,8 +86,12 @@
                 idleTask.start();
             }
 
-            //$actions["Run"]?.setEffectiveTimeScale(xzVel / 10);
-            playAnimation("Run");
+            if (cameraControlPressed && rightControl !== 0) {
+                playAnimation(rightControl === 1 ? "RightStrafe" : "LeftStrafe");
+            } else {
+                base.getAction("Run")?.setEffectiveTimeScale(forwardControl === -1 && cameraControlPressed ? -1 : 1);
+                playAnimation("Run");
+            }
         },
         { autoStart: false }
     );
