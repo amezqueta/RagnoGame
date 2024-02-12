@@ -68,7 +68,10 @@
         mouseXStore.set(mousex);
         mouseYStore.set(mousey);
         hoverElementUI = document.elementFromPoint(mousex, mousey);
+        pointer = hoverElementUI?.classList.contains("pointer");
     }
+
+    let pointer: boolean | undefined = false;
 
     function onMouseUp(e: MouseEvent) {
         pressedElementUI?.classList.remove("clicked");
@@ -90,7 +93,7 @@
 {#if isCursorShown}
     <DomPortal>
         <div id="cursor-wrapper">
-            <div id="fake-cursor" style="top:{mousey}px; left: {mousex}px;"></div>
+            <div id="fake-cursor" class:pointer style="top:{mousey}px; left: {mousex}px;"></div>
         </div>
     </DomPortal>
 {/if}
@@ -111,5 +114,8 @@
         height: 32px;
         position: absolute;
         background-image: url("/img/icon/cursor/cursor_open.gif");
+    }
+    .pointer {
+        background-image: url("/img/icon/cursor/cursor.gif") !important;
     }
 </style>
