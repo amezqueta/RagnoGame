@@ -56,6 +56,6 @@
 <ClickableMesh position={[position.x, position.y, position.z]} {geometry} {material} {onClickMesh} {onMouseOver} {onMouseOut} {rotation} distance={1.5} visible={false} />
 <T.Group position={[position.x, position.y, position.z]} rotation.y={rotation}>
     <CharacterOnline position={[0, -1, 0]} {animation} {hoverCharacter} />
-    <TextBillboard text={nick} position={[0, 4, 0]} {color} />
+    <TextBillboard text={nick} position={[0, 1.5, 0]} {color} />
     <Emote bind:this={emoteRef} />
 </T.Group>

@@ -279,7 +279,7 @@
         <T.Group rotation.y={$rotation} position.y={-1}>
             <Character bind:this={character} velocity={playerVelocity} {isGrounded} {jumpStarted} {socket} {cameraControlPressed} rightControl={$controlAxis.x} forwardControl={$controlAxis.y} />
         </T.Group>
-        <TextBillboard text={nick} position={[0, 3, 0]} {color} {outlineColor} />
+        <TextBillboard text={nick} position={[0, 1.5, 0]} {color} {outlineColor} />
         <Collider shape="capsule" args={[capsuleHeight, capsuleRadius]} bind:collider={playerCollider} />
         <Emote bind:this={emoteRef} />
     </RigidBody>

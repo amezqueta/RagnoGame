@@ -21,6 +21,11 @@
     export const { actions, mixer } = useGltfAnimations(gltf, ref);
     $: if ($gltf && $actions && !instancedMesh) {
         instancedMesh = SkeletonUtils.clone($gltf.scene);
+        instancedMesh.traverse((object: any) => {
+            if (object.isMesh) {
+                object.castShadow = true;
+            }
+        });
     }
 
     $: if ($actions && Object.keys($actions).length > 0) {

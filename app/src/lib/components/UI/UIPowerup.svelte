@@ -87,6 +87,10 @@
         background-repeat: no-repeat;
         background-size: cover;
         padding: 5px;
+        pointer-events: none;
+    }
+    .visible .card {
+        pointer-events: all;
     }
     .card:hover,
     .card.hovered {

@@ -6,7 +6,7 @@
     export let position = [0, 0, 0];
     export let color = "#FFFFFF";
     export let outlineColor = "#000000";
-    export let fontSize = 0.4;
+    export let fontSize = 0.2;
     export let outlineWidth = 0.015;
 
     let textMesh: any;
