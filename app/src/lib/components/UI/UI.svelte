@@ -5,6 +5,7 @@
     import EmotesUI from "./EmotesUI.svelte";
     import UIPowerup from "./UIPowerup.svelte";
     import UIChat from "./UIChat.svelte";
+    import SocialMedia from "./SocialMedia.svelte";
 
     let socket: any;
 
@@ -17,6 +18,7 @@
         ><div id="UI__wrapper">
             <UIPowerup {socket} />
             <UIChat {socket} />
+            <SocialMedia />
         </div></DomPortal
     >
 {/if}
