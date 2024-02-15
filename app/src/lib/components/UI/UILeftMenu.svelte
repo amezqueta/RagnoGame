@@ -41,9 +41,9 @@
         display: flex;
         flex-direction: column;
         flex-grow: 1;
-        border-right: 1px solid rgb(67, 70, 80);
+        border-right: 1px solid rgba(0, 0, 0, 0.5);
         flex: 1 1 33.33%;
-        background-color: #19191d;
+        background-color: var(--dark);
     }
     button {
         display: flex;

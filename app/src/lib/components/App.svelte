@@ -98,6 +98,10 @@
 {/if}
 
 <style>
+    :global(:root) {
+        --dark: #19191d;
+    }
+
     #loading-wrapper {
         color: white;
         text-align: center;

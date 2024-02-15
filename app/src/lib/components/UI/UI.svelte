@@ -13,8 +13,8 @@
     let socket: any;
 
     $: if (socketStore) socket = $socketStore;
-    let hideLeftMenu = false;
-    $: hideLeftMenu = $pointerLockerStore;
+    let hidePanels = false;
+    $: hidePanels = $pointerLockerStore;
 </script>
 
 <UiDebug />
@@ -23,12 +23,12 @@
         ><div id="UI__wrapper">
             <UIPowerup {socket} />
             <SocialMedia />
-            <div class="toggleLeftMenu" class:hideLeftMenu>
+            <div class="toggleLeftMenu" class:hidePanels>
                 <UILeftMenu />
                 <UIChat {socket} />
             </div>
         </div>
-        <Toaster toastOptions={{ style: "background: #333; color: #fff; border-radius: 0;", duration: 5000 }} />
+        <Toaster containerStyle={"margin: 10px 10px 40px 80px"} toastOptions={{ style: "background: #333; color: #fff; border-radius: 0;", duration: 5000 }} />
     </DomPortal>
 {/if}
 
@@ -46,11 +46,13 @@
         transition: all 0.5s;
         position: absolute;
         left: 0px;
+        opacity: 1;
         display: flex;
         flex-direction: row;
         height: 100%;
     }
-    .hideLeftMenu {
+    .hidePanels {
         left: -80px;
+        opacity: 0;
     }
 </style>

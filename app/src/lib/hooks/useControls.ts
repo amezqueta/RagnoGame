@@ -14,6 +14,8 @@ export const useControls = () => {
         ' ': false,
         e: false,
         k: false,
+        Enter: false,
+        Escape: false,
     });
 
     let wheel = writable(0);
@@ -41,14 +43,15 @@ export const useControls = () => {
         }, 100);
     };
 
-    const controlAxis = derived(keys, (keys) => {
+    const controlAxis = derived(keys, (keys) => {        
+        if(isInputFocused()){
+            return {x:0, y:0};
+        }
         return {
             x:
-                0 +
                 (keys.d || keys.ArrowRight ? 1 : 0) -
                 (keys.a || keys.ArrowLeft ? 1 : 0),
             y:
-                0 +
                 (keys.w || keys.ArrowUp ? 1 : 0) -
                 (keys.s || keys.ArrowDown ? 1 : 0),
         };
@@ -56,11 +59,17 @@ export const useControls = () => {
 
     const controlActions = derived(keys, (keys) => {
         return {
-            jump: !!keys[' '],
+            jump: isInputFocused() ? false : !!keys[' '] ,
             emotes: !!keys['e'],
             map: !!keys['k'],
+            chat: !!keys['Enter'],
+            escChat: !!keys['Escape'],
         };
     });
+
+    const isInputFocused = ():boolean => {
+        return document.activeElement !== document.body;
+    }
 
     const controlWheel = derived(wheel, (wheel) => {
         return {
@@ -82,5 +91,6 @@ export const useControls = () => {
         controlAxis,
         controlActions,
         controlWheel,
+        isInputFocused
     };
 };
