@@ -10,6 +10,7 @@
     import SceneWrapper from "./SceneWrapper.svelte";
     import FakeMouse from "./FakeMouse.svelte";
     import toast, { Toaster } from "svelte-french-toast";
+    import ThemeHandler from "./ThemeHandler.svelte";
 
     let socket: any = null;
     let serverConnected = false;
@@ -80,10 +81,11 @@
 </script>
 
 <svelte:window on:keydown={onKeyDown} />
+
+<ThemeHandler />
 {#if serverConnected}
     <Canvas
         ><!-- rendererParameters={{ antialias: false }} size={{ width: 960, height: 540 }}> -->
-
         <AudioListener />
         <Ui />
         <World>
@@ -98,10 +100,6 @@
 {/if}
 
 <style>
-    :global(:root) {
-        --dark: #19191d;
-    }
-
     #loading-wrapper {
         color: white;
         text-align: center;
