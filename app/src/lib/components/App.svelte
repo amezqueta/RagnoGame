@@ -9,6 +9,7 @@
     import Ui from "./UI/UI.svelte";
     import SceneWrapper from "./SceneWrapper.svelte";
     import FakeMouse from "./FakeMouse.svelte";
+    import toast, { Toaster } from "svelte-french-toast";
 
     let socket: any = null;
     let serverConnected = false;
@@ -50,8 +51,17 @@
         });
 
         //Chat messages
-        socket.on("msg", (message: string) => {
-            console.log(message);
+        socket.on("msg", (message: string, fromServer: boolean) => {
+            if (fromServer) {
+                toast(message, {
+                    position: "bottom-right",
+                });
+            } else {
+                toast(message, {
+                    position: "bottom-left",
+                    style: "border-radius: 20px;",
+                });
+            }
         });
 
         socket.on("server-debug-msgAmount", (serverDebugMsgAmount: number) => {

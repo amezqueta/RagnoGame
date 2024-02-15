@@ -1,11 +1,13 @@
 <script lang="ts">
+    import { playerDataStore } from "../stores";
+
     let value = "";
     export let socket: any;
-    let playerData: any;
 
     function clickButton() {
         if (value == "") return;
-        socket?.emit("msg", playerData.nick + ": " + value);
+        if (!$playerDataStore) return;
+        socket?.emit("msg", $playerDataStore.nick + ": " + value);
         value = "";
     }
 

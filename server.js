@@ -66,7 +66,7 @@ io.on('connection', (socket) => {
 
         const userAmount = serverPlayers.length;
         console.log('User (' + socket.id + ') connected to the server (' + userAmount + ')');
-        io.emit('msg', "SERVER: User connected: (" + userAmount + ")");
+        socket.broadcast.emit('msg', `SERVER: ${nick} connected`, true);
 
         socket.emit('connected', player, serverPlayers);
         socket.broadcast.emit('players-list', serverPlayers);
@@ -125,10 +125,12 @@ io.on('connection', (socket) => {
 
         socket.on('disconnect', (reason) => {
             const index = serverPlayers.findIndex(player => player.userId === socket.id);
+            const userAmount = serverPlayers.length - 1;
+            socket.broadcast.emit('msg', `SERVER: ${serverPlayers[index].nick} disconnected`, true);
             if (index !== -1) {
                 serverPlayers.splice(index, 1);
             }
-            const userAmount = serverPlayers.length;
+
             console.log('User (' + socket.id + ') disconnected from the server (' + userAmount + "): " + reason);
             io.emit('players-list', serverPlayers);
         });

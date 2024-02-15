@@ -6,6 +6,8 @@
     import UIPowerup from "./UIPowerup.svelte";
     import UIChat from "./UIChat.svelte";
     import SocialMedia from "./SocialMedia.svelte";
+    import toast, { Toaster } from "svelte-french-toast";
+    import { onMount } from "svelte";
 
     let socket: any;
 
@@ -19,8 +21,9 @@
             <UIPowerup {socket} />
             <UIChat {socket} />
             <SocialMedia />
-        </div></DomPortal
-    >
+        </div>
+        <Toaster toastOptions={{ style: "background: #333; color: #fff; border-radius: 0;", duration: 5000 }} />
+    </DomPortal>
 {/if}
 
 <EmotesUI />
