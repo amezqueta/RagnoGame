@@ -6,13 +6,15 @@
     import UIPowerup from "./UIPowerup.svelte";
     import UIChat from "./UIChat.svelte";
     import SocialMedia from "./SocialMedia.svelte";
-    import toast, { Toaster } from "svelte-french-toast";
-    import { onMount } from "svelte";
+    import { Toaster } from "svelte-french-toast";
     import UILeftMenu from "./UILeftMenu.svelte";
+    import { pointerLockerStore } from "../stores";
 
     let socket: any;
 
     $: if (socketStore) socket = $socketStore;
+    let hideLeftMenu = false;
+    $: hideLeftMenu = $pointerLockerStore;
 </script>
 
 <UiDebug />
@@ -21,7 +23,7 @@
         ><div id="UI__wrapper">
             <UIPowerup {socket} />
             <SocialMedia />
-            <div style="display: flex; flex-direction: row; height: 100%;">
+            <div class="toggleLeftMenu" class:hideLeftMenu>
                 <UILeftMenu />
                 <UIChat {socket} />
             </div>
@@ -39,5 +41,16 @@
         width: 100%;
         bottom: 0;
         top: 0;
+    }
+    .toggleLeftMenu {
+        transition: all 0.5s;
+        position: absolute;
+        left: 0px;
+        display: flex;
+        flex-direction: row;
+        height: 100%;
+    }
+    .hideLeftMenu {
+        left: -80px;
     }
 </style>
