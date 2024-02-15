@@ -23,7 +23,6 @@
 
 <style>
     #chat__wrapper {
-        position: absolute;
         width: 100%;
         top: 0;
         bottom: 0;

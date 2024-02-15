@@ -8,6 +8,7 @@
     import SocialMedia from "./SocialMedia.svelte";
     import toast, { Toaster } from "svelte-french-toast";
     import { onMount } from "svelte";
+    import UILeftMenu from "./UILeftMenu.svelte";
 
     let socket: any;
 
@@ -19,8 +20,11 @@
     <DomPortal
         ><div id="UI__wrapper">
             <UIPowerup {socket} />
-            <UIChat {socket} />
             <SocialMedia />
+            <div style="display: flex; flex-direction: row; height: 100%;">
+                <UILeftMenu />
+                <UIChat {socket} />
+            </div>
         </div>
         <Toaster toastOptions={{ style: "background: #333; color: #fff; border-radius: 0;", duration: 5000 }} />
     </DomPortal>
@@ -31,7 +35,7 @@
 <style>
     #UI__wrapper {
         pointer-events: none;
-        position: absolute;
+        position: fixed;
         width: 100%;
         bottom: 0;
         top: 0;
