@@ -1,11 +1,16 @@
 <script lang="ts">
+    import { writable } from "svelte/store";
+    import UiPanels from "./UIPanels.svelte";
+
     let hovered = false;
     let clicked = false;
+
+    let panelOpen = writable(0);
 </script>
 
 <div id="rightMenu__wrapper">
     <nav>
-        <button
+        <button on:click={(_) => panelOpen.set(1)}
             ><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"
                 ><path
                     fill="currentColor"
@@ -13,7 +18,7 @@
                 /></svg
             ></button
         >
-        <button class:hovered class:clicked
+        <button class:hovered class:clicked on:click={(_) => panelOpen.set(2)}
             ><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 512 512"
                 ><path
                     fill="none"
@@ -27,6 +32,8 @@
         >
     </nav>
 </div>
+
+<UiPanels {panelOpen} />
 
 <style>
     #rightMenu__wrapper {
