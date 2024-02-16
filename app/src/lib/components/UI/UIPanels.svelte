@@ -1,6 +1,13 @@
 <script lang="ts">
-    import type { Writable } from "svelte/store";
-    export let panelOpen: Writable<number>;
+    import { writable, type Writable } from "svelte/store";
+    import PlayerPanel from "./Panels/PlayerPanel.svelte";
+    export let panelOpen: Writable<number> = writable(0);
+
+    interface Panel {
+        title: string;
+        panel: any;
+    }
+    const panels: Panel[] = [{ title: "Player", panel: PlayerPanel }];
 </script>
 
 {#if $panelOpen}
@@ -8,6 +15,7 @@
         <div class="bg" on:click={(_) => panelOpen.set(0)}></div>
         <div class="windowShell">
             <div class="taskBar">
+                <h1>{panels[0].title}</h1>
                 <button on:click={(_) => panelOpen.set(0)} class="closeBtn">
                     <svg width="12" height="12" viewBox="0 0 12 12"
                         ><path
@@ -20,11 +28,8 @@
                     >
                 </button>
             </div>
-            {#if $panelOpen === 1}
-                <div>holiii</div>
-            {:else if $panelOpen === 2}
-                <div>2222</div>
-            {/if}
+            <hr />
+            <svelte:component this={panels[0].panel} />
         </div>
     </div>
 {/if}
@@ -39,6 +44,7 @@
         display: flex;
         justify-content: center;
         pointer-events: all;
+        color: var(--light);
     }
     .bg {
         background-color: rgba(0, 0, 0, 0.5);
@@ -51,7 +57,8 @@
     .windowShell {
         z-index: 500;
         max-width: 500px;
-        height: 500px;
+        height: 100vh;
+        max-height: 500px;
         background-color: var(--dark);
         margin: 0 auto;
         display: flex;
@@ -60,12 +67,14 @@
         flex-direction: column;
         padding: 15px;
         border-radius: 15px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.25);
         color: var(--light);
     }
     .taskBar {
         display: flex;
-        flex-direction: row-reverse;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
     }
     .closeBtn {
         width: 40px;
@@ -76,5 +85,11 @@
         margin: 5px;
         box-shadow: rgb(0, 0, 0) 0px 2px 8px;
         background-color: rgba(255, 255, 255, 0.05);
+    }
+    .windowShell h1 {
+        font-size: 1.5em;
+    }
+    :global(.windowShell h2) {
+        font-size: 1.1em;
     }
 </style>

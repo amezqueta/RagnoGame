@@ -1,6 +1,6 @@
 ﻿<script lang="ts">
-    import { Color, Folder, FpsGraph, Monitor, Pane, Text, ThemeUtils } from "svelte-tweakpane-ui";
-    import { playerColorStore, playerPositionStore, privilegesStore, serverDebugMsgAmountStore, serverPlayersStore, playerPowerupStore } from "../stores";
+    import { Folder, FpsGraph, Monitor, Pane, Text, ThemeUtils } from "svelte-tweakpane-ui";
+    import { playerPositionStore, privilegesStore, serverDebugMsgAmountStore, serverPlayersStore, playerPowerupStore } from "../stores";
     import { onDestroy } from "svelte";
     import { getPowerup } from "$lib/components/Shared/powerupData";
     document.addEventListener("pointerlockchange", onPointerlockchange);
@@ -13,12 +13,9 @@
 
     let privileges: number = 0;
 
-    let color = "#f33653";
     let serverPlayers: any[];
 
     $: if ($serverPlayersStore) serverPlayers = $serverPlayersStore;
-    $: if (playerColorStore) color = $playerColorStore;
-    $: if (color) playerColorStore.set(color);
     $: if (serverDebugMsgAmountStore) serverDebugMsgAmount = $serverDebugMsgAmountStore;
     $: if (privilegesStore) privileges = $privilegesStore;
 
@@ -34,9 +31,6 @@
 
 {#if serverPlayers}
     <Pane {theme} position="fixed" title="Config">
-        {#if color}
-            <Color bind:value={color} label="Color" />
-        {/if}
         <Folder title="Players:">
             {#each serverPlayers as user}
                 <Text value={user.nick == null ? user.userId : user.nick} />

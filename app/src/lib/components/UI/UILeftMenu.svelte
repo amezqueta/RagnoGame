@@ -10,7 +10,7 @@
 
 <div id="rightMenu__wrapper">
     <nav>
-        <button on:click={(_) => panelOpen.set(1)}
+        <button class:current={$panelOpen === 1} on:click={(_) => panelOpen.set(1)}
             ><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"
                 ><path
                     fill="currentColor"
@@ -18,7 +18,7 @@
                 /></svg
             ></button
         >
-        <button class:hovered class:clicked on:click={(_) => panelOpen.set(2)}
+        <button class:current={$panelOpen === 2} class:hovered class:clicked on:click={(_) => panelOpen.set(2)}
             ><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 512 512"
                 ><path
                     fill="none"
@@ -61,6 +61,7 @@
         padding: 10px;
         background-color: rgba(255, 255, 255, 0.1);
         color: var(--light);
+        border-left: 4px solid transparent;
     }
     button:hover,
     button.hovered {
@@ -69,6 +70,9 @@
     button:active,
     button.clicked {
         background-color: rgba(255, 255, 255, 0);
+    }
+    button.current {
+        border-left: 4px solid var(--primary);
     }
     svg {
         width: 25px;
