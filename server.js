@@ -3,6 +3,7 @@ const http = require('http');
 const { Server } = require('socket.io');
 const cors = require('cors');
 const readline = require('readline');
+const serverSettingsOn = require('./server/server-settings');
 
 const app = express();
 app.use(cors());
@@ -138,8 +139,9 @@ io.on('connection', (socket) => {
         socket.on('ping', () => {
             socket.emit('pong');
         });
-    });
 
+        serverSettingsOn(socket, io);
+    });
 });
 
 const getPlayer = (socketId) => {

@@ -10,7 +10,7 @@
     }
     const panels: Panel[] = [
         { title: "Player", panel: PlayerPanel },
-        { title: "Settings", panel: SettingsPanel },
+        { title: "Server Settings", panel: SettingsPanel },
     ];
 </script>
 

@@ -13,6 +13,8 @@
     import Emote from "../UI/Emote.svelte";
     import Character from "./Character.svelte";
     import { writable } from "svelte/store";
+    import { serverSettingsStore } from "$lib/stores/serverSettingsStore";
+    import type { ServerSettings } from "$lib/stores/serverSettingsStore";
 
     let rigidBody: RRigidBody;
     const material = new MeshStandardMaterial();
@@ -29,8 +31,8 @@
     let speed = 5;
     let jumpForce = 10;
     $: if ($playerPowerupStore) {
-        jumpForce = 10 + ($playerPowerupStore === 2 ? 2 : 0);
-        speed = 5 + ($playerPowerupStore === 1 ? 2 : 0);
+        jumpForce = $serverSettingsStore.jumpForce + ($playerPowerupStore === 2 ? 2 : 0);
+        speed = $serverSettingsStore.playerSpeed + ($playerPowerupStore === 1 ? 2 : 0);
     }
 
     let rotation = writable(0);
@@ -71,6 +73,10 @@
 
     socket.on("player-powerup", (id: number) => {
         playerPowerupStore.set(id);
+    });
+
+    socket.on("server-settings", (serverSettings: ServerSettings) => {
+        serverSettingsStore.set(serverSettings);
     });
 
     const getForwardCamera = (): Vector3 => {
