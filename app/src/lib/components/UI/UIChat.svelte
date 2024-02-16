@@ -23,7 +23,9 @@
 <div id="chat__wrapper">
     <div id="chat__container">
         <input bind:value bind:this={inputElement} />
-        <button type="button" on:click={clickButton}><svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24"><path fill="currentColor" d="M3 20v-6l8-2l-8-2V4l19 8z" /></svg></button>
+        <button type="button" on:click={clickButton}
+            ><svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24"><path fill="currentColor" d="M3 20v-6l8-2l-8-2V4l19 8z" /></svg></button
+        >
     </div>
 </div>
 
@@ -42,7 +44,7 @@
     }
     button {
         background-color: transparent;
-        color: white;
+        color: var(--light);
         margin: 0px;
         padding: 0px;
     }

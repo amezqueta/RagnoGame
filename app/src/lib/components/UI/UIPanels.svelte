@@ -1,13 +1,17 @@
 <script lang="ts">
     import { writable, type Writable } from "svelte/store";
     import PlayerPanel from "./Panels/PlayerPanel.svelte";
+    import SettingsPanel from "./Panels/SettingsPanel.svelte";
     export let panelOpen: Writable<number> = writable(0);
 
     interface Panel {
         title: string;
         panel: any;
     }
-    const panels: Panel[] = [{ title: "Player", panel: PlayerPanel }];
+    const panels: Panel[] = [
+        { title: "Player", panel: PlayerPanel },
+        { title: "Settings", panel: SettingsPanel },
+    ];
 </script>
 
 {#if $panelOpen}
@@ -15,7 +19,7 @@
         <div class="bg" on:click={(_) => panelOpen.set(0)}></div>
         <div class="windowShell">
             <div class="taskBar">
-                <h1>{panels[0].title}</h1>
+                <h1>{panels[$panelOpen - 1].title}</h1>
                 <button on:click={(_) => panelOpen.set(0)} class="closeBtn">
                     <svg width="12" height="12" viewBox="0 0 12 12"
                         ><path
@@ -29,7 +33,7 @@
                 </button>
             </div>
             <hr />
-            <svelte:component this={panels[0].panel} />
+            <svelte:component this={panels[$panelOpen - 1].panel} />
         </div>
     </div>
 {/if}
@@ -60,14 +64,13 @@
         height: 100vh;
         max-height: 500px;
         background-color: var(--dark);
-        margin: 0 auto;
         display: flex;
         align-self: center;
         flex-grow: 1;
         flex-direction: column;
         padding: 15px;
         border-radius: 15px;
-        border: 1px solid rgba(255, 255, 255, 0.25);
+        border: 1px solid rgba(255, 255, 255, 0.2);
         color: var(--light);
     }
     .taskBar {
@@ -83,8 +86,10 @@
         justify-content: center;
         border-radius: 100px;
         margin: 5px;
-        box-shadow: rgb(0, 0, 0) 0px 2px 8px;
         background-color: rgba(255, 255, 255, 0.05);
+    }
+    .closeBtn:hover {
+        background-color: rgba(255, 255, 255, 0.15);
     }
     .windowShell h1 {
         font-size: 1.5em;

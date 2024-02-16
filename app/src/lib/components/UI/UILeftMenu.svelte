@@ -1,16 +1,19 @@
 <script lang="ts">
     import { writable } from "svelte/store";
     import UiPanels from "./UIPanels.svelte";
+    let panelOpen = writable(0);
+
+    let handleClickButton = (index: number) => {
+        panelOpen.set($panelOpen === index ? 0 : index);
+    };
 
     let hovered = false;
     let clicked = false;
-
-    let panelOpen = writable(0);
 </script>
 
 <div id="rightMenu__wrapper">
     <nav>
-        <button class:current={$panelOpen === 1} on:click={(_) => panelOpen.set(1)}
+        <button class:current={$panelOpen === 1} on:click={(_) => handleClickButton(1)}
             ><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"
                 ><path
                     fill="currentColor"
@@ -18,7 +21,7 @@
                 /></svg
             ></button
         >
-        <button class:current={$panelOpen === 2} class:hovered class:clicked on:click={(_) => panelOpen.set(2)}
+        <button class:current={$panelOpen === 2} class:hovered class:clicked on:click={(_) => handleClickButton(2)}
             ><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 512 512"
                 ><path
                     fill="none"
