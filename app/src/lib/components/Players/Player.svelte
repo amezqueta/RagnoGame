@@ -27,7 +27,7 @@
 
     const { camera } = useThrelte();
     const { world } = useRapier();
-    const { controlAxis, controlActions } = useControls();
+    const { controlAxis, controlActions, controlMouse } = useControls();
     let speed = 5;
     let jumpForce = 10;
     $: if ($playerPowerupStore) {
@@ -246,7 +246,16 @@
         emoteRef.playEmote(emoteId);
     };
 
+    let strikeButton = false;
+    $: strikeButton = $controlMouse.mouse0 && $controlMouse.mouse2;
+    $: if (strikeButton) onStrike();
+
+    const onStrike = () => {
+        character.playSpecialAnimation("Strike", 0.1, 0.1, haltMovement);
+    };
+
     export const onClickOtherPlayer = async (otherPlayerPosition: Vector3, otherPlayerId: string) => {
+        return;
         let direction = playerPosition.clone().sub(otherPlayerPosition);
         direction.negate();
         direction.y = 0;

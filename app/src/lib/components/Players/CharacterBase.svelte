@@ -1,7 +1,7 @@
 <script lang="ts">
     import { T, useStage, useTask, useThrelte } from "@threlte/core";
     import { useGltf, useGltfAnimations, useSuspense, useTexture } from "@threlte/extras";
-    import { AnimationAction, Color, Group, LoopOnce, MeshToonMaterial, NearestFilter } from "three";
+    import { AnimationAction, Color, Group, LoopOnce, MeshToonMaterial, NearestFilter, Object3D } from "three";
     import * as SkeletonUtils from "three/examples/jsm/utils/SkeletonUtils.js";
 
     export let hoverCharacter = false;
@@ -16,16 +16,24 @@
 
     const suspend = useSuspense();
     const gltf = suspend(useGltf("/model/character/character.glb", { useDraco: "/" }));
-
-    let instancedMesh: any;
+    const weapon = suspend(useGltf("/model/character/weapon/bat.glb", { useDraco: "/" }));
+    let instancedMesh: Object3D;
+    let slots: { [name: string]: Object3D } = {};
     export const { actions, mixer } = useGltfAnimations(gltf, ref);
     $: if ($gltf && $actions && !instancedMesh) {
         instancedMesh = SkeletonUtils.clone($gltf.scene);
         instancedMesh.traverse((object: any) => {
-            if (object.isMesh) {
-                object.castShadow = true;
-            }
+            if (object.isMesh) object.castShadow = true;
+            if (object.name === "mixamorig1LeftHand") slots["weapon"] = object;
         });
+    }
+
+    export const addWeapon = (weapon: any) => {
+        slots["weapon"].add(weapon);
+    };
+
+    $: if ($weapon && instancedMesh) {
+        addWeapon(SkeletonUtils.clone($weapon.scene));
     }
 
     $: if ($actions && Object.keys($actions).length > 0) {
@@ -50,15 +58,6 @@
     $: if ($map) {
         characterMaterial = new MeshToonMaterial();
         characterMaterial.map = $map;
-    }
-
-    $: if (instancedMesh && characterMaterial) {
-        instancedMesh.traverse((child: any) => {
-            if (child.material) {
-                child.material = characterMaterial;
-                return;
-            }
-        });
     }
 
     $: if (characterMaterial && (hoverCharacter || !hoverCharacter)) {
@@ -102,7 +101,14 @@
         <slot name="fallback" />
     {:then gltf}
         {#if instancedMesh}
-            <T is={instancedMesh} name="Scene" />
+            <T is={instancedMesh} name="Scene">
+                <T
+                    is={characterMaterial}
+                    attach={(parent, self) => {
+                        parent.children[0].children[0].material = self;
+                    }}
+                />
+            </T>
         {/if}
     {:catch error}
         <slot name="error" {error} />

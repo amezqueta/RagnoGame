@@ -1,4 +1,4 @@
-import { writable } from 'svelte/store';
+import { writable } from "svelte/store";
 
 export interface ServerSettings {
     playerSpeed: number;
@@ -7,5 +7,5 @@ export interface ServerSettings {
 
 export const serverSettingsStore = writable<ServerSettings>({
     playerSpeed: 5,
-    jumpForce: 10
+    jumpForce: 10,
 });
