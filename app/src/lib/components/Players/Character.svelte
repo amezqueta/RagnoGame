@@ -4,6 +4,8 @@
     import type { Writable } from "svelte/store";
     import { clamp } from "svelte-tweakpane-ui/Utils.js";
     import CharacterBase from "./CharacterBase.svelte";
+    import { characterSettingsStore } from "$lib/stores/characterSettingsStore";
+    import { playerDataStore } from "../stores";
 
     export let socket: any;
     export let velocity: Vector3 = new Vector3(0, 0, 0);
@@ -129,6 +131,11 @@
         playAnimation(anim, fadeInTime, fadeOutTime, duration);
         if (haltMovement) haltMovement(duration - fadeOutTime - 0.1);
     };
+
+    //On loading the character, needs to know the weapon that is holding
+    $: if (playerDataStore && $playerDataStore) {
+        characterSettingsStore.set($playerDataStore.characterSettings);
+    }
 </script>
 
-<CharacterBase bind:this={base} {onLoaded} />
+<CharacterBase bind:this={base} {onLoaded} characterSettings={$characterSettingsStore} />

@@ -5,7 +5,6 @@
     import * as SkeletonUtils from "three/examples/jsm/utils/SkeletonUtils.js";
 
     export let hoverCharacter = false;
-
     export let ref = new Group();
     export let onLoaded: () => void;
 
@@ -16,7 +15,6 @@
 
     const suspend = useSuspense();
     const gltf = suspend(useGltf("/model/character/character.glb", { useDraco: "/" }));
-    const weapon = suspend(useGltf("/model/character/weapon/bat.glb", { useDraco: "/" }));
     let instancedMesh: Object3D;
     let slots: { [name: string]: Object3D } = {};
     export const { actions, mixer } = useGltfAnimations(gltf, ref);
@@ -28,13 +26,27 @@
         });
     }
 
-    export const addWeapon = (weapon: any) => {
-        slots["weapon"].add(weapon);
-    };
+    ///////////////////////
+    //Weapons handle
+    //@TODO refactorize
+    const weapons = ["bat", "bat2", "bat3"];
+    export let characterSettings: CharacterSettings = { weaponId: 0 };
 
-    $: if ($weapon && instancedMesh) {
-        addWeapon(SkeletonUtils.clone($weapon.scene));
+    let weapon = suspend(useGltf("/model/character/weapon/" + weapons[characterSettings.weaponId] + ".glb", { useDraco: "/" }));
+    let instancedWeapon: Object3D;
+    $: if (characterSettings) weapon = suspend(useGltf("/model/character/weapon/" + weapons[characterSettings.weaponId] + ".glb", { useDraco: "/" }));
+
+    $: if ($weapon && instancedMesh && !instancedWeapon) {
+        instancedWeapon = SkeletonUtils.clone($weapon.scene);
+        slots["weapon"].add(instancedWeapon);
     }
+
+    $: if ($weapon && instancedMesh && instancedWeapon) {
+        slots["weapon"].remove(instancedWeapon);
+        instancedWeapon = SkeletonUtils.clone($weapon.scene);
+        slots["weapon"].add(instancedWeapon);
+    }
+    ///////////////////////
 
     $: if ($actions && Object.keys($actions).length > 0) {
         configureAnimationOnce(getAction("JumpStart"));

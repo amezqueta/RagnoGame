@@ -20,6 +20,7 @@
     export let rotation: number = 0;
     export let animation: any;
     export let mainPlayerRef: Player;
+    export let characterSettings: CharacterSettings;
 
     $: {
         material.color.set(color);
@@ -55,7 +56,7 @@
 
 <ClickableMesh position={[position.x, position.y, position.z]} {geometry} {material} {onClickMesh} {onMouseOver} {onMouseOut} {rotation} distance={1.5} visible={false} />
 <T.Group position={[position.x, position.y, position.z]} rotation.y={rotation}>
-    <CharacterOnline position={[0, -1, 0]} {animation} {hoverCharacter} />
+    <CharacterOnline position={[0, -1, 0]} {animation} {hoverCharacter} {characterSettings} />
     <TextBillboard text={nick} position={[0, 1.5, 0]} {color} />
     <Emote bind:this={emoteRef} />
 </T.Group>

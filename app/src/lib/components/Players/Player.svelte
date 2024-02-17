@@ -30,7 +30,7 @@
     const { controlAxis, controlActions, controlMouse } = useControls();
     let speed = 5;
     let jumpForce = 10;
-    $: if ($playerPowerupStore) {
+    $: if (playerPowerupStore) {
         jumpForce = $serverSettingsStore.jumpForce + ($playerPowerupStore === 2 ? 2 : 0);
         speed = $serverSettingsStore.playerSpeed + ($playerPowerupStore === 1 ? 2 : 0);
     }

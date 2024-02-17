@@ -7,7 +7,6 @@
     import { Vector3 } from "three";
 
     let socket: any;
-
     let playerRef: any;
     let currentPlayerData: any = null;
 
@@ -20,6 +19,7 @@
         spectator: boolean;
         playerEmote: number;
         playAnimation: any;
+        characterSettings: CharacterSettings;
     };
 
     let scenePlayers: ScenePlayer[] = [];
@@ -69,17 +69,17 @@
             if (user) user.color = newColor;
         });
 
-        socket.on("user-set-nick", (userId: string, newNick: string) => {
-            const user = findPlayerById(userId);
-            if (user) user.nick = newNick;
-        });
-
         socket.on("player-emote", (userId: string, emoteId: number) => {
             if (userId === currentPlayerData.userId) playerRef?.playEmote(emoteId);
             else {
                 const user = findPlayerById(userId);
                 if (user) user.playerEmote = emoteId;
             }
+        });
+
+        socket.on("player-character-settings", (userId: string, characterSettings: CharacterSettings) => {
+            const user = findPlayerById(userId);
+            if (user) user.characterSettings = characterSettings;
         });
 
         socket.on("playAnimation", (userId: string, actionKey: string, fadeInTime: number, fadeOutTime: number, delay: number) => {
@@ -121,7 +121,17 @@
 {#if scenePlayers}
     {#each scenePlayers as p}
         {#if p.userId !== currentPlayerData.userId && p.spectator === false}
-            <PlayerOnline mainPlayerRef={playerRef} position={p.position} rotation={p.rotation} playerId={p.userId} color={p.color} nick={p.nick} playerEmote={p.playerEmote} animation={p.playAnimation} />
+            <PlayerOnline
+                mainPlayerRef={playerRef}
+                position={p.position}
+                rotation={p.rotation}
+                playerId={p.userId}
+                color={p.color}
+                nick={p.nick}
+                playerEmote={p.playerEmote}
+                animation={p.playAnimation}
+                characterSettings={p.characterSettings}
+            />
         {/if}
     {/each}
 {/if}

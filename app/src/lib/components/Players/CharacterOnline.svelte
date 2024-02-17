@@ -1,10 +1,10 @@
 <script lang="ts">
     import { T, useTask } from "@threlte/core";
-    import { Group } from "three";
     import CharacterBase from "./CharacterBase.svelte";
 
     export let animation: any;
     export let hoverCharacter = false;
+    export let characterSettings: CharacterSettings;
 
     let currentActionKey: string = "Idle";
     let base: CharacterBase;
@@ -64,5 +64,5 @@
 </script>
 
 <T.Group position.y={-1}>
-    <CharacterBase bind:this={base} {hoverCharacter} {onLoaded} />
+    <CharacterBase bind:this={base} {hoverCharacter} {onLoaded} {characterSettings} />
 </T.Group>
