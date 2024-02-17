@@ -4,6 +4,9 @@ const { Server } = require('socket.io');
 const cors = require('cors');
 const readline = require('readline');
 const serverSettingsOn = require('./server/server-settings');
+const characterSettingsOn = require('./server/character-settings');
+const serverPlayers = require('./server/serverPersistence');
+const getPlayer = require('./server/serverUtils');
 
 const app = express();
 app.use(cors());
@@ -35,7 +38,6 @@ rl.on('line', (input) => {
     }
 });
 
-let serverPlayers = [];
 let msgAmount = 0;
 let showAmountOfMsg = false;
 
@@ -60,7 +62,10 @@ io.on('connection', (socket) => {
             color: '#' + Math.floor(Math.random() * 16777215).toString(16),
             nick: nick,
             privileges: privileges,
-            spectator: data.spectator ? true : false
+            spectator: data.spectator ? true : false,
+            characterSettings: {
+                weaponId: 0,
+            }
         };
 
         serverPlayers.push(player);
@@ -141,12 +146,9 @@ io.on('connection', (socket) => {
         });
 
         serverSettingsOn(socket, io);
+        characterSettingsOn(socket, io);
     });
 });
-
-const getPlayer = (socketId) => {
-    return serverPlayers.find(x => x.userId === socketId);
-};
 
 const resetMessageCounter = () => {
     io.sockets.sockets.forEach(socket => {
