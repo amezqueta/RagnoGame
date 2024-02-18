@@ -26,27 +26,25 @@
         });
     }
 
-    ///////////////////////
-    //Weapons handle
-    //@TODO refactorize
-    const weapons = ["bat", "bat2", "bat3"];
     export let characterSettings: CharacterSettings = { weaponId: 0 };
+    const weaponsList = ["bat", "bat2", "bat3"];
 
-    let weapon = suspend(useGltf("/model/character/weapon/" + weapons[characterSettings.weaponId] + ".glb", { useDraco: "/" }));
-    let instancedWeapon: Object3D;
-    $: if (characterSettings) weapon = suspend(useGltf("/model/character/weapon/" + weapons[characterSettings.weaponId] + ".glb", { useDraco: "/" }));
+    let loadedWeapon;
+    $: if (characterSettings) loadedWeapon = suspend(useGltf("/model/character/weapon/" + weaponsList[characterSettings.weaponId] + ".glb", { useDraco: "/" }));
 
-    $: if ($weapon && instancedMesh && !instancedWeapon) {
-        instancedWeapon = SkeletonUtils.clone($weapon.scene);
-        slots["weapon"].add(instancedWeapon);
+    $: if ($loadedWeapon && instancedMesh) {
+        attachToSlot("weapon", $loadedWeapon.scene);
     }
 
-    $: if ($weapon && instancedMesh && instancedWeapon) {
-        slots["weapon"].remove(instancedWeapon);
-        instancedWeapon = SkeletonUtils.clone($weapon.scene);
-        slots["weapon"].add(instancedWeapon);
-    }
-    ///////////////////////
+    const attachToSlot = (slotName: string, object3D: Object3D) => {
+        var slot = slots[slotName];
+        var slotObject = slot.children.find((x) => x.name === slotName);
+        if (slotObject) slots[slotName].remove(slotObject);
+
+        var instancedWeapon = SkeletonUtils.clone(object3D);
+        instancedWeapon.name = slotName;
+        slots[slotName].add(instancedWeapon);
+    };
 
     $: if ($actions && Object.keys($actions).length > 0) {
         configureAnimationOnce(getAction("JumpStart"));
