@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { weaponsList } from "$lib/stores/characterSettingsStore";
     import { T, useStage, useTask, useThrelte } from "@threlte/core";
     import { useGltf, useGltfAnimations, useSuspense, useTexture } from "@threlte/extras";
     import { AnimationAction, Color, Group, LoopOnce, MeshToonMaterial, NearestFilter, Object3D } from "three";
@@ -16,34 +17,61 @@
     const suspend = useSuspense();
     const gltf = suspend(useGltf("/model/character/character.glb", { useDraco: "/" }));
     let instancedMesh: Object3D;
+
+    const slotsList: { [name: string]: string } = {
+        mixamorig1LeftHand: "weapon",
+        mixamorig1Head: "head",
+        mixamorig1HeadTop_End: "headTop",
+    };
     let slots: { [name: string]: Object3D } = {};
+
     export const { actions, mixer } = useGltfAnimations(gltf, ref);
     $: if ($gltf && $actions && !instancedMesh) {
         instancedMesh = SkeletonUtils.clone($gltf.scene);
         instancedMesh.traverse((object: any) => {
             if (object.isMesh) object.castShadow = true;
-            if (object.name === "mixamorig1LeftHand") slots["weapon"] = object;
+            //Adds a slot to the array, if it matches the slotsList
+            const slotName = slotsList[object.name];
+            if (slotName) {
+                slots[slotName] = object;
+            }
         });
     }
 
     export let characterSettings: CharacterSettings = { weaponId: 0 };
-    const weaponsList = ["bat", "bat2", "bat3"];
 
+    // Slots for weapon
     let loadedWeapon;
     $: if (characterSettings) loadedWeapon = suspend(useGltf("/model/character/weapon/" + weaponsList[characterSettings.weaponId] + ".glb", { useDraco: "/" }));
 
-    $: if ($loadedWeapon && instancedMesh) {
-        attachToSlot("weapon", $loadedWeapon.scene);
+    $: if ($loadedWeapon && Object.keys(slots).length > 0) {
+        let instancedWeapon = instanceObject($loadedWeapon);
+        attachToSlot("weapon", instancedWeapon);
     }
+    ///////////////////
 
-    const attachToSlot = (slotName: string, object3D: Object3D) => {
+    const attachToSlot = (slotName: string, instancedObject3D: Object3D) => {
         var slot = slots[slotName];
         var slotObject = slot.children.find((x) => x.name === slotName);
         if (slotObject) slots[slotName].remove(slotObject);
 
-        var instancedWeapon = SkeletonUtils.clone(object3D);
-        instancedWeapon.name = slotName;
-        slots[slotName].add(instancedWeapon);
+        instancedObject3D.name = slotName;
+        slots[slotName].add(instancedObject3D);
+    };
+
+    const instanceObject = (object3D: Object3D): Object3D => {
+        const instance = SkeletonUtils.clone(object3D.scene);
+        setMaterialToToon(instance);
+        return instance;
+    };
+
+    const setMaterialToToon = (object3D: Object3D) => {
+        object3D.traverse((object: any) => {
+            if (object.isMesh) {
+                let tex = object.material.map;
+                object.material = new MeshToonMaterial({ map: tex });
+            }
+        });
     };
 
     $: if ($actions && Object.keys($actions).length > 0) {
