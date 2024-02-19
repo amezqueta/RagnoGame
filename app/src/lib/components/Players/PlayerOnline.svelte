@@ -8,6 +8,8 @@
     import ClickableMesh from "../Shared/ClickableMesh.svelte";
     import CharacterOnline from "$lib/components/Players/CharacterOnline.svelte";
     import Player from "./Player.svelte";
+    import { Collider, RigidBody } from "@threlte/rapier";
+    import { type RigidBody as RRigidBody } from "@dimforge/rapier3d-compat";
 
     const material = new MeshStandardMaterial();
     material.emissive.set("white");
@@ -52,11 +54,17 @@
     const onMouseOut = () => {
         hoverCharacter = false;
     };
+
+    let rigidBody: RRigidBody;
+    $: if (rigidBody) rigidBody.setTranslation(position, true);
 </script>
 
 <ClickableMesh position={[position.x, position.y, position.z]} {geometry} {material} {onClickMesh} {onMouseOver} {onMouseOut} {rotation} distance={1.5} visible={false} />
-<T.Group position={[position.x, position.y, position.z]} rotation.y={rotation}>
-    <CharacterOnline position={[0, -1, 0]} {animation} {hoverCharacter} {characterSettings} />
-    <TextBillboard text={nick} position={[0, 1.5, 0]} {color} />
-    <Emote bind:this={emoteRef} />
-</T.Group>
+<RigidBody bind:rigidBody type="kinematicPosition" userData={{ playerId: playerId }}>
+    <T.Group rotation.y={rotation}>
+        <CharacterOnline position={[0, -1, 0]} {animation} {hoverCharacter} {characterSettings} />
+        <TextBillboard text={nick} position={[0, 1.5, 0]} {color} />
+        <Emote bind:this={emoteRef} />
+        <Collider shape="capsule" args={[0.8, 0.4]} />
+    </T.Group>
+</RigidBody>

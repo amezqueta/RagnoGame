@@ -1,8 +1,8 @@
 <script lang="ts">
-    import { type Collider as RCollider, type RigidBody as RRigidBody, Ray, RayColliderToi } from "@dimforge/rapier3d-compat";
+    import { type Collider as RCollider, type RigidBody as RRigidBody, Ray, RayColliderToi, QueryFilterFlags } from "@dimforge/rapier3d-compat";
     import { onMount } from "svelte";
     import { T, useTask, useThrelte } from "@threlte/core";
-    import { BoxGeometry, MeshStandardMaterial, Vector3 } from "three";
+    import { MeshStandardMaterial, Vector3 } from "three";
     import { onDestroy } from "svelte";
     import { RigidBody, Collider, useRapier } from "@threlte/rapier";
     import { cameraControlPressedStore, playerColorStore, playerRigidbodyStore, privilegesStore, playerPositionStore, playerVelocityStore, playerSpawnsStore, playerPowerupStore } from "../stores";
@@ -21,7 +21,6 @@
     const capsuleHeight = 0.8;
     const capsuleRadius = 0.2;
     const minGroundDistance = capsuleHeight - 0.4;
-    const geometry = new BoxGeometry(2, capsuleHeight * 3, 2);
     const raycastFloorDirection = new Vector3(0, -2.9, 0);
     export let ref = 2;
 
@@ -157,7 +156,7 @@
 
             //Raycast to the floor. @todo If the player is standing on an edge, isGrounded can be negative
             const ray: Ray = new Ray(rigidBody.translation(), raycastFloorDirection);
-            const raycastResult = world.castRay(ray, 1, false);
+            const raycastResult = world.castRay(ray, 1, false, QueryFilterFlags.EXCLUDE_SOLIDS);
             isGrounded.set(raycastResult ? raycastResult.toi < minGroundDistance : false);
             updateMeshRotation();
 
@@ -251,7 +250,7 @@
     $: if (strikeButton) onStrike();
 
     const onStrike = () => {
-        character.playSpecialAnimation("Strike", 0.1, 0.1, haltMovement);
+        character.playSpecialAnimation("Strike", 0.05, 0.05, haltMovement);
     };
 
     export const onClickOtherPlayer = async (otherPlayerPosition: Vector3, otherPlayerId: string) => {
