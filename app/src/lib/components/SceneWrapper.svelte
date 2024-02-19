@@ -3,9 +3,10 @@
     import Scene from "./Scene.svelte";
     import PlayersWrapper from "./Players/PlayersWrapper.svelte";
     import { ContactShadows, Sky, interactivity } from "@threlte/extras";
-    import { mouseXStore, mouseYStore, playerPositionStore } from "./stores";
+    import { debugRapierStore, mouseXStore, mouseYStore, playerPositionStore } from "./stores";
     import SpawnPlayer from "./Scene/SpawnPlayer.svelte";
     import { DirectionalLight, Vector3 } from "three";
+    import { Debug } from "@threlte/rapier";
 
     export let socket: any = null;
     let mouseX: number = 0;
@@ -36,6 +37,10 @@
         playerPosition = $playerPositionStore;
     }
 </script>
+
+{#if $debugRapierStore}
+    <Debug />
+{/if}
 
 <Sky elevation={1} />
 <T.AmbientLight intensity={0.5} />

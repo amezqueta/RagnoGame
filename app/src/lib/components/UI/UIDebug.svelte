@@ -1,6 +1,6 @@
 ﻿<script lang="ts">
-    import { Folder, FpsGraph, Monitor, Pane, Text, ThemeUtils } from "svelte-tweakpane-ui";
-    import { playerPositionStore, privilegesStore, serverDebugMsgAmountStore, serverPlayersStore, playerPowerupStore } from "../stores";
+    import { Checkbox, Folder, FpsGraph, Monitor, Pane, Text, ThemeUtils } from "svelte-tweakpane-ui";
+    import { playerPositionStore, privilegesStore, serverDebugMsgAmountStore, serverPlayersStore, playerPowerupStore, debugRapierStore } from "../stores";
     import { onDestroy } from "svelte";
     import { getPowerup } from "$lib/components/Shared/powerupData";
     document.addEventListener("pointerlockchange", onPointerlockchange);
@@ -53,5 +53,6 @@
                 <Text disabled bind:value={powerUpName} label="PowerUp" />
             {/if}
         </Folder>
+        <Checkbox bind:value={$debugRapierStore} label="Debug rapier" />
     </Pane>
 {/if}
