@@ -1,10 +1,13 @@
 <script lang="ts">
     import { weaponsList } from "$lib/stores/characterSettingsStore";
-    import { T, useStage, useTask, useThrelte } from "@threlte/core";
+    import { T, createRawEventDispatcher, useStage, useTask, useThrelte } from "@threlte/core";
     import { useGltf, useGltfAnimations, useSuspense, useTexture } from "@threlte/extras";
-    import { AnimationAction, Color, Group, LoopOnce, MeshToonMaterial, NearestFilter, Object3D } from "three";
+    import { RigidBody, Collider } from "@threlte/rapier";
+    import { AnimationAction, Vector3, Quaternion, Color, Group, LoopOnce, MeshToonMaterial, NearestFilter, Object3D } from "three";
     import * as SkeletonUtils from "three/examples/jsm/utils/SkeletonUtils.js";
+    import { type RigidBody as RRigidBody } from "@dimforge/rapier3d-compat";
 
+    export let addColliderToWeapon = false;
     export let hoverCharacter = false;
     export let ref = new Group();
     export let onLoaded: () => void;
@@ -39,13 +42,13 @@
     }
 
     export let characterSettings: CharacterSettings = { weaponId: 0 };
-
     // Slots for weapon
-    let loadedWeapon;
+    let loadedWeapon: any;
     $: if (characterSettings) loadedWeapon = suspend(useGltf("/model/character/weapon/" + weaponsList[characterSettings.weaponId] + ".glb", { useDraco: "/" }));
 
+    let instancedWeapon: Object3D;
     $: if ($loadedWeapon && Object.keys(slots).length > 0) {
-        let instancedWeapon = instanceObject($loadedWeapon);
+        instancedWeapon = instanceObject($loadedWeapon);
         attachToSlot("weapon", instancedWeapon);
     }
     ///////////////////
@@ -132,7 +135,28 @@
         },
         { stage: afterRenderStage }
     );
+
+    //Handles the collider of the weapon
+    let weaponPosition: Vector3 = new Vector3(0, 0, 0);
+    let weaponQuaternion: Quaternion = new Quaternion(0, 0, 0, 0);
+    let rigidBody: RRigidBody;
+    useTask(
+        () => {
+            if (!instancedWeapon) return;
+            instancedWeapon.getWorldPosition(weaponPosition);
+            instancedWeapon.getWorldQuaternion(weaponQuaternion);
+            rigidBody.setTranslation(weaponPosition, true);
+            rigidBody.setRotation({ x: weaponQuaternion.x, y: weaponQuaternion.y, z: weaponQuaternion.z, w: weaponQuaternion.w }, true);
+        },
+        { autoStart: addColliderToWeapon }
+    );
 </script>
+
+{#if addColliderToWeapon}
+    <RigidBody bind:rigidBody type={"kinematicPosition"}>
+        <Collider shape="capsule" args={[0.75, 0.1]} sensor></Collider>
+    </RigidBody>
+{/if}
 
 <T is={ref} dispose={false} {...$$restProps}>
     {#await gltf}

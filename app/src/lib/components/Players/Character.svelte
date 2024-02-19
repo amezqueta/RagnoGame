@@ -138,4 +138,4 @@
     }
 </script>
 
-<CharacterBase bind:this={base} {onLoaded} characterSettings={$characterSettingsStore} />
+<CharacterBase bind:this={base} {onLoaded} characterSettings={$characterSettingsStore} addColliderToWeapon />
