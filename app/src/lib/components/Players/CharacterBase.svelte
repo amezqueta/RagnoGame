@@ -2,13 +2,9 @@
     import { weaponsList } from "$lib/stores/characterSettingsStore";
     import { T, useStage, useTask, useThrelte } from "@threlte/core";
     import { useGltf, useGltfAnimations, useSuspense, useTexture } from "@threlte/extras";
-    import { RigidBody, Collider } from "@threlte/rapier";
     import { AnimationAction, Vector3, Quaternion, Color, Group, LoopOnce, MeshToonMaterial, NearestFilter, Object3D } from "three";
     import * as SkeletonUtils from "three/examples/jsm/utils/SkeletonUtils.js";
-    import { type RigidBody as RRigidBody, type Collider as RCollider } from "@dimforge/rapier3d-compat";
-    import { socketStore } from "../stores";
 
-    export let addColliderToWeapon = false;
     export let hoverCharacter = false;
     export let ref = new Group();
     export let onLoaded: () => void;
@@ -82,6 +78,7 @@
         configureAnimationOnce(getAction("JumpStart"));
         configureAnimationOnce(getAction("JumpEnd"));
         configureAnimationOnce(getAction("Strike"));
+        $actions["Strike"].setEffectiveTimeScale(1.5);
         onLoaded();
     }
 
@@ -136,47 +133,7 @@
         },
         { stage: afterRenderStage }
     );
-
-    //Handles the collider of the weapon
-    let weaponPosition: Vector3 = new Vector3(0, 0, 0);
-    let weaponQuaternion: Quaternion = new Quaternion(0, 0, 0, 0);
-    let rigidBody: RRigidBody;
-    useTask(
-        () => {
-            if ($actions && $actions["Strike"]) {
-                $actions["Strike"].setEffectiveTimeScale(1.5);
-                weaponSensorActive = $actions["Strike"].time > 0.2;
-            }
-            if (!instancedWeapon) return;
-            instancedWeapon.getWorldPosition(weaponPosition);
-            instancedWeapon.getWorldQuaternion(weaponQuaternion);
-            rigidBody.setTranslation(weaponPosition, true);
-            rigidBody.setRotation({ x: weaponQuaternion.x, y: weaponQuaternion.y, z: weaponQuaternion.z, w: weaponQuaternion.w }, true);
-        },
-        { autoStart: addColliderToWeapon }
-    );
-
-    let weaponSensorActive = false;
-    const onSensorEnter = (target: any) => {
-        if (!weaponSensorActive) return;
-        if (!target.targetRigidBody) return;
-        if (!target.targetRigidBody.userData.playerId) return;
-        if (!$socketStore) return;
-        let direction = target.targetRigidBody.translation();
-        let d = weaponPosition;
-        d.sub(direction);
-        d.multiplyScalar(100);
-        d.negate();
-        d.y += 100;
-        $socketStore.emit("player-pushed", target.targetRigidBody.userData.playerId, d);
-    };
 </script>
-
-{#if addColliderToWeapon}
-    <RigidBody bind:rigidBody type={"kinematicPosition"}>
-        <Collider shape="capsule" args={[0.65, 0.3]} sensor on:sensorenter={onSensorEnter}></Collider>
-    </RigidBody>
-{/if}
 
 <T is={ref} dispose={false} {...$$restProps}>
     {#await gltf}

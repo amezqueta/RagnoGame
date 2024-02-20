@@ -2,7 +2,7 @@
     import { type Collider as RCollider, type RigidBody as RRigidBody, Ray, RayColliderToi, QueryFilterFlags } from "@dimforge/rapier3d-compat";
     import { onMount } from "svelte";
     import { T, useTask, useThrelte } from "@threlte/core";
-    import { MeshStandardMaterial, Vector3 } from "three";
+    import { MeshStandardMaterial, Object3D, Vector3, Quaternion } from "three";
     import { onDestroy } from "svelte";
     import { RigidBody, Collider, useRapier } from "@threlte/rapier";
     import { cameraControlPressedStore, playerColorStore, playerRigidbodyStore, privilegesStore, playerPositionStore, playerVelocityStore, playerSpawnsStore, playerPowerupStore } from "../stores";
@@ -22,6 +22,7 @@
     const capsuleRadius = 0.2;
     const minGroundDistance = capsuleHeight - 0.4;
     const raycastFloorDirection = new Vector3(0, -2.9, 0);
+    let playerRotation = writable(0);
     export let ref = 2;
 
     const { camera } = useThrelte();
@@ -33,8 +34,6 @@
         jumpForce = $serverSettingsStore.jumpForce + ($playerPowerupStore === 2 ? 2 : 0);
         speed = $serverSettingsStore.playerSpeed + ($playerPowerupStore === 1 ? 2 : 0);
     }
-
-    let rotation = writable(0);
 
     let playerCollider: RCollider;
 
@@ -132,19 +131,18 @@
         }
     }
 
-    let forwardCamera: Vector3 = new Vector3();
     const updateMeshRotation = () => {
         const playerVelocityXZ = new Vector3(playerVelocity.x, 0, playerVelocity.z);
         if (playerVelocityXZ.lengthSq() < 1) return;
         if (cameraControlPressed) {
-            forwardCamera = getForwardCamera();
-            rotation.set(lerpAngle($rotation, Math.atan2(forwardCamera.x, forwardCamera.z), 0.5));
+            let forwardCamera = getForwardCamera();
+            playerRotation.set(lerpAngle($playerRotation, Math.atan2(forwardCamera.x, forwardCamera.z), 0.5));
         } else {
-            rotation.set(lerpAngle($rotation, Math.atan2(playerVelocityXZ.x, playerVelocityXZ.z), 0.5));
+            playerRotation.set(lerpAngle($playerRotation, Math.atan2(playerVelocityXZ.x, playerVelocityXZ.z), 0.5));
         }
     };
 
-    $: socket.emit("player-rotate", $rotation);
+    $: socket.emit("player-rotate", $playerRotation);
 
     const { start } = useTask(
         (deltaTime) => {
@@ -248,9 +246,12 @@
     let strikeButton = false;
     $: strikeButton = $controlMouse.mouse0 && $controlMouse.mouse2;
     $: if (strikeButton) onStrike();
-
     const onStrike = () => {
+        let forwardCamera = getForwardCamera();
+        playerRotation.set(Math.atan2(forwardCamera.x, forwardCamera.z));
         character.playSpecialAnimation("Strike", 0.05, 0.05, haltMovement);
+        updateStrikeRigidbodyPosition();
+        strikeSensorTask.start();
     };
 
     export const onClickOtherPlayer = async (otherPlayerPosition: Vector3, otherPlayerId: string) => {
@@ -261,7 +262,7 @@
         direction.normalize();
         direction.multiplyScalar(150);
         direction.y = 20;
-        rotation.set(Math.atan2(direction.x, direction.z));
+        playerRotation.set(Math.atan2(direction.x, direction.z));
         character.playSpecialAnimation("Strike", 0.1, 0.1, haltMovement);
         socket.emit("player-pushed", otherPlayerId, direction);
     };
@@ -280,6 +281,48 @@
     };
 
     let character: Character;
+
+    //Strike collision
+    let rigidbodyStrike: RRigidBody;
+    let strikeGroup: Object3D;
+    let strikeRigidbodyPosition: Vector3 = new Vector3(0, 1000, 0);
+    const up = new Vector3(0, 1, 0);
+    const updateStrikeRigidbodyPosition = () => {
+        strikeGroup.getWorldPosition(strikeRigidbodyPosition);
+        rigidbodyStrike.setTranslation(strikeRigidbodyPosition, true);
+        const quat = new Quaternion().setFromAxisAngle(up, $playerRotation + 45);
+        rigidbodyStrike.setRotation(quat, true);
+    };
+
+    let playerIdToStrike: string[] = [];
+    export const onSensorEnter = (target: any) => {
+        if (!target.targetRigidBody) return;
+        if (!target.targetRigidBody.userData.playerId) return;
+        playerIdToStrike.push(target.targetRigidBody.userData.playerId);
+    };
+
+    const { task: strikeSensorTask } = useTask(
+        () => {
+            if (character.strikeAnimationTime() < 0.01) return;
+            let direction = getForwardCamera();
+            direction.multiplyScalar(100);
+            direction.y += 10;
+
+            playerIdToStrike.forEach((player) => {
+                socket.emit("player-pushed", player, direction);
+            });
+            playerIdToStrike = [];
+
+            if (character.strikeAnimationTime() < 1) return;
+            unreachRigidbodyStrike();
+            strikeSensorTask.stop();
+        },
+        { autoStart: false }
+    );
+
+    const unreachRigidbodyStrike = () => {
+        rigidbodyStrike.setTranslation(new Vector3(0, 1000, 0), true);
+    };
 </script>
 
 {#if playerSpawnsStore}
@@ -290,7 +333,20 @@
             spawnPlayer();
         }}
     >
-        <T.Group rotation.y={$rotation} position.y={-1}>
+        <T.Group rotation.y={$playerRotation} position.y={-1}>
+            <!-- Strike collision -->
+            <T.Group position.z={1} position.y={1} bind:ref={strikeGroup}>
+                <RigidBody
+                    bind:rigidBody={rigidbodyStrike}
+                    type={"kinematicPosition"}
+                    on:create={() => {
+                        unreachRigidbodyStrike();
+                    }}
+                >
+                    <Collider shape="cuboid" args={[0.75, 1, 0.75]} sensor on:sensorenter={onSensorEnter}></Collider>
+                </RigidBody>
+            </T.Group>
+            <!---------------------->
             <Character bind:this={character} velocity={playerVelocity} {isGrounded} {jumpStarted} {socket} {cameraControlPressed} rightControl={$controlAxis.x} forwardControl={$controlAxis.y} />
         </T.Group>
         <TextBillboard text={nick} position={[0, 1.5, 0]} {color} {outlineColor} />

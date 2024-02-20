@@ -136,6 +136,8 @@
     $: if (playerDataStore && $playerDataStore) {
         characterSettingsStore.set($playerDataStore.characterSettings);
     }
+
+    export const strikeAnimationTime = (): number => base?.getAction("Strike")?.time ?? 0;
 </script>
 
 <CharacterBase bind:this={base} {onLoaded} characterSettings={$characterSettingsStore} addColliderToWeapon />
