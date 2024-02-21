@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { socketStore } from "$lib/components/stores";
+    import { socketStore } from "$lib/stores/stores";
     import { serverSettingsStore } from "$lib/stores/serverSettingsStore";
 
     const handleStart = () => {

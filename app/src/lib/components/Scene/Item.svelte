@@ -2,7 +2,7 @@
     import { BoxGeometry, MeshStandardMaterial, Vector3 } from "three";
     import ClickableMesh from "../Shared/ClickableMesh.svelte";
     import DebugObject from "./DebugObject.svelte";
-    import { playerColorStore } from "../stores";
+    import { playerColorStore } from "../../stores/stores";
 
     export let position: number[];
     const material = new MeshStandardMaterial();

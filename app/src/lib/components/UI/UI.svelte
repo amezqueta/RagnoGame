@@ -1,6 +1,6 @@
 <script lang="ts">
     import DomPortal from "../Utilities/DomPortal.svelte";
-    import { socketStore } from "../stores";
+    import { socketStore } from "../../stores/stores";
     import UiDebug from "./UIDebug.svelte";
     import EmotesUI from "./EmotesUI.svelte";
     import UIPowerup from "./UIPowerup.svelte";
@@ -8,7 +8,7 @@
     import SocialMedia from "./SocialMedia.svelte";
     import { Toaster } from "svelte-french-toast";
     import UILeftMenu from "./UILeftMenu.svelte";
-    import { pointerLockerStore } from "../stores";
+    import { pointerLockerStore } from "../../stores/stores";
 
     let socket: any;
 

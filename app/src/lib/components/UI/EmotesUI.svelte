@@ -1,7 +1,7 @@
 <script lang="ts">
     import DomPortal from "../Utilities/DomPortal.svelte";
     import { useControls } from "../../hooks/useControls";
-    import { pointerLockerStore, socketStore } from "../stores";
+    import { pointerLockerStore, socketStore } from "../../stores/stores";
     const { controlActions } = useControls();
 
     const emotionsAmount = 14;

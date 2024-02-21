@@ -1,10 +1,10 @@
 <script lang="ts">
-    import DomPortal from "./Utilities/DomPortal.svelte";
+    import DomPortal from "../Utilities/DomPortal.svelte";
     import { useTask, useThrelte } from "@threlte/core";
     import { clamp } from "svelte-tweakpane-ui/Utils.js";
     import { onDestroy, onMount } from "svelte";
-    import { cursorShowStore, mouseXStore, mouseYStore, pointerLockerStore } from "./stores";
-    import { useControls } from "../hooks/useControls";
+    import { cursorShowStore, mouseXStore, mouseYStore, pointerLockerStore } from "../../stores/stores";
+    import { useControls } from "../../hooks/useControls";
     const { controlActions } = useControls();
 
     let prev_hoverElementUI: Element | null;

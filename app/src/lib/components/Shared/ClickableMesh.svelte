@@ -1,7 +1,7 @@
 <script lang="ts">
     import { T } from "@threlte/core";
     import { useControls } from "$lib/hooks/useControls";
-    import { playerPositionStore } from "../stores";
+    import { playerPositionStore } from "../../stores/stores";
     import { Vector3, Euler } from "three";
     const { controlActions } = useControls();
     let hover = false;

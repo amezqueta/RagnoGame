@@ -1,6 +1,6 @@
 <script lang="ts">
-    import { socketStore } from "$lib/components/stores";
-    import { playerColorStore, playerDataStore } from "$lib/components/stores";
+    import { socketStore } from "$lib/stores/stores";
+    import { playerColorStore, playerDataStore } from "$lib/stores/stores";
     import ColorPicker, { ChromeVariant } from "svelte-awesome-color-picker";
     import { characterSettingsStore } from "$lib/stores/characterSettingsStore";
 

@@ -3,7 +3,7 @@
     import { T } from "@threlte/core";
     import { CapsuleGeometry, MeshStandardMaterial, Vector3 } from "three";
     import { onDestroy } from "svelte";
-    import TextBillboard from "../TextBillboard.svelte";
+    import TextBillboard from "../Shared/TextBillboard.svelte";
     import Emote from "../UI/Emote.svelte";
     import ClickableMesh from "../Shared/ClickableMesh.svelte";
     import CharacterOnline from "$lib/components/Players/CharacterOnline.svelte";

@@ -1,10 +1,10 @@
 <script lang="ts">
     import { T, useThrelte } from "@threlte/core";
     import Scene from "./Scene.svelte";
-    import PlayersWrapper from "./Players/PlayersWrapper.svelte";
+    import PlayersWrapper from "../Players/PlayersWrapper.svelte";
     import { ContactShadows, Sky, interactivity } from "@threlte/extras";
-    import { debugRapierStore, mouseXStore, mouseYStore, playerPositionStore } from "./stores";
-    import SpawnPlayer from "./Scene/SpawnPlayer.svelte";
+    import { debugRapierStore, mouseXStore, mouseYStore, playerPositionStore } from "../../stores/stores";
+    import SpawnPlayer from "./SpawnPlayer.svelte";
     import { DirectionalLight, Vector3 } from "three";
     import { Debug } from "@threlte/rapier";
 

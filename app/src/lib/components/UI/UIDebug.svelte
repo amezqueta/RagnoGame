@@ -1,6 +1,6 @@
 ﻿<script lang="ts">
     import { Checkbox, Folder, FpsGraph, Monitor, Pane, Text, ThemeUtils } from "svelte-tweakpane-ui";
-    import { playerPositionStore, privilegesStore, serverDebugMsgAmountStore, serverPlayersStore, playerPowerupStore, debugRapierStore } from "../stores";
+    import { playerPositionStore, privilegesStore, serverDebugMsgAmountStore, serverPlayersStore, playerPowerupStore, debugRapierStore } from "../../stores/stores";
     import { onDestroy } from "svelte";
     import { getPowerup } from "$lib/components/Shared/powerupData";
     document.addEventListener("pointerlockchange", onPointerlockchange);

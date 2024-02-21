@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { pointerLockerStore } from "../stores";
+    import { pointerLockerStore } from "../../stores/stores";
 </script>
 
 {#if !$pointerLockerStore}

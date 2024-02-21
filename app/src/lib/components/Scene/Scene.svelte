@@ -3,11 +3,11 @@
     import { T } from "@threlte/core";
     import { ContactShadows, Grid, OrbitControls, useGltf, useTexture } from "@threlte/extras";
     import { BoxGeometry, DirectionalLight, Group, MeshBasicMaterial, MeshStandardMaterial, MeshToonMaterial, RepeatWrapping } from "three";
-    import MovingPlatform from "./Scene/MovingPlatform.svelte";
-    import Item from "./Scene/Item.svelte";
-    import Prop from "./Scene/Prop.svelte";
-    import Structure from "./Scene/Structure.svelte";
-    import { playerPowerupStore } from "./stores";
+    import MovingPlatform from "./MovingPlatform.svelte";
+    import Item from "./Item.svelte";
+    import Prop from "./Prop.svelte";
+    import Structure from "./Structure.svelte";
+    import { playerPowerupStore } from "../../stores/stores";
 
     // const map = useTexture("tex/brick_00.png", {
     //     transform: (texture) => {

@@ -5,9 +5,9 @@
     import { MeshStandardMaterial, Object3D, Vector3, Quaternion } from "three";
     import { onDestroy } from "svelte";
     import { RigidBody, Collider, useRapier } from "@threlte/rapier";
-    import { cameraControlPressedStore, playerColorStore, playerRigidbodyStore, privilegesStore, playerPositionStore, playerVelocityStore, playerSpawnsStore, playerPowerupStore } from "../stores";
+    import { cameraControlPressedStore, playerColorStore, playerRigidbodyStore, privilegesStore, playerPositionStore, playerVelocityStore, playerSpawnsStore, playerPowerupStore } from "../../stores/stores";
     import { clamp } from "svelte-tweakpane-ui/Utils.js";
-    import TextBillboard from "../TextBillboard.svelte";
+    import TextBillboard from "../Shared/TextBillboard.svelte";
     import { lerpAngle } from "../Utilities/Utils";
     import { useControls } from "../../hooks/useControls";
     import Emote from "../UI/Emote.svelte";

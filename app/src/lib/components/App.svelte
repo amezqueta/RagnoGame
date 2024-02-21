@@ -3,14 +3,14 @@
     import io from "socket.io-client";
     import { onMount } from "svelte";
     import { World } from "@threlte/rapier";
-    import { serverTimestampStore, playerDataStore, privilegesStore, serverDebugMsgAmountStore, serverPlayersStore, socketStore } from "./stores";
+    import { serverTimestampStore, playerDataStore, privilegesStore, serverDebugMsgAmountStore, serverPlayersStore, socketStore } from "../stores/stores";
     import { AudioListener } from "@threlte/extras";
 
     import Ui from "./UI/UI.svelte";
-    import SceneWrapper from "./SceneWrapper.svelte";
-    import FakeMouse from "./FakeMouse.svelte";
+    import SceneWrapper from "./Scene/SceneWrapper.svelte";
+    import FakeMouse from "./UI/FakeMouse.svelte";
     import toast, { Toaster } from "svelte-french-toast";
-    import ThemeHandler from "./ThemeHandler.svelte";
+    import ThemeHandler from "./UI/ThemeHandler.svelte";
 
     let socket: any = null;
     let serverConnected = false;

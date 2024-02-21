@@ -5,7 +5,7 @@
     import { clamp } from "svelte-tweakpane-ui/Utils.js";
     import CharacterBase from "./CharacterBase.svelte";
     import { characterSettingsStore } from "$lib/stores/characterSettingsStore";
-    import { playerDataStore } from "../stores";
+    import { playerDataStore } from "../../stores/stores";
 
     export let socket: any;
     export let velocity: Vector3 = new Vector3(0, 0, 0);

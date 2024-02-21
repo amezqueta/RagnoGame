@@ -13,7 +13,7 @@
 
     import CameraControls from "camera-controls";
     import { Box3, Matrix4, Quaternion, Raycaster, Sphere, Spherical, Vector2, Vector3, Vector4, type PerspectiveCamera } from "three";
-    import { cameraControlPressedStore, cursorShowStore, playerVelocityStore } from "./stores";
+    import { cameraControlPressedStore, cursorShowStore, playerVelocityStore } from "../stores/stores";
     import { useRapier } from "@threlte/rapier";
     import { useControls } from "$lib/hooks/useControls";
     import { clamp, lerp } from "three/src/math/MathUtils.js";

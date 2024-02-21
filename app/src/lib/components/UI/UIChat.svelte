@@ -1,6 +1,6 @@
 <script lang="ts">
     import { useControls } from "$lib/hooks/useControls";
-    import { playerDataStore } from "../stores";
+    import { playerDataStore } from "../../stores/stores";
     const { controlActions, isInputFocused } = useControls();
 
     let inputElement: HTMLInputElement;

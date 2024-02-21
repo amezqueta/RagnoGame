@@ -3,7 +3,7 @@
     import { T, useTask } from "@threlte/core";
     import { Collider, RigidBody } from "@threlte/rapier";
     import { BoxGeometry, MeshStandardMaterial, Vector3, type Vector, MathUtils } from "three";
-    import { isSpectatorStore, serverTimestampStore } from "../stores";
+    import { isSpectatorStore, serverTimestampStore } from "../../stores/stores";
 
     let serverTimestamp: number;
     export let position1: number[];

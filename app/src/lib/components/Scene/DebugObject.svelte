@@ -1,8 +1,8 @@
 <script lang="ts">
     import { T } from "@threlte/core";
     import { Vector3 } from "three";
-    import { playerDataStore } from "../stores";
-    import TextBillboard from "../TextBillboard.svelte";
+    import { playerDataStore } from "../../stores/stores";
+    import TextBillboard from "../Shared/TextBillboard.svelte";
     export let position: number[];
     export let text: string;
     export let color: string = "#FF00FF";
