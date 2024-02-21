@@ -5,7 +5,16 @@
     import { MeshStandardMaterial, Object3D, Vector3, Quaternion } from "three";
     import { onDestroy } from "svelte";
     import { RigidBody, Collider, useRapier } from "@threlte/rapier";
-    import { cameraControlPressedStore, playerColorStore, playerRigidbodyStore, privilegesStore, playerPositionStore, playerVelocityStore, playerSpawnsStore, playerPowerupStore } from "../../stores/stores";
+    import {
+        cameraControlPressedStore,
+        playerColorStore,
+        playerRigidbodyStore,
+        privilegesStore,
+        playerPositionStore,
+        playerVelocityStore,
+        playerSpawnsStore,
+        playerPowerupStore,
+    } from "../../stores/stores";
     import { clamp } from "svelte-tweakpane-ui/Utils.js";
     import TextBillboard from "../Shared/TextBillboard.svelte";
     import { lerpAngle } from "../Utilities/Utils";
@@ -252,7 +261,7 @@
     const onStrike = () => {
         forwardCamera.set(getForwardCamera());
         playerRotation.set(Math.atan2($forwardCamera.x, $forwardCamera.z));
-        character.playSpecialAnimation("Strike", 0.05, 0.05, haltMovement);
+        character.playSpecialAnimation("Strike", 0.1, 0.2, haltMovement);
         strikeCollision.updateStrikeRigidbodyPositionAndExecute($playerRotation);
     };
 

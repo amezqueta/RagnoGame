@@ -4,6 +4,7 @@
     import { RigidBody, Collider } from "@threlte/rapier";
     import { Vector3, Quaternion, Object3D } from "three";
     import Character from "./Character.svelte";
+    import Audio from "../Shared/Audio.svelte";
 
     export let forwardCamera: Vector3 = new Vector3(0, 0, 0);
     let rigidbodyStrike: RRigidBody;
@@ -12,6 +13,7 @@
     let playerIdToStrike: string[] = [];
     export let character: Character;
     export let socket: any;
+    let playAudio = (src: string) => {};
 
     export const updateStrikeRigidbodyPositionAndExecute = (playerRotation: number) => {
         strikeGroup.getWorldPosition(strikeRigidbodyPosition);
@@ -30,16 +32,21 @@
 
     const { task: strikeSensorTask } = useTask(
         () => {
-            if (character.strikeAnimationTime() < 0.01) return;
+            if (character.strikeAnimationTime() < 0.3) return;
 
             let direction = forwardCamera.clone();
             direction.multiplyScalar(100);
             direction.y += 10;
 
-            playerIdToStrike.forEach((player) => {
-                socket.emit("player-pushed", player, direction);
-            });
-            playerIdToStrike = [];
+            console.log(playerIdToStrike.length);
+
+            if (playerIdToStrike.length > 0) {
+                playerIdToStrike.forEach((player) => {
+                    socket.emit("player-pushed", player, direction);
+                });
+                playerIdToStrike = [];
+                //playAudio("audio/player/strike.mp3");
+            }
 
             if (character.strikeAnimationTime() < 1) return;
             unreachRigidbodyStrike();
@@ -62,5 +69,6 @@
         }}
     >
         <Collider shape="cuboid" args={[0.75, 1, 0.75]} sensor on:sensorenter={onSensorEnter}></Collider>
+        <Audio bind:play={playAudio} />
     </RigidBody>
 </T.Group>

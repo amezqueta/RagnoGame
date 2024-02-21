@@ -97,7 +97,7 @@
 {#if serverConnected}
     <Canvas
         ><!-- rendererParameters={{ antialias: false }} size={{ width: 960, height: 540 }}> -->
-        <AudioListener />
+        <AudioListener id={"global"} />
         <Ui />
         <World>
             <SceneWrapper socket />

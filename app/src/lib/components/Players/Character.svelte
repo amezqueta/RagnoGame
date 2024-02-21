@@ -79,7 +79,7 @@
     //RUN
     const { task: runTask } = useTask(
         () => {
-            if (jumpStarted) {
+            if (jumpStarted || !$isGrounded) {
                 runTask.stop();
                 jumpTask.start();
             }
@@ -126,7 +126,10 @@
 
     //This action will have the duration of the animation, and optionally can stop the player from moving
     export const playSpecialAnimation = (anim: string, fadeInTime: number = 0.2, fadeOutTime: number = 0.2, haltMovement: ((time: number) => void) | null = null) => {
-        const duration = base.getAction(anim)?.getClip()?.duration;
+        let action = base.getAction(anim);
+        if (!action) return;
+        let duration = action.getClip()?.duration;
+        duration /= action.timeScale;
         if (!duration) return;
         playAnimation(anim, fadeInTime, fadeOutTime, duration);
         if (haltMovement) haltMovement(duration - fadeOutTime - 0.1);
