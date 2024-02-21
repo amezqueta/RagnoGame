@@ -15,7 +15,9 @@
     import { writable } from "svelte/store";
     import { serverSettingsStore } from "$lib/stores/serverSettingsStore";
     import type { ServerSettings } from "$lib/stores/serverSettingsStore";
+    import StrikeCollision from "./StrikeCollision.svelte";
 
+    let strikeCollision: StrikeCollision;
     let rigidBody: RRigidBody;
     const material = new MeshStandardMaterial();
     const capsuleHeight = 0.8;
@@ -86,12 +88,12 @@
     };
 
     function passDirectionCameraForward(direction: Vector3): Vector3 {
-        let forwardCamera: Vector3 = getForwardCamera();
+        forwardCamera.set(getForwardCamera());
         let up = new Vector3(0, 1, 0);
         let right = new Vector3();
-        right.crossVectors(up, forwardCamera).normalize();
+        right.crossVectors(up, $forwardCamera).normalize();
 
-        let moveDirection = forwardCamera.multiplyScalar(-direction.z).add(right.multiplyScalar(direction.x));
+        let moveDirection = $forwardCamera.clone().multiplyScalar(-direction.z).add(right.multiplyScalar(direction.x));
         return moveDirection;
     }
 
@@ -244,14 +246,14 @@
     };
 
     let strikeButton = false;
+    let forwardCamera = writable<Vector3>(new Vector3(0, 0, 0));
     $: strikeButton = $controlMouse.mouse0 && $controlMouse.mouse2;
     $: if (strikeButton) onStrike();
     const onStrike = () => {
-        let forwardCamera = getForwardCamera();
-        playerRotation.set(Math.atan2(forwardCamera.x, forwardCamera.z));
+        forwardCamera.set(getForwardCamera());
+        playerRotation.set(Math.atan2($forwardCamera.x, $forwardCamera.z));
         character.playSpecialAnimation("Strike", 0.05, 0.05, haltMovement);
-        updateStrikeRigidbodyPosition();
-        strikeSensorTask.start();
+        strikeCollision.updateStrikeRigidbodyPositionAndExecute($playerRotation);
     };
 
     export const onClickOtherPlayer = async (otherPlayerPosition: Vector3, otherPlayerId: string) => {
@@ -281,48 +283,6 @@
     };
 
     let character: Character;
-
-    //Strike collision
-    let rigidbodyStrike: RRigidBody;
-    let strikeGroup: Object3D;
-    let strikeRigidbodyPosition: Vector3 = new Vector3(0, 1000, 0);
-    const up = new Vector3(0, 1, 0);
-    const updateStrikeRigidbodyPosition = () => {
-        strikeGroup.getWorldPosition(strikeRigidbodyPosition);
-        rigidbodyStrike.setTranslation(strikeRigidbodyPosition, true);
-        const quat = new Quaternion().setFromAxisAngle(up, $playerRotation + 45);
-        rigidbodyStrike.setRotation(quat, true);
-    };
-
-    let playerIdToStrike: string[] = [];
-    export const onSensorEnter = (target: any) => {
-        if (!target.targetRigidBody) return;
-        if (!target.targetRigidBody.userData.playerId) return;
-        playerIdToStrike.push(target.targetRigidBody.userData.playerId);
-    };
-
-    const { task: strikeSensorTask } = useTask(
-        () => {
-            if (character.strikeAnimationTime() < 0.01) return;
-            let direction = getForwardCamera();
-            direction.multiplyScalar(100);
-            direction.y += 10;
-
-            playerIdToStrike.forEach((player) => {
-                socket.emit("player-pushed", player, direction);
-            });
-            playerIdToStrike = [];
-
-            if (character.strikeAnimationTime() < 1) return;
-            unreachRigidbodyStrike();
-            strikeSensorTask.stop();
-        },
-        { autoStart: false }
-    );
-
-    const unreachRigidbodyStrike = () => {
-        rigidbodyStrike.setTranslation(new Vector3(0, 1000, 0), true);
-    };
 </script>
 
 {#if playerSpawnsStore}
@@ -334,19 +294,7 @@
         }}
     >
         <T.Group rotation.y={$playerRotation} position.y={-1}>
-            <!-- Strike collision -->
-            <T.Group position.z={1} position.y={1} bind:ref={strikeGroup}>
-                <RigidBody
-                    bind:rigidBody={rigidbodyStrike}
-                    type={"kinematicPosition"}
-                    on:create={() => {
-                        unreachRigidbodyStrike();
-                    }}
-                >
-                    <Collider shape="cuboid" args={[0.75, 1, 0.75]} sensor on:sensorenter={onSensorEnter}></Collider>
-                </RigidBody>
-            </T.Group>
-            <!---------------------->
+            <StrikeCollision bind:this={strikeCollision} {character} forwardCamera={$forwardCamera} {socket} />
             <Character bind:this={character} velocity={playerVelocity} {isGrounded} {jumpStarted} {socket} {cameraControlPressed} rightControl={$controlAxis.x} forwardControl={$controlAxis.y} />
         </T.Group>
         <TextBillboard text={nick} position={[0, 1.5, 0]} {color} {outlineColor} />
