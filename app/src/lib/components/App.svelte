@@ -15,11 +15,21 @@
 
     let socket: any = null;
     let serverConnected = false;
+    let serverError: string | undefined;
 
     onMount(() => {
         const origin = window.location.origin;
         const ip = "http:" + origin.split(":")[1] + ":3000";
         socket = io(ip);
+
+        socket.on("connect_error", (err) => {
+            console.log(err.message);
+            console.log(err.description);
+            console.log(err.context);
+            serverError = err.message;
+            return;
+        });
+
         console.log("App mounted");
 
         socket.emit("initiate-ping");
@@ -97,7 +107,7 @@
         {/if}
     </Canvas>
 {:else}
-    <LoadingServer />
+    <LoadingServer {serverError} />
 {/if}
 
 <style>
