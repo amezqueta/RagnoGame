@@ -11,6 +11,7 @@
     import FakeMouse from "./UI/FakeMouse.svelte";
     import toast, { Toaster } from "svelte-french-toast";
     import ThemeHandler from "./UI/ThemeHandler.svelte";
+    import LoadingServer from "$lib/components/UI/Outside/LoadingServer.svelte";
 
     let socket: any = null;
     let serverConnected = false;
@@ -96,15 +97,10 @@
         {/if}
     </Canvas>
 {:else}
-    <div id="loading-wrapper">LOADING SERVER...</div>
+    <LoadingServer />
 {/if}
 
 <style>
-    #loading-wrapper {
-        color: white;
-        text-align: center;
-    }
-
     :global(canvas) {
         width: 100% !important;
         height: 100vh !important;
