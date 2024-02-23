@@ -1,7 +1,9 @@
 <script lang="ts">
     import UiWindowShell from "../comp/UIWindowShell.svelte";
-    import { createEventDispatcher } from "svelte";
+    import { createEventDispatcher, onMount } from "svelte";
     const dispatch = createEventDispatcher();
+
+    const randomNames = ["Mamamio", "Humongous", "Banana", "Pingo", "Yen", "Ocellotis", "Josemari", "Wobbletop", "Kazoo", "Malarkey", "Bumblebee", "Squeegee", "Whippersnap", "Otomotopia", "Juanjoya"];
 
     let nick = "";
 
@@ -17,6 +19,13 @@
     const onBlur = (e: Event) => {
         error = nick === "";
     };
+
+    onMount(() => {
+        if (nick === "") {
+            let randomNumber = Math.floor(Math.random() * randomNames.length); // Obtenemos un índice aleatorio
+            nick = randomNames[randomNumber];
+        }
+    });
 </script>
 
 <div id="container">
@@ -27,11 +36,13 @@
         <span slot="content">
             <form on:submit={handleSubmit}>
                 <label for="nickname">Nickname:</label>
-                <input type="text" id="nick" name="nick" class:error on:blur={onBlur} bind:value={nick} />
-
+                <div class="flex flexgrow">
+                    <input type="text" id="nick" name="nick" class:error on:blur={onBlur} bind:value={nick} />
+                    <button type="button">Random nickname</button>
+                </div>
                 <button type="submit">Submit</button>
-            </form>
-        </span>
+            </form></span
+        >
     </UiWindowShell>
 </div>
 
@@ -50,5 +61,10 @@
     }
     .error {
         border-color: red;
+    }
+    form {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-evenly;
     }
 </style>

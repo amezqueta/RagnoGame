@@ -51,4 +51,10 @@
     :global(.windowShell h2) {
         font-size: 1.1em;
     }
+    :global(.flex) {
+        display: flex;
+    }
+    :global(.flexgrow) {
+        flex-grow: 1;
+    }
 </style>
