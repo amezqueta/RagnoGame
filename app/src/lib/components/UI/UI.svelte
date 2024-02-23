@@ -22,7 +22,7 @@
     <DomPortal
         ><div id="UI__wrapper">
             <UIPowerup {socket} />
-            <SocialMedia />
+            <!--<SocialMedia />-->
             <div class="toggleLeftMenu" class:hidePanels>
                 <UILeftMenu />
                 <UIChat {socket} />

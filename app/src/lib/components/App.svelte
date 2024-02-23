@@ -12,12 +12,20 @@
     import toast, { Toaster } from "svelte-french-toast";
     import ThemeHandler from "./UI/ThemeHandler.svelte";
     import LoadingServer from "$lib/components/UI/Outside/LoadingServer.svelte";
+    import Access from "./UI/Outside/Access.svelte";
+    import { writable } from "svelte/store";
 
     let socket: any = null;
     let serverConnected = false;
     let serverError: string | undefined;
 
-    onMount(() => {
+    let mounted = false;
+    type BrowserData = {
+        nick: string | null;
+    };
+    const browserData = writable<BrowserData>(undefined);
+
+    const startConnection = () => {
         const origin = window.location.origin;
         const ip = "http:" + origin.split(":")[1] + ":3000";
         socket = io(ip);
@@ -37,13 +45,7 @@
         socket.on("initiate-pong", (serverTimestamp: number) => {
             serverTimestampStore.set(serverTimestamp - performance.now());
 
-            const params = new URLSearchParams(window.location.search);
-            let browserData = {
-                nick: params.get("nick") || null,
-                spectator: params.get("spectator") || null,
-            };
-
-            socket.emit("onboarding", browserData);
+            socket.emit("onboarding", $browserData);
         });
 
         socket.on("connected", (playerData: any, serverPlayers: any[]) => {
@@ -80,7 +82,17 @@
             serverDebugMsgAmountStore.set(serverDebugMsgAmount);
         });
         socketStore.set(socket);
+    };
+
+    onMount(() => {
+        const params = new URLSearchParams(window.location.search);
+        if (params.has("nick")) browserData.set({ nick: params.get("nick") });
+        mounted = true;
     });
+
+    $: if ($browserData && $browserData.nick) {
+        startConnection();
+    }
 
     let debugFakeMouse = true;
     const onKeyDown = (e: KeyboardEvent) => {
@@ -89,12 +101,19 @@
             debugFakeMouse = !debugFakeMouse;
         }
     };
+
+    export const handleDataUpdate = (data: CustomEvent<any>) => {
+        browserData.update((currentData) => ({ ...currentData, nick: data.detail }));
+        console.log(data);
+    };
 </script>
 
 <svelte:window on:keydown={onKeyDown} />
 
 <ThemeHandler />
-{#if serverConnected}
+{#if !$browserData && mounted}
+    <Access on:updateData={handleDataUpdate} />
+{:else if serverConnected}
     <Canvas
         ><!-- rendererParameters={{ antialias: false }} size={{ width: 960, height: 540 }}> -->
         <AudioListener id={"global"} />

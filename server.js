@@ -62,7 +62,7 @@ io.on('connection', (socket) => {
             color: '#' + Math.floor(Math.random() * 16777215).toString(16),
             nick: nick,
             privileges: privileges,
-            spectator: data.spectator ? true : false,
+            spectator: false,
             characterSettings: {
                 weaponId: 0,
             }

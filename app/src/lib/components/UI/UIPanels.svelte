@@ -58,43 +58,4 @@
         right: 0px;
         bottom: 0px;
     }
-    .windowShell {
-        z-index: 500;
-        max-width: 500px;
-        height: 100vh;
-        max-height: 500px;
-        background-color: var(--dark);
-        display: flex;
-        align-self: center;
-        flex-grow: 1;
-        flex-direction: column;
-        padding: 15px;
-        border-radius: 15px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        color: var(--light);
-    }
-    .taskBar {
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: center;
-    }
-    .closeBtn {
-        width: 40px;
-        height: 40px;
-        align-items: center;
-        justify-content: center;
-        border-radius: 100px;
-        margin: 5px;
-        background-color: rgba(255, 255, 255, 0.05);
-    }
-    .closeBtn:hover {
-        background-color: rgba(255, 255, 255, 0.15);
-    }
-    .windowShell h1 {
-        font-size: 1.5em;
-    }
-    :global(.windowShell h2) {
-        font-size: 1.1em;
-    }
 </style>
