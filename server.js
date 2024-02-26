@@ -66,6 +66,7 @@ io.on('connection', (socket) => {
             score: 0,
             characterSettings: {
                 weaponId: 0,
+                headId: 0,
             }
         };
 

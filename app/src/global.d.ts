@@ -4,6 +4,7 @@ declare global {
     }
     type CharacterSettings = {
         weaponId: number;
+        headId: number;
     };
 }
 

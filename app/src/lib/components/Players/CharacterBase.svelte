@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { weaponsList } from "$lib/stores/characterSettingsStore";
+    import { weaponsList, headList } from "$lib/stores/characterSettingsStore";
     import { T, useStage, useTask, useThrelte } from "@threlte/core";
     import { useGltf, useGltfAnimations, useSuspense, useTexture } from "@threlte/extras";
     import { AnimationAction, Vector3, Quaternion, Color, Group, LoopOnce, MeshToonMaterial, NearestFilter, Object3D } from "three";
@@ -38,15 +38,29 @@
         });
     }
 
-    export let characterSettings: CharacterSettings = { weaponId: 0 };
-    // Slots for weapon
+    export let characterSettings: CharacterSettings = { weaponId: 0, headId: 0 };
+    // Slots
+    let weaponId = 0;
+    let headId = 0;
     let loadedWeapon: any;
-    $: if (characterSettings) loadedWeapon = suspend(useGltf("/model/character/weapon/" + weaponsList[characterSettings.weaponId] + ".glb", { useDraco: "/" }));
+    let loadedHead: any;
+    $: if (characterSettings) {
+        weaponId = characterSettings.weaponId;
+        headId = characterSettings.headId;
+    }
+    $: loadedWeapon = suspend(useGltf("/model/character/weapon/" + weaponsList[weaponId] + ".glb", { useDraco: "/" }));
+    $: loadedHead = suspend(useGltf("/model/character/head/" + headList[headId] + ".glb", { useDraco: "/" }));
 
     let instancedWeapon: Object3D;
     $: if ($loadedWeapon && Object.keys(slots).length > 0) {
         instancedWeapon = instanceObject($loadedWeapon);
         attachToSlot("weapon", instancedWeapon);
+    }
+
+    let instancedHead: Object3D;
+    $: if ($loadedHead && Object.keys(slots).length > 0) {
+        instancedHead = instanceObject($loadedHead);
+        attachToSlot("head", instancedHead);
     }
     ///////////////////
 

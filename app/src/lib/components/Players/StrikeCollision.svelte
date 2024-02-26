@@ -38,8 +38,6 @@
             direction.multiplyScalar(100);
             direction.y += 10;
 
-            console.log(playerIdToStrike.length);
-
             if (playerIdToStrike.length > 0) {
                 playerIdToStrike.forEach((player) => {
                     socket.emit("player-pushed", player, direction);

@@ -21,4 +21,8 @@
         >Weapon:
         <input type="number" on:change={handlePlayerChange} bind:value={$characterSettingsStore.weaponId} max="2" min="0" /></label
     >
+    <label
+        >Head:
+        <input type="number" on:change={handlePlayerChange} bind:value={$characterSettingsStore.headId} max="1" min="0" /></label
+    >
 </div>
