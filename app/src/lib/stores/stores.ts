@@ -30,4 +30,4 @@ export const pointerLockerStore = writable<boolean>(undefined);
 
 export const playerSpawnsStore = writable<position[]>([]);
 
-export const debugRapierStore = writable(true);
+export const debugRapierStore = writable(false);

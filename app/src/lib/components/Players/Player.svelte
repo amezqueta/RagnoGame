@@ -138,6 +138,7 @@
     function returnPlayerOnFall() {
         if (rigidBody.translation().y < -30) {
             spawnPlayer(rigidBody);
+            socket.emit("player-add-score");
         }
     }
 

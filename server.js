@@ -63,6 +63,7 @@ io.on('connection', (socket) => {
             nick: nick,
             privileges: privileges,
             spectator: false,
+            score: 0,
             characterSettings: {
                 weaponId: 0,
             }
@@ -109,6 +110,14 @@ io.on('connection', (socket) => {
 
         socket.on('player-emote', (emoteId) => {
             io.emit('player-emote', socket.id, emoteId);
+        });
+
+        socket.on('player-add-score', () => {
+            const player = getPlayer(socket.id);
+            if (player) {
+                player.score++;
+                io.emit('players-list', serverPlayers);
+            }
         });
 
         socket.on('server-color', (color) => {

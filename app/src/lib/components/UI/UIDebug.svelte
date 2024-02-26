@@ -33,7 +33,7 @@
     <Pane {theme} position="fixed" title="Config">
         <Folder title="Players:">
             {#each serverPlayers as user}
-                <Text value={user.nick == null ? user.userId : user.nick} />
+                <Text value="{user.nick} ({user.score})" />
             {/each}
         </Folder>
         <Folder expanded={false} title="FPS:">
