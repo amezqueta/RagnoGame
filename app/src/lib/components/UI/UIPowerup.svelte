@@ -45,7 +45,9 @@
     <div id="cinemaBG" class:visible></div>
     <div id="cards__wrapped" class:visible>
         {#each randomCards as cardId}
-            <div class:hovered class:clicked style="background-image: url('img/card/{cardId}.png');" on:click={(x) => clickCard(cardId)} class="card pointer">{getPowerup(cardId).name}</div>
+            <div role="dialog" class:hovered class:clicked style="background-image: url('img/card/{cardId}.png');" on:click={(x) => clickCard(cardId)} class="card pointer">
+                {getPowerup(cardId).name}
+            </div>
         {/each}
     </div>
     <div id="cinemaStripe" class:visible></div>

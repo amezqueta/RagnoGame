@@ -29,7 +29,7 @@
 </script>
 
 <div id="container">
-    <img id="logo" src="img/logo.svg" />
+    <img id="logo" src="img/logo.svg" alt="logo" />
 
     <UiWindowShell>
         <span slot="title">Access</span>

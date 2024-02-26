@@ -34,7 +34,6 @@
     const minGroundDistance = capsuleHeight - 0.4;
     const raycastFloorDirection = new Vector3(0, -2.9, 0);
     let playerRotation = writable(0);
-    export let ref = 2;
 
     const { camera } = useThrelte();
     const { world } = useRapier();
@@ -298,7 +297,7 @@
     <RigidBody
         bind:rigidBody
         enabledRotations={[false, false, false]}
-        on:create={(ref) => {
+        on:create={() => {
             spawnPlayer();
         }}
     >

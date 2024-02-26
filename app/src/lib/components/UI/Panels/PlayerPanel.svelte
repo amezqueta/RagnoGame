@@ -17,6 +17,8 @@
 <h2>{$playerDataStore.nick}</h2>
 <ColorPicker label="Color" --cp-border-color="var(--light)" bind:hex={color} components={ChromeVariant} sliderDirection="horizontal" />
 <div>
-    <label>Weapon:</label>
-    <input type="number" on:change={handlePlayerChange} bind:value={$characterSettingsStore.weaponId} max="2" min="0" />
+    <label
+        >Weapon:
+        <input type="number" on:change={handlePlayerChange} bind:value={$characterSettingsStore.weaponId} max="2" min="0" /></label
+    >
 </div>
