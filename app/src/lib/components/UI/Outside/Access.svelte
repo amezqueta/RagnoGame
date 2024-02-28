@@ -22,10 +22,15 @@
 
     onMount(() => {
         if (nick === "") {
-            let randomNumber = Math.floor(Math.random() * randomNames.length); // Obtenemos un índice aleatorio
-            nick = randomNames[randomNumber];
+            getRandomName();
         }
     });
+
+    const getRandomName = () => {
+        let randomNumber = Math.floor(Math.random() * randomNames.length);
+        console.log(randomNumber);
+        nick = randomNames[randomNumber];
+    };
 </script>
 
 <div id="container">
@@ -38,7 +43,7 @@
                 <label for="nickname">Nickname:</label>
                 <div class="flex flexgrow">
                     <input type="text" id="nick" name="nick" class:error on:blur={onBlur} bind:value={nick} />
-                    <button type="button">Random nickname</button>
+                    <button type="button" on:click={getRandomName}>Random nickname</button>
                 </div>
                 <button type="submit">Submit</button>
             </form></span

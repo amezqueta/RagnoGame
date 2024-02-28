@@ -4,6 +4,10 @@
         --light: rgb(239, 240, 223);
         --primary: rgb(201, 178, 52);
     }
+    :global(body) {
+        margin: 0;
+        background: rgb(13, 19, 32);
+    }
     :global(hr) {
         border: 0;
         border-bottom: 2px solid var(--primary);

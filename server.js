@@ -42,11 +42,8 @@ let msgAmount = 0;
 let showAmountOfMsg = false;
 
 io.on('connection', (socket) => {
-
-    socket.on('joinRoom', (room) => {
-        console.log("Joined room " + room);
-        socket.join(room);
-    });
+    
+    socket.emit("server-connected");
 
     socket.on("initiate-ping", () => {
         socket.emit("initiate-pong", performance.now());
@@ -76,7 +73,7 @@ io.on('connection', (socket) => {
         console.log('User (' + socket.id + ') connected to the server (' + userAmount + ')');
         socket.broadcast.emit('msg', `SERVER: ${nick} connected`, true);
 
-        socket.emit('connected', player, serverPlayers);
+        socket.emit('access', player, serverPlayers);
         socket.broadcast.emit('players-list', serverPlayers);
 
         socket.on('msg', (msg) => {

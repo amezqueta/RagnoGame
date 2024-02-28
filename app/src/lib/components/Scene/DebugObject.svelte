@@ -8,7 +8,7 @@
     export let color: string = "#FF00FF";
     let active: boolean;
 
-    $: if (playerDataStore) {
+    $: if ($playerDataStore?.privileges) {
         active = $playerDataStore.privileges > 5;
     }
 </script>

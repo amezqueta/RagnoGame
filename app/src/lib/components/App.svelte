@@ -19,16 +19,24 @@
     let serverConnected = false;
     let serverError: string | undefined;
 
-    let mounted = false;
     type BrowserData = {
         nick: string | null;
     };
     const browserData = writable<BrowserData>(undefined);
+    onMount(() => {
+        startConnection();
+    });
 
     const startConnection = () => {
         const origin = window.location.origin;
         const ip = "http:" + origin.split(":")[1] + ":3000";
         socket = io(ip);
+
+        socket.on("server-connected", () => {
+            serverConnected = true;
+            const params = new URLSearchParams(window.location.search);
+            if (params.has("nick")) browserData.set({ nick: params.get("nick") });
+        });
 
         socket.on("connect_error", (err) => {
             console.log(err.message);
@@ -38,18 +46,22 @@
             return;
         });
 
-        console.log("App mounted");
+        socket.on("disconnect", () => {
+            window.location.reload();
+        });
+    };
 
+    $: if ($browserData && $browserData.nick) startOnboardingServer();
+
+    const startOnboardingServer = () => {
         socket.emit("initiate-ping");
-
         socket.on("initiate-pong", (serverTimestamp: number) => {
             serverTimestampStore.set(serverTimestamp - performance.now());
-
             socket.emit("onboarding", $browserData);
         });
 
-        socket.on("connected", (playerData: any, serverPlayers: any[]) => {
-            console.log("New connection: (" + playerData.userId + ")");
+        socket.on("access", (playerData: any, serverPlayers: any[]) => {
+            console.log("New access: (" + playerData.userId + ")");
             playerDataStore.set(playerData);
             privilegesStore.set(playerData.privileges);
             serverPlayersStore.set(serverPlayers);
@@ -58,10 +70,6 @@
 
         socket.on("players-list", (serverPlayers: any[]) => {
             serverPlayersStore.set(serverPlayers);
-        });
-
-        socket.on("disconnect", () => {
-            window.location.reload();
         });
 
         //Chat messages
@@ -84,16 +92,6 @@
         socketStore.set(socket);
     };
 
-    onMount(() => {
-        const params = new URLSearchParams(window.location.search);
-        if (params.has("nick")) browserData.set({ nick: params.get("nick") });
-        mounted = true;
-    });
-
-    $: if ($browserData && $browserData.nick) {
-        startConnection();
-    }
-
     let debugFakeMouse = true;
     const onKeyDown = (e: KeyboardEvent) => {
         if (e.ctrlKey && e.key === "1") {
@@ -111,20 +109,23 @@
 <svelte:window on:keydown={onKeyDown} />
 
 <ThemeHandler />
-{#if !$browserData && mounted}
-    <Access on:updateData={handleDataUpdate} />
-{:else if serverConnected}
-    <Canvas
-        ><!-- rendererParameters={{ antialias: false }} size={{ width: 960, height: 540 }}> -->
-        <AudioListener id={"global"} />
-        <Ui />
-        <World>
-            <SceneWrapper socket />
-        </World>
-        {#if debugFakeMouse}
-            <FakeMouse />
-        {/if}
-    </Canvas>
+
+{#if serverConnected}
+    {#if !$browserData}
+        <Access on:updateData={handleDataUpdate} />
+    {:else}
+        <Canvas
+            ><!-- rendererParameters={{ antialias: false }} size={{ width: 960, height: 540 }}> -->
+            <AudioListener id={"global"} />
+            <Ui />
+            <World>
+                <SceneWrapper socket />
+            </World>
+            {#if debugFakeMouse}
+                <FakeMouse />
+            {/if}
+        </Canvas>
+    {/if}
 {:else}
     <LoadingServer {serverError} />
 {/if}
