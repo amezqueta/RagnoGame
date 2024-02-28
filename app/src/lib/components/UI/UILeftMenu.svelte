@@ -65,6 +65,8 @@
         background-color: rgba(255, 255, 255, 0.1);
         color: var(--light);
         border-left: 4px solid transparent;
+        border-radius: 0;
+        box-shadow: none;
     }
     button:hover,
     button.hovered {

@@ -2,27 +2,3 @@ body {
     cursor: url("/img/icon/cursor/cursor_open.gif"), auto;
     font-family: Futura,Trebuchet MS,Arial,sans-serif; 
 }
-
-button {
-    transition-duration: 0.2s;
-    transition-property: all;
-    padding: 5px 10px;
-    border-radius: 0;
-    border-width: 0;
-    cursor: pointer;
-}
-
-input {
-    padding: 10px 5px;
-    margin: 5px;
-    border-radius: 5px;
-    background-color: var(--dark);
-    border: 2px solid;
-    border-color: rgba(0,0,0,0.5);
-    color: var(--light);
-}
-
-input:focus {
-    border-color: rgba(255,255,255,0.2);
-    outline: none;
-}

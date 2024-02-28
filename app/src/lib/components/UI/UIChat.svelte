@@ -41,6 +41,7 @@
         pointer-events: all;
         padding: 5px 10px;
         display: flex;
+        align-items: center;
     }
     button {
         background-color: transparent;

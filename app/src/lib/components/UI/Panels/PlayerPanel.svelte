@@ -15,7 +15,7 @@
 </script>
 
 <h2>{$playerDataStore.nick}</h2>
-<ColorPicker label="Color" --cp-border-color="var(--light)" bind:hex={color} components={ChromeVariant} sliderDirection="horizontal" />
+<ColorPicker label="Color" --cp-border-color="var(--dark)" bind:hex={color} components={ChromeVariant} sliderDirection="horizontal" />
 <div>
     <label
         >Weapon:

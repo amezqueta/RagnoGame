@@ -28,7 +28,6 @@
 
     const getRandomName = () => {
         let randomNumber = Math.floor(Math.random() * randomNames.length);
-        console.log(randomNumber);
         nick = randomNames[randomNumber];
     };
 </script>
@@ -36,19 +35,27 @@
 <div id="container">
     <img id="logo" src="img/logo.svg" alt="logo" />
 
-    <UiWindowShell>
-        <span slot="title">Access</span>
-        <span slot="content">
-            <form on:submit={handleSubmit}>
-                <label for="nickname">Nickname:</label>
-                <div class="flex flexgrow">
-                    <input type="text" id="nick" name="nick" class:error on:blur={onBlur} bind:value={nick} />
+    <form on:submit={handleSubmit}>
+        <UiWindowShell>
+            <span slot="title">Access</span>
+            <span slot="content">
+                <div class="form-content">
+                    <label class="d-flex flex-column flex-grow-1" for="nickname"
+                        >Nickname:
+                        <input type="text" id="nick" name="nick" class="flex-grow-1" class:error on:blur={onBlur} bind:value={nick} /></label
+                    >
                     <button type="button" on:click={getRandomName}>Random nickname</button>
                 </div>
-                <button type="submit">Submit</button>
-            </form></span
-        >
-    </UiWindowShell>
+            </span>
+            <span slot="bottom" class="d-flex justify-content-center">
+                <button class="submit" type="submit"
+                    ><svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24">
+                        <path fill="currentColor" d="m9.55 18l-5.7-5.7l1.425-1.425L9.55 15.15l9.175-9.175L20.15 7.4z" />
+                    </svg></button
+                >
+            </span>
+        </UiWindowShell>
+    </form>
 </div>
 
 <style>
@@ -67,9 +74,10 @@
     .error {
         border-color: red;
     }
-    form {
+    .form-content {
         display: flex;
-        flex-direction: column;
-        justify-content: space-evenly;
+        justify-content: space-between;
+        margin: 10px;
+        align-items: last baseline;
     }
 </style>
