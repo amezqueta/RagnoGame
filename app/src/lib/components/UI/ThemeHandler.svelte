@@ -116,4 +116,7 @@
     :global(.flex-column) {
         flex-direction: column;
     }
+    :global(.align-self-end) {
+        align-self: flex-end;
+    }
 </style>

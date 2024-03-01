@@ -2,7 +2,7 @@
     import { Checkbox, Folder, FpsGraph, Monitor, Pane, Text, ThemeUtils } from "svelte-tweakpane-ui";
     import { playerPositionStore, privilegesStore, serverDebugMsgAmountStore, serverPlayersStore, playerPowerupStore, debugRapierStore } from "../../stores/stores";
     import { onDestroy } from "svelte";
-    import { getPowerup } from "$lib/components/Shared/powerupData";
+    import { getPowerupData } from "$lib/components/Shared/powerupData";
     document.addEventListener("pointerlockchange", onPointerlockchange);
 
     function onPointerlockchange(e: Event) {
@@ -25,7 +25,7 @@
     let powerUpName = "";
     $: if ($playerPowerupStore) {
         const id = $playerPowerupStore;
-        powerUpName = `${getPowerup(id).name} (${id})`;
+        powerUpName = `${getPowerupData(id).name} (${id})`;
     }
 </script>
 

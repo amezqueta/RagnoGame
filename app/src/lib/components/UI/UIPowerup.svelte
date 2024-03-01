@@ -1,6 +1,6 @@
 <script lang="ts">
     import { useControls } from "$lib/hooks/useControls";
-    import { getPowerup } from "$lib/components/Shared/powerupData";
+    import { getPowerupData } from "$lib/components/Shared/powerupData";
     export let socket: any;
     const { controlActions } = useControls();
 
@@ -46,7 +46,7 @@
     <div id="cards__wrapped" class:visible>
         {#each randomCards as cardId}
             <div role="dialog" class:hovered class:clicked style="background-image: url('img/card/{cardId}.png');" on:click={(x) => clickCard(cardId)} class="card pointer">
-                {getPowerup(cardId).name}
+                {getPowerupData(cardId).name}
             </div>
         {/each}
     </div>

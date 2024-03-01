@@ -9,6 +9,8 @@
     import { Toaster } from "svelte-french-toast";
     import UILeftMenu from "./UILeftMenu.svelte";
     import { pointerLockerStore } from "../../stores/stores";
+    import UIInfoRight from "./UIInfo/UIInfoRight.svelte";
+    import UIInfoCenter from "./UIInfo/UIInfoCenter.svelte";
 
     let socket: any;
 
@@ -17,7 +19,7 @@
     $: hidePanels = $pointerLockerStore;
 </script>
 
-<UiDebug />
+<!-- <UiDebug /> -->
 {#if socket}
     <DomPortal
         ><div id="UI__wrapper">
@@ -27,6 +29,8 @@
                 <UILeftMenu />
                 <UIChat {socket} />
             </div>
+            <UIInfoCenter />
+            <UIInfoRight />
         </div>
         <Toaster containerStyle={"margin: 10px 10px 40px 80px"} toastOptions={{ style: "background: #333; color: #fff; border-radius: 0;", duration: 5000 }} />
     </DomPortal>
