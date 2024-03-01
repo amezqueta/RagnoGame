@@ -1,4 +1,6 @@
 
+let gameStarted = false;
+
 const serverSettingsOn = (socket, io) => {
     socket.on('server-settings', (serverSettings) => {
         console.log(serverSettings);
@@ -6,9 +8,12 @@ const serverSettingsOn = (socket, io) => {
     });
 
     socket.on('server-start', () => {
+        gameStarted = true;
         io.emit('server-start');
     });
 }
 
-
-module.exports = serverSettingsOn;
+module.exports = {
+    serverSettingsOn,
+    gameStarted
+};

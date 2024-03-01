@@ -91,7 +91,7 @@
     }
 
     const onMouseDown = (e: MouseEvent) => {
-        if (!currentPlayerData.spectator) return;
+        if (!currentPlayerData?.spectator) return;
         if (e.button === 0) {
             viewingPlayerIndexChange();
         }
@@ -121,17 +121,7 @@
 {#if scenePlayers}
     {#each scenePlayers as p}
         {#if p.userId !== currentPlayerData.userId && p.spectator === false}
-            <PlayerOnline
-                mainPlayerRef={playerRef}
-                position={p.position}
-                rotation={p.rotation}
-                playerId={p.userId}
-                color={p.color}
-                nick={p.nick}
-                playerEmote={p.playerEmote}
-                animation={p.playAnimation}
-                characterSettings={p.characterSettings}
-            />
+            <PlayerOnline mainPlayerRef={playerRef} position={p.position} rotation={p.rotation} playerId={p.userId} color={p.color} nick={p.nick} playerEmote={p.playerEmote} animation={p.playAnimation} characterSettings={p.characterSettings} />
         {/if}
     {/each}
 {/if}

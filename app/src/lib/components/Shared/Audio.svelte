@@ -6,7 +6,6 @@
         src = _src;
         audio.play();
     };
-    $: console.log(src);
 </script>
 
 <PositionalAudio bind:this={audio} id={"global"} refDistance={10} volume={1} {src} />
